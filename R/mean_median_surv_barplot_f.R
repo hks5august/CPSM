@@ -64,8 +64,7 @@ Barplot_with_highlighted_selected_pat <- ggplot(mean_median_surv_d_m, aes(x = ID
        y = "Survival Time (Months)") +
   theme_minimal() +
   scale_y_continuous(breaks = seq(0, 160, 12)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
-        legend.position = "bottom")  # Set legend position to bottom
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8))
 
 # Display the plot
 # print(Barplot_with_highlighted_selected_pat)
