@@ -42,38 +42,33 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample)
   Selected_patient <- selected_sample
 
   # Create a bar plot with ggplot2
-  Barplot_with_highlighted_selected_pat<- ggplot(mean_median_surv_d_m,
-                                                 aes(x = IDs, y = value,
-                                                     fill = variable,
-                                                     colour="gray")) +
-    geom_bar(aes(
-      color = ifelse(IDs == Selected_patient, "Selected Sample",
-                     "Other Samples")),
-      linetype = ifelse(mean_median_surv_d_m$IDs == Selected_patient,
-                        "dashed", "solid"),
-      stat = "identity", position = "dodge") +
+# Create the bar plot with different colors for Mean and Median of the selected patient and other patients
+Barplot_with_highlighted_selected_pat <- ggplot(mean_median_surv_d_m, aes(x = IDs, y = value, fill = interaction(IDs == Selected_patient, variable))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  
+  # Add text labels on top of bars for the selected patient
+  geom_text(aes(label = ifelse(IDs == Selected_patient, round(value, 2), "")),
+            vjust = -0.1, hjust = -0.1, color = "black") +
+  
+  # Customize the fill colors with a legend
+  scale_fill_manual(
+    values = c("TRUE.Mean" = "red", "TRUE.Median" = "blue", "FALSE.Mean" = "lightgray", "FALSE.Median" = "darkgray"),
+    labels = c("TRUE.Mean" = "Selected Patient Mean", "TRUE.Median" = "Selected Patient Median",
+               "FALSE.Mean" = "Other Patients Mean", "FALSE.Median" = "Other Patients Median"),
+    name = "Legend"
+  ) +
+  
+  # Add labels and other formatting as needed
+  labs(title = "Predicted Mean/Median Survival Time of Patients",
+       x = "Patients",
+       y = "Survival Time (Months)") +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0, 160, 12)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+        legend.position = "bottom")  # Set legend position to bottom
 
-    # Add text labels on top of bars with conditional formatting
-    geom_text(aes(label=ifelse(IDs == Selected_patient, round(value, 2), "")),
-              vjust =  -0.1,  hjust = -0.1, color = "black") +
-    # Manually specify outline color for the highlighted sample
-    scale_color_manual(values = c( "white", "black")) +
-
-    # Add labels or other formatting as needed
-    labs(title = "Bar Plot with Highlighted Sample") +
-    theme_minimal() +labs(x="Patients",y="Predicted Survival time in Months")+
-    scale_y_continuous(breaks=seq(0,160,12)) +
-    ggtitle("Predicted Mean/Median Survival Time of Patients")  +
-
-    # Manually specify linetype for the highlighted sample
-    scale_linetype_manual(name ="Outline Type", values= c("dashed", "solid"))+
-    # Hide legend for linetype based on the highlighted sample
-    theme(legend.key = element_blank(), legend.title = element_blank(),
-          legend.position = "top", legend.box = "horizontal") +
-    theme(axis.text.x = element_text(angle = 90, vjust= 0.5, hjust=1, size=8))
-
-  # Plot
-  # print(Barplot_with_highlighted_selected_pat)
+# Display the plot
+# print(Barplot_with_highlighted_selected_pat)
   # Return the plots as a list
   return(list(
     mean_med_all_pat = Barplot_mean_med_all_pat_surv,
