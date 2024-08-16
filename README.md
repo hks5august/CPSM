@@ -328,6 +328,8 @@ Here, we obtained two output plots:
 ![barplot1](https://github.com/user-attachments/assets/c44244f6-72df-4a4f-b237-4cbc7630b141)
 Figure: Barplot for mean and median survival time of all patients in the data, where the red color bar represents mean survival and cyan/green color bar represents median survival time.
 
+<img src="![barplot2](https://github.com/user-attachments/assets/87ce14f9-2f27-4410-8a97-a7918e81434f)" alt="Barplot" width="500" height="300">
+
 ![barplot2](https://github.com/user-attachments/assets/87ce14f9-2f27-4410-8a97-a7918e81434f)
 Figure: Barplot for mean and median survival time of all patients (grey color) with a highlighted patient (colored) in the test data.
 
