@@ -328,7 +328,7 @@ Here, we obtained two output plots:
 ![barplot1](https://github.com/user-attachments/assets/c44244f6-72df-4a4f-b237-4cbc7630b141)
 Figure: Barplot for mean and median survival time of all patients in the data, where the red color bar represents mean survival and cyan/green color bar represents median survival time.
 
-![barplot2](https://github.com/user-attachments/assets/578942f6-699c-438d-8547-f7f395640ea1)
+![barplot2](https://github.com/user-attachments/assets/87ce14f9-2f27-4410-8a97-a7918e81434f)
 Figure: Barplot for mean and median survival time of all patients (grey color) with a highlighted patient (colored) in the test data.
 
 ## Step 8 - Nomogram based on Key features
