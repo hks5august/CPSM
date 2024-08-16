@@ -144,6 +144,9 @@ Thus, Lasso_PI_scores_f gave us following outputs:
 3. Train_PI_data: It contains expression of genes selected by LASSO and PI score in the last column for training samples.
 4. Test_PI_data: It contains expression of genes selected by LASSO and PI score in the last column for test samples.
 
+![lasso_plot](https://github.com/user-attachments/assets/51abf244-672c-46eb-b65e-36b054f81f8e)
+Figure: Lasso Regression Lambda plot
+
 
 ## Step 4b - Univariate  Survival Significant Feature Selection
 Besides PI score, with the “Univariate_sig_features_f” function of CPSM package, we can select significant (p-value <0.05) features based on univariate survival analysis. These features are selected based on their capability to stratify high-risk and low-risk survival groups using the cut off value of their median expression.  
@@ -300,8 +303,13 @@ surv_curve_plots_f(Surv_curve_data = survCurves_data,
 
 Here, we obtained two output plots:
 1. Survival curves for all patients in the test data with different colors 
-2. Survival curves for all patients (in black) and highlighted patient (yellow) in the test data 
+2. Survival curves for all patients (in black) and highlighted patient (red) in the test data 
 
+![survival_curve1](https://github.com/user-attachments/assets/8547ed51-b5f4-4061-98e7-d58417c52f59)
+Figure: Survival curves for all patients in the test data.
+
+![survival_curve2](https://github.com/user-attachments/assets/5d11ca81-3125-43b7-94f5-1de98826f31a)
+Figure: Survival curves for all patients (in black/grey) and highlighted patient (red).
 
 ## Step 7 - Bar Plot for predicted  mean and median survival time of individual patients
 Next, to visualize the predicted survival time of patients, we will plot the barplot for mean/median using “mean_median_surv_barplot_f” function based on the data that we obtained from step 5 after running the  MTLR_pred_model_f function. Further,  the mean_median_surv_barplot_f function also allows highlighting a specific patient on the curve. Thus the function  needs only two inputs: 1) surv_mean_med_data, (2) Sample ID of a specific patient (e.g. TCGA-DB-A4XF-01) that needs to be highlighted.
@@ -317,6 +325,11 @@ Here, we obtained two output plots:
 1. Barplot for all patients in the test data, where the red color bar represents mean survival and cyan/green color bar represents median survival time. 
 2. Barplot for all patients with a highlighted patient (dashed black outline) in the test data. It shows  this patient has a predicted mean and median survival is 81.58 and 75.50 months.
 
+![barplot1](https://github.com/user-attachments/assets/c44244f6-72df-4a4f-b237-4cbc7630b141)
+Figure: Barplot for mean and median survival time of all patients in the data, where the red color bar represents mean survival and cyan/green color bar represents median survival time.
+
+![barplot2](https://github.com/user-attachments/assets/578942f6-699c-438d-8547-f7f395640ea1)
+Figure: Barplot for mean and median survival time of all patients (grey color) with a highlighted patient (colored) in the test data.
 
 ## Step 8 - Nomogram based on Key features
 Next, the Nomogram_generate_f function of CPSM  also provides an option to generate a nomogram plot based on user defined clinical and other features in the data. For instance, we will generate a nomogram based on 6 features (Age, gender, race, histological_type, sample_type, PI). Here, we will provide data containing all the features (Samples in rows and features in columns) (e.g. Train_Data_Nomogram_input) and a list of features (feature_list_for_Nomogram) based on which we want to generate a nomogram.  Further, we also need to provide surv_time (name of column containing survival time in months, e.g. OS_month) and surv_event (name of column containing survival event information, e.g. OS) information in the data.
