@@ -3,7 +3,7 @@
 
 ## Introduction
 The CPSM  is an R-package for a computational pipeline for predicting the Survival Probability of Cancer Patients. It performs various steps: Data Processing, splitting data into training and test subsets, Data Normalization, Select Significant features based on Univariate survival, Generate LASSO PI Score, Developing Prediction models for survival probability based on different features, and drawing survival curves based on predicted survival probability values and bar plots for predicted mean and median survival time of patients.
-![SurvPredPipe_workflow](https://github.com/hks5august/SurvPredPipe/assets/46756503/795d1d62-9d8a-487f-88b5-7c76d5fdaf6a)
+![Workflow](https://github.com/user-attachments/assets/a9c511aa-43f4-41b4-8a98-9290399ed9c1)
 
 Figure: The workflow of the CPSM package represents different steps performed by various functions of the CPSM package.
 
