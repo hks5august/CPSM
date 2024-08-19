@@ -331,7 +331,7 @@ Figure: Barplot for mean and median survival time of all patients in the data, w
 ![barplot2](https://github.com/user-attachments/assets/87ce14f9-2f27-4410-8a97-a7918e81434f)
 Figure: Barplot for mean and median survival time of all patients (grey color) with a highlighted patient (colored) in the test data.
 
-## Step 8 - Nomogram based on Key features
+## Development of Nomogram based on Key features
 Next, the Nomogram_generate_f function of CPSM will allow users to generate a nomogram plot for their data (training data containing all samples) based on user-defined clinical and other features in their data. For instance, we will generate a nomogram based on 6 features (Age, gender, race, histological_type, sample_type, PI). Here, we will provide data containing all the features (Samples in rows and features in columns) (e.g. Train_Data_Nomogram_input) and a list of features (feature_list_for_Nomogram) based on which we want to generate a nomogram.  Further, we also need to provide surv_time (name of column containing survival time in months, e.g. OS_month) and surv_event (name of column containing survival event information, e.g. OS) information in the data.
 
 
@@ -347,6 +347,7 @@ C_index_mat <- Result_Nomogram$C_index_mat
 
 Here, we will get a Nomogram based on features that we provide. This nomogram can predict Risk (Event risk, eg, Death), 1-year, 3-year, 5-year and 10 years survival of patients.
 
+![Nomogram](https://github.com/user-attachments/assets/206f91cc-178d-4d14-a128-2a695ad95e0e)
 ## SessionInfo
 
 As last part of this document, we call the function "sessionInfo()", 
