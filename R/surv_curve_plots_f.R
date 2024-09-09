@@ -62,8 +62,8 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample )   {
     # Highlight one patient with a specific color
     scale_linetype_manual(values = rep("solid",
                                        length(unique(survCurves_m$Patient)))) +
-    scale_color_manual(values = c("red", "black")) +
-    geom_line(aes(colour = "red"), size=0.5,data = ~
+    scale_color_manual(values = c("black", "red")) +
+    geom_line(aes(colour = "yellow"), size=0.5,data = ~
                 subset(survCurves_m, Patient == Selected_patient )) +
     labs(x = "Time in Months", y = "Survival Probability") +
     theme(

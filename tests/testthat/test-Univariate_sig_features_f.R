@@ -1,6 +1,6 @@
 test_that("Assess Univariate_sig_features_f", {
-  data(Train_Norm_data, package = "SPM")
-  data(Test_Norm_data, package = "SPM")
+  data(Train_Norm_data, package = "CPSM")
+  data(Test_Norm_data, package = "CPSM")
   Result_Uni <- Univariate_sig_features_f(train_data = Train_Norm_data,
                                           test_data = Test_Norm_data,
                                           col_num=21,

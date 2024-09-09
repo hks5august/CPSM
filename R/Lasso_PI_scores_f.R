@@ -97,7 +97,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   colnames(key_variables) <- c("coeff")
   key_variables <- round(key_variables,3)
 
-  plot(cvfit1)
+  # plot(cvfit1)
   ################## Create PI Index for training data #######################
 
   sel_features2 <- key_variables
@@ -157,15 +157,16 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   test_PI <- cbind(test_feature_mat2["OS"], test_feature_mat2["OS_month"],
                    te_PI)
   #save selected data with PI value
-  Train_Lasso_key_variables <- cbind("ID"=rownames(key_variables),
-                                     key_variables)
-  Train_PI_data <- cbind("ID"=rownames(train_PI ), train_PI)
-  Test_PI_data <- cbind("ID"=rownames(test_PI ), test_PI)
+  Train_Lasso_key_variables <- key_variables
+  Train_PI_data <- train_PI
+  Test_PI_data <- test_PI
 
   # Return a list containing data.
   return(list(Train_Lasso_key_variables = Train_Lasso_key_variables,
               Train_PI_data = Train_PI_data,
-              Test_PI_data = Test_PI_data))
+              Test_PI_data = Test_PI_data,
+              cvfit = cvfit1  # Return the cvfit object to plot externally
+              ))
 
 }
 

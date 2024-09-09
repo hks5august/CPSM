@@ -1,6 +1,6 @@
 test_that("multiplication works", {
-  data(Train_Norm_data, package = "SPM")
-  data(Test_Norm_data, package = "SPM")
+  data(Train_Norm_data, package = "CPSM")
+  data(Test_Norm_data, package = "CPSM")
   Result_PI <- Lasso_PI_scores_f(train_data = Train_Norm_data,
                                  test_data = Test_Norm_data,
                                  nfolds=5,

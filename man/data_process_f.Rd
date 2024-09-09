@@ -12,19 +12,17 @@ data_process_f(data, col_num, surv_time)
 \arguments{
 \item{data}{:args1 - Patients data with clinical and gene expression, where
 samples are in rows and features/genes are in columns}
-
 \item{col_num}{:args2 - column number in data at where clinical info ends}
-
 \item{surv_time}{:args3 - name of column which contain survival time (in days)
 information.}
-
-
 }
+
 \description{
 This function converting OS time (in days) into months and removing samples
 where OS time information is missing. Note: In the Example data OS time
 labellednis "OS.time" and OS event labelled as "OS"
 }
+
 \examples{
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 CPSM::data_process_f(data=Example_TCGA_LGG_FPKM_data,
@@ -32,7 +30,11 @@ col_num=20,
 surv_time= "OS.time")
 }
 \value{
-  Returns a data framme.
+ Returns a data frame that can be saved as an output file, allowing the user to
+ store the data as needed. In this output file, there is an additional column
+ in the data with OS time information in terms of OS_month (where days are
+ converted into months), and any samples with missing OS time information will
+ be excluded.
 }
 
 

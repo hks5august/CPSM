@@ -1,6 +1,6 @@
 test_that("Assess train_test_normalization_f", {
-  data(train_FPKM, package = "SPM")
-  data(test_FPKM, package = "SPM")
+  data(train_FPKM, package = "CPSM")
+  data(test_FPKM, package = "CPSM")
   Result_N_data <- train_test_normalization_f(train_data = train_FPKM,
                                               test_data = test_FPKM,
                                               col_num = 21)

@@ -1,7 +1,7 @@
 test_that("Assess MTLR_pred_model_f", {
-  data(Train_Clin, package = "SPM")
-  data(Test_Clin, package = "SPM")
-  data(Key_Clin_feature_list, package = "SPM")
+  data(Train_Clin, package = "CPSM")
+  data(Test_Clin, package = "CPSM")
+  data(Key_Clin_feature_list, package = "CPSM")
   Result_Model_Type1 <- MTLR_pred_model_f(train_clin_data = Train_Clin,
                                           test_clin_data = Test_Clin,
                                           Model_type = 1,

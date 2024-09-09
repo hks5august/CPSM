@@ -42,33 +42,38 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample)
   Selected_patient <- selected_sample
 
   # Create a bar plot with ggplot2
-# Create the bar plot with different colors for Mean and Median of the selected patient and other patients
-Barplot_with_highlighted_selected_pat <- ggplot(mean_median_surv_d_m, aes(x = IDs, y = value, fill = interaction(IDs == Selected_patient, variable))) +
+  # Create the bar plot with different colors for Mean and Median of the
+  # selected patient and other patients
+  Barplot_with_highlighted_selected_pat <- ggplot(mean_median_surv_d_m,
+                                                  aes(x = IDs, y = value,
+                    fill = interaction(IDs == Selected_patient, variable))) +
   geom_bar(stat = "identity", position = "dodge") +
-  
   # Add text labels on top of bars for the selected patient
   geom_text(aes(label = ifelse(IDs == Selected_patient, round(value, 2), "")),
             vjust = -0.1, hjust = -0.1, color = "black") +
-  
+
   # Customize the fill colors with a legend
   scale_fill_manual(
-    values = c("TRUE.Mean" = "red", "TRUE.Median" = "blue", "FALSE.Mean" = "lightgray", "FALSE.Median" = "darkgray"),
-    labels = c("TRUE.Mean" = "Selected Patient Mean", "TRUE.Median" = "Selected Patient Median",
-               "FALSE.Mean" = "Other Patients Mean", "FALSE.Median" = "Other Patients Median"),
-    name = "Legend"
-  ) +
-  
+    values = c("TRUE.Mean" = "red", "TRUE.Median" = "blue",
+               "FALSE.Mean" = "lightgray", "FALSE.Median" = "darkgray"),
+    labels = c("TRUE.Mean" = "Selected Patient Mean",
+               "TRUE.Median" = "Selected Patient Median",
+               "FALSE.Mean" = "Other Patients Mean",
+               "FALSE.Median" = "Other Patients Median"),
+    name = "Legend") +
+
   # Add labels and other formatting as needed
   labs(title = "Predicted Mean/Median Survival Time of Patients",
        x = "Patients",
        y = "Survival Time (Months)") +
   theme_minimal() +
   scale_y_continuous(breaks = seq(0, 160, 12)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1,
+                                   size = 8))
 
 # Display the plot
 # print(Barplot_with_highlighted_selected_pat)
-  # Return the plots as a list
+# Return the plots as a list
   return(list(
     mean_med_all_pat = Barplot_mean_med_all_pat_surv,
     highlighted_selected_pat = Barplot_with_highlighted_selected_pat

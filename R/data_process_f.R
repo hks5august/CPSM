@@ -44,7 +44,7 @@ data_process_f <- function(data,  col_num, surv_time) {
   # Combine clinical and Expression data
   data1 <- cbind(data_clin , data_exp)
   data2 <- subset(data1, OS_month > 0)
-  New_data <- data.frame('ID'=rownames(data2), data2)
+  New_data <- data.frame(data2)
   return(New_data)
 }
 

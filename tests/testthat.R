@@ -1,4 +1,4 @@
 library(testthat)
-library(SurvPredPipe)
+library(CPSM)
 
-test_check("SurvPredPipe")
+test_check("CPSM")

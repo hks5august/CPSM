@@ -1,7 +1,7 @@
 test_that("Assess Nomogram_generate_f", {
   # Load necessary data
-  data(Train_Data_Nomogram_input, package = "SPM")
-  data(feature_list_for_Nomogram, package = "SPM")
+  data(Train_Data_Nomogram_input, package = "CPSM")
+  data(feature_list_for_Nomogram, package = "CPSM")
 
   # Run the Nomogram_generate_f function
   Result_Nomogram <- Nomogram_generate_f(

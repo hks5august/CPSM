@@ -35,7 +35,8 @@ This function selects significant features (p-value <0.05)s based on median
 expression values of features using Univariate Survival analysis.
 }
 \value{
-  A data frame with columns X and Y.
+  A data frame with columns X and Y. Name of the output to store univariate
+  selected features for test data
 }
 \examples{
 data(Train_Norm_data, package = "CPSM")

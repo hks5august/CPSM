@@ -199,6 +199,7 @@ Train_PI_data <- Result_PI$Train_PI_data
 Test_PI_data <- Result_PI$Test_PI_data
 str(Train_PI_data[1:10])
 str(Test_PI_data[1:10])
+plot(Result_PI$cvfit)
 ```
 
 Thus, Lasso_PI_scores_f gave us following outputs:

@@ -15,13 +15,17 @@ be in rows.}
 e.g. 90\% training, so fraction would be 0.9}
 
 }
-
-\value{
-training and test data
-}
 \description{
 This function split data into training and test data as per user defined ratio
+or fraction.
 }
+
+\value{
+train_data: name of the training set that the user can provide.
+test_data: name of the test set that the user can provide.
+
+}
+
 \examples{
 data(New_data, package = "CPSM")
 tr_test_f(data=New_data, fraction=0.9)

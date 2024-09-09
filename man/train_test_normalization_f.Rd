@@ -13,13 +13,9 @@ train_test_normalization_f(train_data, test_data, col_num)
 \arguments{
 \item{train_data}{:args1 - training data (TSV) (Patients data with clinical and
 gene expression, where samples are in rows and features/genes are in columns)}
-
 \item{test_data}{:args2 - test data (TSV) (Patients data with clinical and gene
 expression, where samples are in rows and features/genes are in columns)}
-
 \item{col_num}{:args3 - column number in data at where clinical info ends}
-
-
 }
 
 
