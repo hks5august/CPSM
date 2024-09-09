@@ -96,10 +96,10 @@ train_test_normalization_f <- function(train_data,  test_data, col_num) {
   Train_norm_data <- cbind(tr_clin , norm_ref_t)
   Test_norm_data <- cbind(te_clin , test_t)
 
-  Train_Clin <- cbind("ID"=rownames(tr_clin), tr_clin)
-  Test_Clin <- cbind("ID"=rownames(te_clin), te_clin)
-  Train_Norm_data <- cbind("ID"=rownames(Train_norm_data), Train_norm_data)
-  Test_Norm_data <- cbind("ID"=rownames(Test_norm_data), Test_norm_data)
+  Train_Clin <- cbind(tr_clin)
+  Test_Clin <- cbind(te_clin)
+  Train_Norm_data <- cbind(Train_norm_data)
+  Test_Norm_data <- cbind(Test_norm_data)
 
   # Return a list containing data.
   return(list(Train_Clin = Train_Clin, Test_Clin = Test_Clin, Train_Norm_data

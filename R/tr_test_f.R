@@ -36,8 +36,8 @@ tr_test_f <- function(data, fraction)
   #create test data
   testing <- data[-trInd,]
   ######################### Write into files  #################################
-  train_data <- data.frame('ID'=rownames(training), training)
-  test_data <- data.frame('ID'=rownames(testing), testing)
+  train_data <- data.frame(training)
+  test_data <- data.frame(testing)
   # Return a list containing train_data and test_data
   return(list(train_data = train_data, test_data = test_data))
 }
