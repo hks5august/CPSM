@@ -83,6 +83,8 @@ Nomogram_generate_f <- function(data,  Feature_List, surv_time, surv_event){
   surv_3 <- function(x)surv(1*60,lp=x) # defined time.inc,5 year OS
   surv_4 <- function(x)surv(1*120,lp=x) # defined time.inc,10 year OS
 
+  if (cox1$maxtime > 120) {
+
   nom_cox1<-nomogram(cox1,fun = list(risk, surv_1,surv_2,surv_3, surv_4),
                      lp = FALSE,
                      funlabel = c("Risk", "1-Year Survival Probability",
@@ -93,6 +95,30 @@ Nomogram_generate_f <- function(data,  Feature_List, surv_time, surv_event){
                      fun.at = c('1.0','0.95','0.90','0.85','0.80','0.70',
                                 '0.6','0.5','0.4','0.3','0.2','0.1')  )
 
+    
+} 
+  
+  else  if (cox1$maxtime > 60 &  cox1$maxtime < 120 ) {
+  nom_cox1<-nomogram(cox1,fun = list(risk, surv_1,surv_2, surv_3),
+                     lp = FALSE,
+                     funlabel = c("Risk", "1-Year Survival Probability",
+                                  "3-Year Survival Probability", "5-Year Survival Probability",
+                                 
+                     maxscale = 100,
+                     fun.at = c('1.0','0.95','0.90','0.85','0.80','0.70',
+                                '0.6','0.5','0.4','0.3','0.2','0.1')  )
+}
+
+else  if (cox1$maxtime < 60)
+  {
+  nom_cox1<-nomogram(cox1,fun = list(risk, surv_1,surv_2),
+                     lp = FALSE,
+                     funlabel = c("Risk", "1-Year Survival Probability",
+                                  "3-Year Survival Probability"),
+                     maxscale = 100,
+                     fun.at = c('1.0','0.95','0.90','0.85','0.80','0.70',
+                                '0.6','0.5','0.4','0.3','0.2','0.1')  )
+}
   plot(nom_cox1, xfrac = .2 ,
        font.size = 0.35,
        cex.axis = 0.35,
