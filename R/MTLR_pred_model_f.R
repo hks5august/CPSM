@@ -359,6 +359,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(surv_res3) <- c("Mean", "Median_surv", "Survival_Prob_event",
                              "Actual_OS_time", "Event")
 
+    rownames(surv_res3) <- rownames(sel_clin_te2)
+    
     #extract prob times at diff times points
     survivalProbs_t_mat_3 <-as.matrix(survivalProbs_p3 )
     survivalProbs_t_mat1_3 <- survivalProbs_t_mat_3[,-1]
