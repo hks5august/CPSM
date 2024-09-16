@@ -268,7 +268,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     surv_res2 <- cbind(meanSurv2, medianSurv2, Survival_prob_event2 ,
                        sel_clin_te2$OS_month, sel_clin_te2$OS )
     #add column and rownames
-    colnames(surv_res2) <- c("Mean_Surv","Prob_event",  "Median_surv",
+    colnames(surv_res2) <- c("Mean_Surv", "Median_surv", "Prob_event",  
                              "Actual_OS_time", "OS_event")
     rownames(surv_res2) <- rownames(sel_clin_te2)
 
