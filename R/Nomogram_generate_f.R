@@ -120,6 +120,18 @@ else  if (cox1$maxtime < 60)
                      fun.at = c('1.0','0.95','0.90','0.85','0.80','0.70',
                                 '0.6','0.5','0.4','0.3','0.2','0.1')  )
 }
+
+
+  else 
+  {
+  nom_cox1<-nomogram(cox1,fun = list(risk, surv_1,surv_2),
+                     lp = FALSE,
+                     funlabel = c("Risk", "1-Year Survival Probability",
+                                  "3-Year Survival Probability"),
+                     maxscale = 100,
+                     fun.at = c('1.0','0.95','0.90','0.85','0.80','0.70',
+                                '0.6','0.5','0.4','0.3','0.2','0.1')  )
+}
                      
   plot(nom_cox1, xfrac = .2 ,
        font.size = 0.35,
