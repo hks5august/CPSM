@@ -134,11 +134,11 @@ else  if (cox1$maxtime < 60)
 }
                      
   plot(nom_cox1, xfrac = .2 ,
-       font.size = 0.65,
-       cex.axis = 0.65,
+       font.size = 0.5,
+       cex.axis = 0.5,
        force.label = TRUE,
-       tcl = 0.65,
-       lmgp = 0.65,
+       tcl = 0.5,
+       lmgp = 0.5,
        vnames="labels",
        col.grid=gray(c(0.85,0.95))
   )
