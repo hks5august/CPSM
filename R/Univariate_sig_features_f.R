@@ -159,8 +159,8 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,surv_time,
         GP1 = fit2$n[1],
         GP2 = fit2$n[2],
         `Hr-Inv-lst` = 1 / first2[2],
-        Concordance = fit1.coxph2$concordance[6],
-        Std_Error = fit1.coxph2$concordance[7]
+        Concordance = fit2.coxph$concordance[6],
+        Std_Error = fit2.coxph$concordance[7]
       )
     }
   }
