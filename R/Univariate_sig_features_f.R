@@ -137,7 +137,10 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,surv_time,
   tr_data2 <- tr_data_clin[, !colnames(tr_data_clin) %in% c("OS", "OS_month")]
   
   # Perform uni variate survival analysis for each clinical feature 
-  for(i in seq(from = 1, to = length(tr_data2), by = 1)) {    
+  for(i in seq(from = 1, to = length(tr_data2), by = 1)) { 
+  #print(colnames(tr_data2[i]))
+  tryCatch({
+	  
 # Create survival object
     surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
     # Survival analysis: fits cox ph model to find HR for median cut
@@ -163,6 +166,8 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,surv_time,
         Std_Error = fit2.coxph$concordance[7]
       )
     }
+
+	  }, error=function(e){cat("ERROR :",conditionMessage(e), "\n") })
   }
 
   # Convert the list to a data frame for easier handling
