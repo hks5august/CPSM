@@ -122,11 +122,85 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,surv_time,
                             drop = FALSE]
   # Convert to data frame if necessary
   sel_univ_test_1 <- as.data.frame(sel_univ_test)
+  
+  
+  ### Significant results for clinical features
+  #---------------------------------------------------------------------------
+  # Initialize a list to store results
+  results_list2 <- list()
+  
+  # Extract data for clinical features only
+  tr_data_clin <-  tr_data1[1:n]
+  te_data_clin <-  tr_data1[1:n]
+  
+  # Exclude OS and OS month columns by name
+  tr_data2 <- tr_data_clin[, !colnames(tr_data_clin) %in% c("OS", "OS_month")]
+  te_data2 <- te_data_clin[, !colnames(te_data_clin) %in% c("OS", "OS_month")]  
+  
+  # Perform uni variate survival analysis for each clinical feature 
+  for(i in seq(from = 1, to = length(tr_data2), by = 1)) {    
+    # Create survival object
+    surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
+    
+    tryCatch({
+      
+      # Survival analysis: fits cox ph model to find HR for median cut
+      fit2 <- survfit(surv_object ~ tr_data2[, i],data = tr_data2)
+      #summary(fit1)
+      fit2.coxph <- coxph(surv_object ~ tr_data2[, i], data = tr_data2)
+      # summary(fit1.coxph)
+      first2 <- coef(summary(fit2.coxph))
+      
+      # Check whether the p-value is significant (< 0.05) or not
+      if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))) {
+        
+        # Store results in the list
+        results_list2[[length(results_list2) + 1]] <- c(
+          ID = colnames(tr_data2[i]),
+          Beta = first2[1],
+          HR = first2[2],
+          `P-value` = first2[5],
+          GP1 = fit2$n[1],
+          GP2 = fit2$n[2],
+          `Hr-Inv-lst` = 1 / first2[2],
+          Concordance = fit2.coxph$concordance[6],
+          Std_Error = fit2.coxph$concordance[7]
+        )
+      }
+    }, error=function(e){cat("ERROR :",conditionMessage(e), "\n") })
+  }
+  
+  # Convert the list to a data frame for easier handling
+  results_df2 <- do.call(rbind, results_list2)
+  
+  # Set correct column names
+  colnames(results_df2) <- c("ID", "Beta", "HR", "P-value", "GP1", "GP2",
+                             "Hr-Inv-lst", "Concordance", "Std_Error")
+  selected_feature_names2 <- results_df2[, 1]
+  
+  # Prepare training data with selected features
+  sel_univ_train2 <- tr_data1[, colnames(tr_data1) %in% selected_feature_names2,
+                              drop = FALSE]
+  # Convert to data frame if necessary
+  sel_univ_train_2 <- as.data.frame(sel_univ_train2)
+  
+  # Prepare test data with selected features
+  sel_univ_test2 <- te_data2[, colnames(te_data2) %in% selected_feature_names2,
+                             drop = FALSE]
+  # Convert to data frame if necessary
+  sel_univ_test_2 <- as.data.frame(sel_univ_test2)
+  
+  
+  
+  
 
   # Return a list containing data.
   return(list(Univariate_Survival_Significant_genes_List = results_df,
               Train_Uni_sig_data = sel_univ_train_1,
-              Test_Uni_sig_data = sel_univ_test_1))
+              Test_Uni_sig_data = sel_univ_test_1,
+              Univariate_Survival_Significant_clin_List = results_df2,
+              Train_Uni_sig_clin_data = sel_univ_train_2,
+              Test_Uni_sig_clin_data = sel_univ_test_2 ))
 
 }
 
