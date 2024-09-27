@@ -135,6 +135,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,surv_time,
   
 # Exclude OS and OS month columns by name
   tr_data2 <- tr_data_clin[, !colnames(tr_data_clin) %in% c("OS", "OS_month")]
+  te_data2 <- te_data_clin[, !colnames(te_data_clin) %in% c("OS", "OS_month")]
   
   # Perform uni variate survival analysis for each clinical feature 
   for(i in seq(from = 1, to = length(tr_data2), by = 1)) { 
