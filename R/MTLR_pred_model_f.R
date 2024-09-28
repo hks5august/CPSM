@@ -672,12 +672,12 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     survivalProbs_t_mat1_t2_5 <- survivalProbs_t_mat1_t_5[,-1]
 
     
-    #Calcualte Evalulation parameters on test data
+    #Calcualte Evalulation parameters on Training data
     #create survival object
     surv_obj_5_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_5_tr<- round(IBS(surv_obj_5, sp_matrix = survivalProbs_t_mat1_t2_5_tr,
+    # calculate IBS (Integrated Brier Score for training data
+    IBS1_5_tr<- round(IBS(surv_obj_5_tr, sp_matrix = survivalProbs_t_mat1_t2_5_tr,
                        survivalProbs_p5_tr$time[-1]),3)
     
     #Concordance Index
