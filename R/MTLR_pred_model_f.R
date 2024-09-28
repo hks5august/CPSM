@@ -129,7 +129,9 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Survival_prob_event1 <- predict(Mod1, sel_clin_te2, type = "prob_event")
 
     #Predicted Mean
+    #training
     meanSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
+    #test
     meanSurv1 <- predict(Mod1, sel_clin_te2, type = "mean_time")
     #Predicted Median
     medianSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "median_time")
@@ -179,7 +181,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj1_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for test data
+    # calculate IBS (Integrated Brier Score for training data
     IBS_1_tr <- round(IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
                        survivalProbs_p1_tr$time[-1]),3)
     
@@ -297,7 +299,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj_2_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for test data
+    # calculate IBS (Integrated Brier Score for training data
     IBS1_2_tr <- round(IBS(surv_obj_2_tr, sp_matrix = survivalProbs_t_mat1_t2_2_tr,
                         survivalProbs_p2_tr$time[-1]),3)
     
@@ -426,7 +428,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj_3_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for test data
+    # calculate IBS (Integrated Brier Score for training data
     IBS1_3_tr <- round(IBS(surv_obj_3_tr, sp_matrix = survivalProbs_t_mat1_t2_3_tr,
                         survivalProbs_p3_tr$time[-1]),3)
     
@@ -555,7 +557,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj_4_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score) for test data
+    # calculate IBS (Integrated Brier Score) for training data
     IBS1_4_tr <- round(IBS(surv_obj_4_tr, sp_matrix = survivalProbs_t_mat1_t2_4_tr,
                         survivalProbs_p4_tr$time[-1]),3)
     
