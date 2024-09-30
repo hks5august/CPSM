@@ -176,7 +176,7 @@ Test_Uni_sig_data: It contains expression of significant genes selected by univa
 ## Step 5 - Prediction model development for survival probability of patients
 After selecting significant or key features using LASSO or Univariate survival analysis, next we want to develop an ML prediction model to predict survival probability of patients. MTLR_pred_model_f function of CPSM give us multiple options to develop models including Only Clinical features (Model_type=1), PI score (Model_type=2), PI Score + Clinical features (Model_type=3), Significant Univariate features (Model_type=4), Significant Univariate features Clinical features (Model_type=5) using MTLR package. Further, here, we were interested in developing a model based on PI score. Thus, we need to provide following inputs: (1) Training data with only clinical features, (2) Test data with only clinical features, (3) Model type (e.g. 2, since we want to develop model based on PI score), (4) Training data with PI score , (5) Test data with PI score, (6) Clin_Feature_List (e.g. Key_PI_list.txt), a list of features which will be  used to build model . Furthermore, we also need to provide surv_time (name of column containing survival time in months, e.g. OS_month) and surv_event (name of column containing survival event information, e.g. OS) information in the clinical data
 
-#Model for only Clinical features
+### Model1 for only Clinical features
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -198,7 +198,7 @@ Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
 
 
 
-### Model for PI
+### Model2 based on PI score
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -220,7 +220,7 @@ Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
 ```
 
 
-### Model for Clinical features + PI
+### Model3  based  Clinical features + PI score
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -241,28 +241,7 @@ survival_result_based_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTL
 Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
 ```
 
-### Model for univariate features
-```{r, warning=FALSE, message=FALSE, error = TRUE}
-data(Train_Clin, package = "CPSM")
-data(Test_Clin, package = "CPSM")
-data(Train_Uni_sig_data, package = "CPSM")
-data(Test_Uni_sig_data, package = "CPSM")
-data(Key_univariate_features_list, package = "CPSM")
-Result_Model_Type4 <- MTLR_pred_model_f(train_clin_data = Train_Clin, 
-                      test_clin_data = Test_Clin, 
-                      Model_type = 4, 
-                      train_features_data = Train_Uni_sig_data, 
-                      test_features_data = Test_Uni_sig_data, 
-                      Clin_Feature_List = Key_univariate_features_list,  
-                      surv_time = "OS_month", 
-                      surv_event = "OS")
-survCurves_data <- Result_Model_Type4$survCurves_data
-mean_median_survival_time_data <- Result_Model_Type4$mean_median_survival_time_data
-survival_result_based_on_MTLR <- Result_Model_Type4$survival_result_based_on_MTLR
-Error_mat_for_Model <- Result_Model_Type4$Error_mat_for_Model
-```
-
-### Model for Univariate + Clinical features
+### Model4 based on Univariate features (Genes + Clinical features)
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
