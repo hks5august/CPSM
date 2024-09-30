@@ -129,9 +129,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Survival_prob_event1 <- predict(Mod1, sel_clin_te2, type = "prob_event")
 
     #Predicted Mean
-    #training
     meanSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
-    #test
     meanSurv1 <- predict(Mod1, sel_clin_te2, type = "mean_time")
     #Predicted Median
     medianSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "median_time")
@@ -181,7 +179,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj1_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for training data
+    # calculate IBS (Integrated Brier Score for test data
     IBS_1_tr <- round(IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
                        survivalProbs_p1_tr$time[-1]),3)
     
@@ -299,7 +297,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj_2_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for training data
+    # calculate IBS (Integrated Brier Score for test data
     IBS1_2_tr <- round(IBS(surv_obj_2_tr, sp_matrix = survivalProbs_t_mat1_t2_2_tr,
                         survivalProbs_p2_tr$time[-1]),3)
     
@@ -428,7 +426,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #create survival object
     surv_obj_3_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for training data
+    # calculate IBS (Integrated Brier Score for test data
     IBS1_3_tr <- round(IBS(surv_obj_3_tr, sp_matrix = survivalProbs_t_mat1_t2_3_tr,
                         survivalProbs_p3_tr$time[-1]),3)
     
@@ -463,133 +461,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     rownames(Error_mat_3) <- c("Training_set", "Test_set")
 
   }
+
   else if (Model_type == 4) {
-    ############ Models based on Univariate Significant Genes #######
-
-    #create data frame with selected features (user provided list)
-    sel_clin_tr <- as.data.frame(tr_data2[,colnames(tr_data2) %in%
-                                            c(ftr_list$ID), ])
-
-    sel_clin_te <- as.data.frame(te_data2[,colnames(te_data2) %in%
-                                            c(ftr_list$ID), ])
-
-    #add survival information
-    sel_clin_tr1  <- cbind(tr_clin1["OS"], tr_clin1["OS_month"],  sel_clin_tr)
-    sel_clin_te1  <- cbind(te_clin1["OS"], te_clin1["OS_month"],  sel_clin_te)
-
-    # remove samples from training and test data where features are missing
-    sel_clin_tr2 <- na.omit(sel_clin_tr1)
-    sel_clin_te2 <- na.omit(sel_clin_te1)
-    
-    
-    #formula
-    formula4 <- survival::Surv(OS_month,OS) ~ .
-
-    #Next, we just need the data argument which in our case is training. We can
-    # finally make our model
-    Mod4 <- mtlr(formula = formula4, data = sel_clin_tr2)
-    #Prediction on test data
-    
-    #Compute survival curve data
-    survCurves4 <- predict(Mod4, sel_clin_te2, type = "survivalcurve")
-    #add column names
-    colnames(survCurves4)<- c("time_point", rownames(sel_clin_te2))
-    #create data frame
-    survCurves4_df <- as.data.frame(survCurves4)
-   
-    #survivalcurve
-    survivalcurve4 <- predict(Mod4, sel_clin_te2, type = "survivalcurve")
-    #Prob_Event
-    Survival_prob_event4 <- predict(Mod4, sel_clin_te2 , type = "prob_event")
-    
-    #training data predictions
-    #Mean
-    meanSurv4_tr <- predict(Mod4, sel_clin_tr2, type = "mean_time")
-    #Median
-    medianSurv4_tr <- predict(Mod4, sel_clin_tr2, type = "median_time")
-    
-    #test data prediction
-    #Mean
-    meanSurv4 <- predict(Mod4, sel_clin_te2, type = "mean_time")
-    #Median
-    medianSurv4 <- predict(Mod4, sel_clin_te2, type = "median_time")
-    #make dataframes of predicted mean and mediann survival time
-    meanSurv4_d  <- as.data.frame(meanSurv4)
-    medianSurv4_d  <- as.data.frame(medianSurv4)
-    names_4 <- as.data.frame(rownames(sel_clin_te2))
-   
-     #combine predicted mean and mean time
-    mean_median_surv4_d <- cbind(names_4, meanSurv4_d , medianSurv4_d )
-    #Add row and column names
-    rownames(mean_median_surv4_d)<- c(rownames(sel_clin_te2))
-    colnames(mean_median_surv4_d) <- c("IDs", "Mean", "Median")
-
-    #Survival Probability at Event Time for training data.
-    survivalProbs_p4_tr <- predict(Mod4, sel_clin_tr2, type = "prob_times")
-    
-    #extract prob times at diff times points
-    survivalProbs_t_mat_4_tr <-as.matrix(survivalProbs_p4_tr )
-    survivalProbs_t_mat1_4_tr <- survivalProbs_t_mat_4_tr[,-1]
-    survivalProbs_t_mat1_t_4_tr <- t(survivalProbs_t_mat1_4_tr )
-    survivalProbs_t_mat1_t2_4_tr <- survivalProbs_t_mat1_t_4_tr[,-1]
-    
-    
-    #Survival Probability at Event Time for test data.
-    survivalProbs_p4 <- predict(Mod4, sel_clin_te2, type = "prob_times")
-
-    #extract prob times at diff times points
-    survivalProbs_t_mat_4 <-as.matrix(survivalProbs_p4 )
-    survivalProbs_t_mat1_4 <- survivalProbs_t_mat_4[,-1]
-    survivalProbs_t_mat1_t_4<- t(survivalProbs_t_mat1_4 )
-    survivalProbs_t_mat1_t2_4 <- survivalProbs_t_mat1_t_4[,-1]
-
-    # create a data frame combining predicted mean, median, survival
-    # probability and actual time and event
-    surv_res4 <- cbind(meanSurv4, medianSurv4, Survival_prob_event4,
-                       sel_clin_te2$OS_month, sel_clin_te2$OS )
-
-    #add column names and row names
-    colnames(surv_res4) <- c("Mean_Surv", "Median_surv", "Survival_Prob",
-                             "Actual_OS_time", "OS_event")
-    rownames(surv_res4) <- rownames(sel_clin_te2)
-
-    #Calcualte Evaluation parameters on training data
-    #create survival object
-    surv_obj_4_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
-    
-    # calculate IBS (Integrated Brier Score) for training data
-    IBS1_4_tr <- round(IBS(surv_obj_4_tr, sp_matrix = survivalProbs_t_mat1_t2_4_tr,
-                        survivalProbs_p4_tr$time[-1]),3)
-    
-    #Concordance Index
-    c_index_4_tr <- round(SurvMetrics::Cindex(surv_obj_4_tr,
-                                           predicted =medianSurv4_tr),2)
-    
-    # Combine evaluation parameters to get Matrix
-    Error_mat_4_tr <- cbind( IBS1_4_tr, c_index_4_tr)
-    
-    
-    #Calcualte Evaluation parameters on test data
-    #create survival object
-    surv_obj_4 <- survival::Surv(sel_clin_te2$OS_month,sel_clin_te2$OS)
-
-    # calculate IBS (Integrated Brier Score) for test data
-    IBS1_4 <- round(IBS(surv_obj_4, sp_matrix = survivalProbs_t_mat1_t2_4,
-                        survivalProbs_p4$time[-1]),3)
-
-    #Concordance Index
-    c_index_4 <- round(SurvMetrics::Cindex(surv_obj_4,
-                                           predicted =medianSurv4),2)
-
-    # Combine evaluation parameters to get Matrix
-    Error_mat_4_te <- cbind( IBS1_4, c_index_4)
-    
-    Error_mat_4 <- rbind(Error_mat_4_tr, Error_mat_4_te)
-    colnames(Error_mat_4) <- c("IBS_Score", "c_index")
-    rownames(Error_mat_4) <- c("Training_set", "Test_set")
-  }
-
-  else if (Model_type == 5) {
     ####################### Univariate with Clin features ####################
     #create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[,colnames(tr_data2) %in%
@@ -674,12 +547,12 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     survivalProbs_t_mat1_t2_5 <- survivalProbs_t_mat1_t_5[,-1]
 
     
-    #Calcualte Evalulation parameters on Training data
+    #Calcualte Evalulation parameters on test data
     #create survival object
     surv_obj_5_tr <- survival::Surv(sel_clin_tr2$OS_month,sel_clin_tr2$OS)
     
-    # calculate IBS (Integrated Brier Score for training data
-    IBS1_5_tr<- round(IBS(surv_obj_5_tr, sp_matrix = survivalProbs_t_mat1_t2_5_tr,
+    # calculate IBS (Integrated Brier Score for test data
+    IBS1_5_tr<- round(IBS(surv_obj_5, sp_matrix = survivalProbs_t_mat1_t2_5_tr,
                        survivalProbs_p5_tr$time[-1]),3)
     
     #Concordance Index
@@ -733,13 +606,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
   }
 
   if(Model_type == 4){
-    survCurves_df <- survCurves4_df
-    mean_median_surv_d  <- mean_median_surv4_d
-    Error_mat <- Error_mat_4
-    surv_res <- surv_res4
-  }
-
-  if(Model_type == 5){
     survCurves_df <- survCurves5_df
     mean_median_surv_d  <- mean_median_surv5_d
     Error_mat <- Error_mat_5
