@@ -70,23 +70,33 @@ train_test_normalization_f <- function(train_data,  test_data, col_num) {
 
   #quantile normalization
   #samples in columns and genes in the rows
+  
   #transpose train data
-  ref <- as.data.frame(t(tr_exp))
-
+  #ref <- as.data.frame(t(tr_exp))
+  ref <- as.data.frame(t(tr_log_mat))
+  
   #transpose test data
-  test <-as.data.frame(t(te_exp))
-
+  #test <-as.data.frame(t(te_exp))
+  test <-as.data.frame(t(te_log_mat))
+  
+  #convert into matrix
   ref1 <-as.matrix(ref)
   test1 <-as.matrix(test)
+  
+  #normalize train data
   norm_ref <- round(normalize.quantiles(ref1),3)
-  target <- normalize.quantiles.determine.target(norm_ref)
+
   #target
+  target <- normalize.quantiles.determine.target(norm_ref)
+
+  #qunatile normlize test data
   tt <- round(normalize.quantiles.use.target(test1,target),3)
 
-  ##transpose quantile train data
+  #transpose quantile train data
   norm_ref_t <- as.data.frame(t(norm_ref))
   colnames(norm_ref_t) <- colnames(tr_exp)
   rownames(norm_ref_t) <- rownames(tr_exp)
+  
   #transpose quantile test data
   test_t <- as.data.frame(t(tt))
   colnames(test_t) <- colnames(te_exp)
