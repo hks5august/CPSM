@@ -341,7 +341,7 @@ a newer version of a package.
 sessionInfo()
 ```
 
-## Citation
+## Citation Info
 CPSM: R-package of an Automated Machine Learning Pipeline for Predicting the Survival Probability of Single Cancer Patient. 
 (2024) Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma T Shankavaram. bioRxiv 2024.11.14.623597; doi: https://doi.org/10.1101/2024.11.14.623597
 
