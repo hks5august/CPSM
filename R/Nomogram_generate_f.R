@@ -133,7 +133,7 @@ else  if (cox1$maxtime < 60)
                                 '0.6','0.5','0.4','0.3','0.2','0.1')  )
 }
                      
-  plot(nom_cox1, xfrac = .2 ,
+ Nomogram_plot <-  plot(nom_cox1, xfrac = .2 ,
        font.size = 0.5,
        cex.axis = 0.5,
        force.label = TRUE,
@@ -176,6 +176,6 @@ else  if (cox1$maxtime < 60)
   colnames(C_index_mat) <-  c("Bias-corrected C-index", "C-index")
 
   # Return a list containing data.
-  return(list(C_index_mat = C_index_mat))
+  return(list(C_index_mat = C_index_mat, Nomogram_plot = Nomogram_plot ))
 }
 
