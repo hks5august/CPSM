@@ -1,0 +1,19 @@
+citHeader("To cite the CPSM R-package in publications, please use:")
+
+citation <- bibentry(
+  bibtype = "Article",
+  title = "CPSM: R-package of an Automated Machine Learning Pipeline for Predicting the Survival Probability of Single Cancer Patients",
+  author = c(person("Harpreet", "Kaur"),
+             person("Pijush", "Das"),
+             person("Kevin", "Camphausen"),
+             person("Uma", "Shankavaram")),
+  journal = "bioRxiv",
+  year = 2024,
+  doi = "10.1101/2024.11.14.623597",
+  url = "https://doi.org/10.1101/2024.11.14.623597"
+)
+
+citEntry(citation)
+
+citFooter("Please include the above reference in any publication using this package.")
+
