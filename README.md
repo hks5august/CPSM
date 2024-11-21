@@ -137,6 +137,10 @@ Train_PI_data <- Result_PI$Train_PI_data
 Test_PI_data <- Result_PI$Test_PI_data
 str(Train_PI_data[1:10])
 str(Test_PI_data[1:10])
+#Lambda regression plot
+plot(Result_PI$cvfit)
+#Coefficient regression plot
+plot(Result_PI$cvfit$glmnet.fit, "lambda", label=TRUE)
 ```
 
 Thus, Lasso_PI_scores_f gave us following outputs:
@@ -163,10 +167,20 @@ Result_Uni <- Univariate_sig_features_f(train_data = Train_Norm_data,
                           col_num=21, 
                           surv_time = "OS_month" , 
                           surv_event = "OS")
+
+#significant genes with HR, P-val
 Univariate_Survival_Significant_genes_List <- Result_Uni$Univariate_Survival_Significant_genes_List
+#training data with significant genes
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
+#test data with significant genes
 Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
 str(Univariate_Survival_Significant_genes_List[1:10])
+#significant clinical features with HR, P-val
+Univariate_Survival_Significant_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
+Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
+Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
+str(Univariate_Survival_Significant_clin_List)
+
 ```
 
 Thus, Univariate_sig_features_f  gave us following outputs:
