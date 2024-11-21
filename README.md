@@ -337,6 +337,8 @@ Result_Nomogram <- Nomogram_generate_f(data = Train_Data_Nomogram_input,
                     surv_time = "OS_month", 
                     surv_event = "OS")
 C_index_mat <- Result_Nomogram$C_index_mat
+
+Nomogram_plot <- Result_Nomogram$Nomogram_plot
 ```
 
 Here, we will get a Nomogram based on features that we provide. This nomogram can predict Risk (Event risk, eg, Death), 1-year, 3-year, 5-year and 10 years survival of patients.
