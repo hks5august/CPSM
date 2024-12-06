@@ -18,7 +18,7 @@ library("remotes")
 #Step2: install CPSM package
 remotes::install_github("hks5august/CPSM", local = TRUE, , dependencies=TRUE)
 #or use the following command
-remotes::install_github("hks5august/CPSM", ref = "v1.0.0", dependencies=TRUE)
+#remotes::install_github("hks5august/CPSM", ref = "v1.0.0", dependencies=TRUE)
 # Check if package get installed, load package
 library("CPSM") 
 ```
@@ -64,8 +64,14 @@ This function converts OS time (in days) into months and then removes samples wh
 Here, we need to provide input data in tsv or txt  format. Further, we needs to define col_num (column number at which clinical/demographic and survival information ends,e.g. 20,  surv_time (name of column which contain survival time (in days) information, e.g. OS.time ) and output file name, e.g.  “New_data.txt”
 
 ```{r }
-data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-New_data <- data_process_f(Example_TCGA_LGG_FPKM_data, col_num=20, surv_time = "OS.time")
+library(SummarizedExperiment)
+#load data
+data(Example_TCGA_LGG_FPKM_data, package="CPSM")
+#check  data
+Example_TCGA_LGG_FPKM_data
+#preprpocess data
+New_data <- data_process_f(assays(Example_TCGA_LGG_FPKM_data)$expression, 
+                           col_num=20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
 
@@ -79,7 +85,7 @@ Before proceeding further, we need to split our data into training and test subs
 ```{r}
 data(New_data, package = "CPSM")
 # Call the function
-result <- tr_test_f(data = New_data, fraction = 0.9)
+result <- tr_test_f(data = assays(New_data)$expression, fraction = 0.9)
 # Access the train and test data
 train_FPKM <- result$train_data
 str(train_FPKM[1:10])
@@ -100,8 +106,8 @@ Next to select features and develop ML models, data must be normalized. Since, e
 data(train_FPKM, package = "CPSM")
 data(test_FPKM, package = "CPSM")
 Result_N_data <- train_test_normalization_f(train_data = train_FPKM,
-                            test_data = test_FPKM,
-                            col_num = 21)
+                                            test_data = test_FPKM,
+                                            col_num = 21)
 # Access the Normalized train and test data
 Train_Clin <- Result_N_data$Train_Clin
 Test_Clin <- Result_N_data$Test_Clin
@@ -127,17 +133,22 @@ Here, we need to provide Normalized training (Train_Norm_data) and test data (Te
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
 Result_PI <- Lasso_PI_scores_f(train_data = Train_Norm_data,
-                  test_data = Test_Norm_data, 
-                  nfolds=5, 
-                  col_num=21, 
-                  surv_time = "OS_month", 
-                  surv_event = "OS")
+                               test_data = Test_Norm_data, 
+                               nfolds=5, 
+                               col_num=21, 
+                               surv_time = "OS_month", 
+                               surv_event = "OS")
+# Extract list of selected features with beta coeff values
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
+
+# Train data with PI
 Train_PI_data <- Result_PI$Train_PI_data
+# Test data with PI score
 Test_PI_data <- Result_PI$Test_PI_data
+#view train and test data structures
 str(Train_PI_data[1:10])
 str(Test_PI_data[1:10])
-#Lambda regression plot
+# Lambda plot
 plot(Result_PI$cvfit)
 #Coefficient regression plot
 plot(Result_PI$cvfit$glmnet.fit, "lambda", label=TRUE)
@@ -160,13 +171,14 @@ Here, we need to provide Normalized training (Train_Norm_data.txt) and test data
 
 ```{r, warning=FALSE, message=FALSE }
 #Step 4b - Univariate  Survival Significant Feature Selection.
+# load train and test data
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
 Result_Uni <- Univariate_sig_features_f(train_data = Train_Norm_data, 
-                          test_data = Test_Norm_data, 
-                          col_num=21, 
-                          surv_time = "OS_month" , 
-                          surv_event = "OS")
+                                        test_data = Test_Norm_data, 
+                                        col_num=21, 
+                                        surv_time = "OS_month" , 
+                                        surv_event = "OS")
 
 #significant genes with HR, P-val
 Univariate_Survival_Significant_genes_List <- Result_Uni$Univariate_Survival_Significant_genes_List
@@ -291,8 +303,13 @@ Next to visualize survival of patients, we will plot survival curve plots using 
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=3, fig.height=3}
 #Create Survival curves/plots for individual patients
 data(survCurves_data, package = "CPSM")
-surv_curve_plots_f(Surv_curve_data = survCurves_data,
-                   selected_sample = "TCGA-DB-A4XF-01")
+plots <- surv_curve_plots_f(Surv_curve_data = survCurves_data,
+                            selected_sample = "TCGA-TQ-A7RQ-01")
+# Print the plots
+# Survival curves for all patients in test data
+print(plots$all_patients_plot)
+# Survival curve for selected patient in test data
+print(plots$highlighted_patient_plot)
 ```
 
 Here, we obtained two output plots:
@@ -311,8 +328,16 @@ Next, to visualize the predicted survival time of patients, we will plot the bar
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(mean_median_survival_time_data, package = "CPSM")
-mean_median_surv_barplot_f(surv_mean_med_data = mean_median_survival_time_data, 
-                           selected_sample = "TCGA-DB-A4XF-01")
+plots_2 <-  mean_median_surv_barplot_f(surv_mean_med_data = 
+                                         mean_median_survival_time_data, 
+                                       selected_sample = "TCGA-TQ-A7RQ-01")
+# Print the plots
+# Barplot for mean and median survival time of all patients in Test data
+print(plots_2$mean_med_all_pat)
+
+# Barplot for mean and median survival time of all patients (grey) in Test data and selected patient (colored)
+print(plots_2$highlighted_selected_pat)
+
 ```
 
 Here, we obtained two output plots:
