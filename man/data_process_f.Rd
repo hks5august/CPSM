@@ -24,10 +24,10 @@ labellednis "OS.time" and OS event labelled as "OS"
 }
 
 \examples{
+library(SummarizedExperiment)
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-CPSM::data_process_f(data=Example_TCGA_LGG_FPKM_data,
-col_num=20,
-surv_time= "OS.time")
+CPSM::data_process_f(data=assays(Example_TCGA_LGG_FPKM_data)$expression,
+col_num=20,surv_time= "OS.time")
 }
 \value{
  Returns a data frame that can be saved as an output file, allowing the user to

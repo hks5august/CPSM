@@ -27,8 +27,9 @@ test_data: name of the test set that the user can provide.
 }
 
 \examples{
+library(SummarizedExperiment)
 data(New_data, package = "CPSM")
-tr_test_f(data=New_data, fraction=0.9)
+tr_test_f(data=assays(New_data)$expression, fraction=0.9)
 
 }
 

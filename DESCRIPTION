@@ -18,7 +18,7 @@ Description: The CPSM package provides a comprehensive computational pipeline
              index score. It supports the development of predictive models for 
              survival probability using various features and provides 
              visualization tools to draw survival curves based on predicted 
-             survival probabilities. Additionally, CPSM includes functionalities 
+             survival probabilities. Additionally, SPM includes functionalities 
              for generating bar plots that depict the predicted mean and median 
              survival times of patients, making it a versatile tool for 
              survival analysis in cancer research.
