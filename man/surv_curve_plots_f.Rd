@@ -11,8 +11,8 @@ surv_curve_plots_f(Surv_curve_data, selected_sample)
 \item{Surv_curve_data}{:args1 - Survival probabilty data for survival curve of
 patients}
 
-\item{selected_sample}{:args2 - ID of a specific sample user wants to highlights
-on the plot against the background of curves of other samples.}
+\item{selected_sample}{:args2 - ID of a specific sample user wants to
+highlights on the plot against the background of curves of other samples.}
 }
 \description{
 This function generate individual survival curve for patients. Moreover, user

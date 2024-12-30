@@ -2,8 +2,9 @@
 % Please edit documentation in R/mean_median_surv_barplot_f.R
 \name{mean_median_surv_barplot_f}
 \alias{mean_median_surv_barplot_f}
-\title{This function generate barplots for mean and median survival of patients.
-Besides, user can also highlight one specific sample by providing sample IDs}
+\title{This function generate barplots for mean and median survival of
+patients. Besides, user can also highlight one specific sample by providing
+sample IDs}
 \usage{
 mean_median_surv_barplot_f(surv_mean_med_data, selected_sample)
 }

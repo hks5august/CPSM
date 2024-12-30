@@ -33,7 +33,8 @@ top features}
 \item{surv_time}{:arg5 - name of column which contain survival time (in days)
 information}
 
-\item{surv_event}{:arg6- name of column which contain survival eventinformation}
+\item{surv_event}{:arg6- name of column which contain survival
+eventinformation}
 
 
 }
