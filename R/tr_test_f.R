@@ -1,4 +1,3 @@
-
 #' This function split data into training and test data as per user defined
 #' ratio
 #' @param data:args1 a data frame where features in the columns and samples
@@ -12,12 +11,11 @@
 #' @import dplyr
 #' @examples
 #' data(New_data, package = "CPSM")
-#' tr_test_f(data=New_data, fraction=0.9)
-#' Usage: tr_test_f(data, fraction)
+#' tr_test_f(data = assays(New_data)$expression, fraction = 0.9)
+#' Usage:tr_test_f(data, fraction)
 #' @export
 
-tr_test_f <- function(data, fraction)
-{
+tr_test_f <- function(data, fraction) {
   # Check if any input variable is empty
   if (is.null(data) || nrow(data) == 0) {
     message("Error: Data is NULL or empty.")
@@ -26,24 +24,19 @@ tr_test_f <- function(data, fraction)
   if (is.na(fraction) || fraction <= 0 || fraction >= 1) {
     message("Error: Fraction must be a number between 0 and 1.")
   }
-  #define train-test split fraction
-  numberTrain <- floor(nrow(data)* fraction)
-  #extract training index
-  #trInd <- sample(1:nrow(data), numberTrain)
+  # define train-test split fraction
+  numberTrain <- floor(nrow(data) * fraction)
+  # extract training index
+  # trInd <- sample(1:nrow(data), numberTrain)
   trInd <- sample(seq_len(nrow(data)), numberTrain)
-  #create training data
-  training <- data[trInd,]
-  #create test data
-  testing <- data[-trInd,]
+
+  # create training data
+  training <- data[trInd, ]
+  # create test data
+  testing <- data[-trInd, ]
   ######################### Write into files  #################################
   train_data <- data.frame(training)
   test_data <- data.frame(testing)
   # Return a list containing train_data and test_data
   return(list(train_data = train_data, test_data = test_data))
 }
-
-
-
-
-
-
