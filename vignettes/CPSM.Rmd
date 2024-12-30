@@ -28,9 +28,9 @@ and barplots for predicted mean and median survival time of patients.
 
 #Load Packages
 ```{r, warning=FALSE, message=FALSE }
-#Load CPSM packages
+# Load CPSM packages
 library(CPSM)
-#Load other required packages
+# Load other required packages
 library(preprocessCore)
 library(ggfortify)
 library(survival)
@@ -52,7 +52,7 @@ library(ROCR)
 ```
 
 ```{r }
-#set seed
+# set seed
 set.seed(7)
 ```
 
@@ -75,7 +75,7 @@ time in days.
 
 ```{r }
 library(SummarizedExperiment)
-data(Example_TCGA_LGG_FPKM_data, package="CPSM")
+data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 Example_TCGA_LGG_FPKM_data
 ```
 
@@ -90,8 +90,9 @@ time (in days) information, e.g. OS.time ) and output file name, e.g.
 
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-New_data <- data_process_f(assays(Example_TCGA_LGG_FPKM_data)$expression, 
-                           col_num=20, surv_time = "OS.time")
+New_data <- data_process_f(assays(Example_TCGA_LGG_FPKM_data)$expression,
+  col_num = 20, surv_time = "OS.time"
+)
 str(New_data[1:10])
 ```
 
@@ -149,9 +150,11 @@ samples).
 # Normalize the training and test data sets
 data(train_FPKM, package = "CPSM")
 data(test_FPKM, package = "CPSM")
-Result_N_data <- train_test_normalization_f(train_data = train_FPKM,
-                            test_data = test_FPKM,
-                            col_num = 21)
+Result_N_data <- train_test_normalization_f(
+  train_data = train_FPKM,
+  test_data = test_FPKM,
+  col_num = 21
+)
 # Access the Normalized train and test data
 Train_Clin <- Result_N_data$Train_Clin
 Test_Clin <- Result_N_data$Test_Clin
@@ -194,12 +197,14 @@ file names to store data containing LASSO genes and PI values.
 # Step 4 - Lasso PI Score
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
-Result_PI <- Lasso_PI_scores_f(train_data = Train_Norm_data,
-                  test_data = Test_Norm_data, 
-                  nfolds=5, 
-                  col_num=21, 
-                  surv_time = "OS_month", 
-                  surv_event = "OS")
+Result_PI <- Lasso_PI_scores_f(
+  train_data = Train_Norm_data,
+  test_data = Test_Norm_data,
+  nfolds = 5,
+  col_num = 21,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
 Train_PI_data <- Result_PI$Train_PI_data
 Test_PI_data <- Result_PI$Test_PI_data
@@ -219,11 +224,11 @@ in the last column for test samples.
 
 
 # Step 4b - Univariate  Survival Significant Feature Selection
-Besides PI score, with the “Univariate_sig_features_f” function of CPSM package, 
-we can select significant (p-value <0.05) features based on univariate survival 
-analysis. These features are selected based on their capability to stratify 
-high-risk and low-risk survival groups using the cut off value of their median 
-expression.  
+Besides PI score, with the “Univariate_sig_features_f” function of CPSM 
+package, we can select significant (p-value <0.05) features based on 
+univariate survival analysis. These features are selected based on their 
+capability to stratify high-risk and low-risk survival groups using the cut 
+off value of their median expression.  
 Here, we need to provide Normalized training (Train_Norm_data.txt) and test 
 data (Test_Norm_data.txt)as input data that we have obtained from the previous 
 function “train_test_normalization_f”. Further, we need to provide a “col_num” 
@@ -236,14 +241,16 @@ selected genes.
 
 
 ```{r, warning=FALSE, message=FALSE }
-#Step 4b - Univariate  Survival Significant Feature Selection.
+# Step 4b - Univariate  Survival Significant Feature Selection.
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
-Result_Uni <- Univariate_sig_features_f(train_data = Train_Norm_data, 
-                          test_data = Test_Norm_data, 
-                          col_num=21, 
-                          surv_time = "OS_month" , 
-                          surv_event = "OS")
+Result_Uni <- Univariate_sig_features_f(
+  train_data = Train_Norm_data,
+  test_data = Test_Norm_data,
+  col_num = 21,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
 Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
@@ -284,14 +291,16 @@ clinical data
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
 data(Key_Clin_feature_list, package = "CPSM")
-Result_Model_Type1 <- MTLR_pred_model_f(train_clin_data = Train_Clin, 
-                      test_clin_data = Test_Clin, 
-                      Model_type = 1, 
-                      train_features_data = Train_Clin, 
-                      test_features_data = Test_Clin, 
-                      Clin_Feature_List = Key_Clin_feature_list, 
-                      surv_time = "OS_month", 
-                      surv_event = "OS")
+Result_Model_Type1 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 1,
+  train_features_data = Train_Clin,
+  test_features_data = Test_Clin,
+  Clin_Feature_List = Key_Clin_feature_list,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 survCurves_data <- Result_Model_Type1$survCurves_data
 mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
 survival_result_bas_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
@@ -308,14 +317,16 @@ data(Test_Clin, package = "CPSM")
 data(Train_PI_data, package = "CPSM")
 data(Test_PI_data, package = "CPSM")
 data(Key_PI_list, package = "CPSM")
-Result_Model_Type2 <- MTLR_pred_model_f(train_clin_data = Train_Clin, 
-                      test_clin_data = Test_Clin, 
-                      Model_type = 2, 
-                      train_features_data = Train_PI_data , 
-                      test_features_data = Test_PI_data , 
-                      Clin_Feature_List = Key_PI_list, 
-                      surv_time = "OS_month", 
-                      surv_event = "OS")
+Result_Model_Type2 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 2,
+  train_features_data = Train_PI_data,
+  test_features_data = Test_PI_data,
+  Clin_Feature_List = Key_PI_list,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 survCurves_data <- Result_Model_Type2$survCurves_data
 mean_median_surviv_tim_da <- Result_Model_Type2$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
@@ -330,14 +341,16 @@ data(Test_Clin, package = "CPSM")
 data(Train_PI_data, package = "CPSM")
 data(Test_PI_data, package = "CPSM")
 data(Key_Clin_features_with_PI_list, package = "CPSM")
-Result_Model_Type3 <- MTLR_pred_model_f(train_clin_data = Train_Clin, 
-                      test_clin_data = Test_Clin, 
-                      Model_type = 3, 
-                      train_features_data = Train_PI_data,
-                      test_features_data = Test_PI_data,
-                      Clin_Feature_List = Key_Clin_features_with_PI_list, 
-                      surv_time = "OS_month",  
-                      surv_event = "OS")
+Result_Model_Type3 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 3,
+  train_features_data = Train_PI_data,
+  test_features_data = Test_PI_data,
+  Clin_Feature_List = Key_Clin_features_with_PI_list,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 survCurves_data <- Result_Model_Type3$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type3$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
@@ -352,14 +365,16 @@ data(Test_Clin, package = "CPSM")
 data(Train_Uni_sig_data, package = "CPSM")
 data(Test_Uni_sig_data, package = "CPSM")
 data(Key_univariate_features_with_Clin_list, package = "CPSM")
-Result_Model_Type5 <- MTLR_pred_model_f(train_clin_data = Train_Clin, 
-                      test_clin_data = Test_Clin, 
-                      Model_type = 4, 
-                      train_features_data = Train_Uni_sig_data, 
-                      test_features_data = Test_Uni_sig_data,
-                      Clin_Feature_List=Key_univariate_features_with_Clin_list, 
-                      surv_time = "OS_month", 
-                      surv_event = "OS")
+Result_Model_Type5 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 4,
+  train_features_data = Train_Uni_sig_data,
+  test_features_data = Test_Uni_sig_data,
+  Clin_Feature_List = Key_univariate_features_with_Clin_list,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 survCurves_data <- Result_Model_Type5$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type5$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
@@ -385,15 +400,17 @@ the surv_curve_plots_f function  based on the data “survCurves_data ” that w
 obtained from the previous step after running the  MTLR_pred_model_f function. 
 Further,  the surv_curve_plots_f function also allows highlighting a specific 
 patient on the curve. Thus the function  needs only two inputs: 1) 
-Surv_curve_data, (2) Sample ID of a specific patient (e.g. TCGA-TQ-A7RQ-01) 
+Surv_curve_data, (2) Sample ID of a specific patient (e.g. TCGA-TQ-A8XE-01) 
 that needs to be highlighted.
 
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
-#Create Survival curves/plots for individual patients
+# Create Survival curves/plots for individual patients
 data(survCurves_data, package = "CPSM")
-plots <- surv_curve_plots_f(Surv_curve_data = survCurves_data,
-                   selected_sample = "TCGA-TQ-A7RQ-01")
+plots <- surv_curve_plots_f(
+  Surv_curve_data = survCurves_data,
+  selected_sample = "TCGA-TQ-A7RQ-01"
+)
 # Print the plots
 print(plots$all_patients_plot)
 print(plots$highlighted_patient_plot)
@@ -413,14 +430,16 @@ that we obtained from step 5 after running the  MTLR_pred_model_f function.
 Further, the mean_median_surv_barplot_f function also allows highlighting a 
 specific patient on the curve. Thus the function  needs only two inputs: 1) 
 surv_mean_med_data, (2) Sample ID of a specific patient 
-(e.g. TCGA-TQ-A7RQ-01) that needs to be highlighted.
+(e.g. TCGA-TQ-A8XE-01) that needs to be highlighted.
 
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
 data(mean_median_survival_time_data, package = "CPSM")
-plots_2 <-  mean_median_surv_barplot_f(surv_mean_med_data = 
-                           mean_median_survival_time_data, 
-                           selected_sample = "TCGA-TQ-A7RQ-01")
+plots_2 <- mean_median_surv_barplot_f(
+  surv_mean_med_data =
+    mean_median_survival_time_data,
+  selected_sample = "TCGA-TQ-A7RQ-01"
+)
 # Print the plots
 print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
@@ -451,10 +470,12 @@ e.g. OS) information in the data.
 ```{r, warning=FALSE, message=FALSE, error = TRUE, fig.width=7, fig.height=6 }
 data(Train_Data_Nomogram_input, package = "CPSM")
 data(feature_list_for_Nomogram, package = "CPSM")
-Result_Nomogram <- Nomogram_generate_f(data = Train_Data_Nomogram_input,  
-                    Feature_List = feature_list_for_Nomogram, 
-                    surv_time = "OS_month", 
-                    surv_event = "OS")
+Result_Nomogram <- Nomogram_generate_f(
+  data = Train_Data_Nomogram_input,
+  Feature_List = feature_list_for_Nomogram,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
 
