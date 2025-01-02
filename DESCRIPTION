@@ -23,7 +23,6 @@ Description: The CPSM package provides a comprehensive computational pipeline
              for generating bar plots that depict the predicted mean and median 
              survival times of patients, making it a versatile tool for 
              survival analysis in cancer research.
-Depends: R (>= 4.5.0)
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
