@@ -164,7 +164,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
         first2 <- coef(summary(fit2.coxph))
 
         # Check whether the p-value is significant (< 0.05) or not
-        if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))){
+        if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))) {
           # Store results in the list
           results_list2[[length(results_list2) + 1]] <- c(
             ID = colnames(tr_data2[i]),
