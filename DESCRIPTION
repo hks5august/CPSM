@@ -1,7 +1,7 @@
 Package: CPSM
 Type: Package
 Title: CPSM: Cancer patient survival model 
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com", 
          role = c("aut", "cre"),
          comment = c(ORCID = "0000-0003-0421-8341")),
@@ -9,7 +9,7 @@ Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com",
          role = c("aut")),
          person("Uma", "Shankavaram" , email = "uma@mail.nih.gov",
          role = c("aut")))
-Maintainer: Harpreet Kaur <hks04180@gmail.com>
+Depends: R (>= 4.5.0)
 Description: The CPSM package provides a comprehensive computational pipeline 
              for predicting the survival probability of cancer patients. It 
              offers a series of steps including data processing, splitting 

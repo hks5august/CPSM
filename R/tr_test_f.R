@@ -15,6 +15,7 @@
 #' Usage:tr_test_f(data, fraction)
 #' @export
 
+
 tr_test_f <- function(data, fraction) {
   # Check if any input variable is empty
   if (is.null(data) || nrow(data) == 0) {
