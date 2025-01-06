@@ -1,7 +1,7 @@
 Package: CPSM
 Type: Package
 Title: CPSM: Cancer patient survival model 
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com", 
          role = c("aut", "cre"),
          comment = c(ORCID = "0000-0003-0421-8341")),
@@ -23,7 +23,7 @@ Description: The CPSM package provides a comprehensive computational pipeline
              for generating bar plots that depict the predicted mean and median 
              survival times of patients, making it a versatile tool for 
              survival analysis in cancer research.
-License: GPL-3
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1

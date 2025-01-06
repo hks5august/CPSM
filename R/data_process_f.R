@@ -23,7 +23,7 @@ utils::globalVariables(c("OS_month"))
 data_process_f <- function(data, col_num, surv_time) {
   # Check if any input variable is empty or missing
   if (is.null(data) || nrow(data) == 0 || is.null(col_num) ||
-    is.null(surv_time)) {
+        is.null(surv_time)) {
     message("Error: Input variable is null or data frame is empty.")
   }
   if (any(is.na(col_num)) || any(is.na(surv_time))) {
@@ -35,13 +35,13 @@ data_process_f <- function(data, col_num, surv_time) {
   n <- col_num - 1
   # Extract Clinical data
   data_clin <- data[seq_len(n)]
+
   OS.time1 <- surv_time
   # Access column using column name
   column_data <- data_clin[[OS.time1]]
   # Convert days into months (OS time)
   data_clin$OS_month <- round(column_data / 30.417, 0)
   ## Extract Expression data
-
   data_exp <- data[col_num:ncol(data)]
   # Combine clinical and Expression data
   data1 <- cbind(data_clin, data_exp)
