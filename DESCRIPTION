@@ -9,7 +9,6 @@ Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com",
          role = c("aut")),
          person("Uma", "Shankavaram" , email = "uma@mail.nih.gov",
          role = c("aut")))
-Maintainer: Harpreet Kaur <hks04180@gmail.com>
 Description: The CPSM package provides a comprehensive computational pipeline 
              for predicting the survival probability of cancer patients. It 
              offers a series of steps including data processing, splitting 
