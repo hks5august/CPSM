@@ -9,3 +9,6 @@
 
 ## Fixes
 - Addressed `BiocCheck` notes on coding practices.
+# CPSM 0.99.4 (Unreleased)
+- Removed indentation inconsistencies in all `R` scripts for better readability.
+- Bumped the version from 0.99.3 to 0.99.4 as per Bioconductor guidelines.

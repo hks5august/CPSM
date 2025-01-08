@@ -33,10 +33,9 @@
 
 
 Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
-
   # Check if any input variable is empty
   if (length(data) == 0 || length(Feature_List) == 0 || length(surv_time)
-      == 0 || length(surv_event) == 0) {
+  == 0 || length(surv_event) == 0) {
     message("Error: Empty input variable detected.")
   }
 
@@ -164,10 +163,11 @@ Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
   sink(tempfile())
   # Perform validation while suppressing output
   v <- suppressWarnings(suppressMessages(validate(cox1,
-                                                  dxy = TRUE, B = 1000)))
+    dxy = TRUE, B = 1000
+  )))
   # Restore console output
   sink()
-  #Calculate C-index
+  # Calculate C-index
   Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.corrected"]
   orig_Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.orig"]
   bias_corrected_c_index <- round(abs(Dxy) / 2 + 0.5, 2)

@@ -38,8 +38,8 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
                                       surv_time, surv_event) {
   # Check if any input variable is empty
   if (length(train_data) == 0 || length(test_data) == 0 ||
-        length(col_num) == 0 || length(surv_time) == 0 ||
-        length(surv_event) == 0) {
+    length(col_num) == 0 || length(surv_time) == 0 ||
+    length(surv_event) == 0) {
     message("Error: Empty input variable detected.")
   }
   # Check if col_num is valid
@@ -84,10 +84,10 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     fit1 <- survfit(surv_object ~ (tr_data1[, i]) > (median(tr_data1[1, i])),
       data = tr_data1
     )
-    #fitcoxph model
+    # fitcoxph model
     fit1.coxph <- coxph(surv_object ~ (tr_data1[, i]) >
-                          (median(tr_data1[1, i])), data = tr_data1)
-    #coeff
+        (median(tr_data1[1, i])), data = tr_data1)
+    # coeff
     first <- coef(summary(fit1.coxph))
 
     # Check whether the p-value is significant (< 0.05) or not
@@ -194,8 +194,9 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
 
   # Prepare training data with selected features
   sel_univ_train2 <- tr_data1[, colnames(tr_data1) %in%
-                                selected_feature_names2,
-                              drop = FALSE]
+    selected_feature_names2,
+  drop = FALSE
+  ]
   # Convert to data frame if necessary
   sel_univ_train_2 <- as.data.frame(sel_univ_train2)
 

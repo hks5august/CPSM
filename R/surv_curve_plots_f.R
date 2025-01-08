@@ -80,17 +80,25 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
       length(unique(survCurves_m$Patient))
     )) +
     scale_color_manual(values = c("black", "red")) +
-    geom_line(aes(colour = "yellow"), size = 0.5,
-              data = ~ subset(survCurves_m,
-                              Patient == Selected_patient)) +
+    geom_line(aes(colour = "yellow"),
+      size = 0.5,
+      data = ~ subset(
+        survCurves_m,
+        Patient == Selected_patient
+      )
+    ) +
     labs(x = "Time in Months", y = "Survival Probability") +
-    theme(legend.position = "bottom",
-          legend.title = element_text(),
-          legend.key = element_blank(),
-          legend.key.size = unit(3, "mm"),
-          legend.text = element_text(size = 4)) +
-    guides(linetype = guide_legend(title = "Patients"),
-           color = guide_legend(title = "Selected Patient"))
+    theme(
+      legend.position = "bottom",
+      legend.title = element_text(),
+      legend.key = element_blank(),
+      legend.key.size = unit(3, "mm"),
+      legend.text = element_text(size = 4)
+    ) +
+    guides(
+      linetype = guide_legend(title = "Patients"),
+      color = guide_legend(title = "Selected Patient")
+    )
 
   # Return the plots as a list
   return(list(

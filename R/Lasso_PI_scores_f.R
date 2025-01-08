@@ -39,8 +39,8 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
                               surv_time, surv_event) {
   # Check if any input variable is empty
   if (length(train_data) == 0 || length(test_data) == 0 ||
-        length(nfolds) == 0 || length(col_num) == 0 ||
-        length(surv_time) == 0 || length(surv_event) == 0) {
+    length(nfolds) == 0 || length(col_num) == 0 ||
+    length(surv_time) == 0 || length(surv_event) == 0) {
     message("Error: Empty input variable detected.")
   }
 
@@ -105,7 +105,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   # Create PI Index for training data
   sel_features2 <- key_variables
   sel_train2 <- as.data.frame(tr_data1[, colnames(tr_data1) %in%
-                                         c(row.names(sel_features2)), ])
+    c(row.names(sel_features2)), ])
 
   # Make final files with selected features  and survival information
   train_feature_mat2 <- cbind(tr_data1["OS_month"], tr_data1["OS"], sel_train2)
@@ -117,16 +117,18 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   PI_tr <- 0
   for (i in seq(from = 1, to = E, by = 1)) {
     PI_tr <- PI_tr + ((tr_PI[, i]) * (sel_features2[i, 1]))
-    }
+  }
 
   # add PI as new column to the data
   tr_PI$PI <- PI_tr
   # combines PI information with survival info
-  train_PI <- cbind(train_feature_mat2["OS"],
-                    train_feature_mat2["OS_month"], tr_PI)
+  train_PI <- cbind(
+    train_feature_mat2["OS"],
+    train_feature_mat2["OS_month"], tr_PI
+  )
   # PI for Test data
   sel_test <- as.data.frame(te_data1[, colnames(te_data1) %in%
-                                       c(row.names(sel_features2)), ])
+    c(row.names(sel_features2)), ])
 
   # Make final files with selected features & survival info
   test_feature_mat2 <- cbind(te_data1["OS_month"], te_data1["OS"], sel_test)
@@ -138,7 +140,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   sel_features2[2, 1]
 
   PI_te <- 0
-  for (i in seq(from = 1, to = E, by = 1)){
+  for (i in seq(from = 1, to = E, by = 1)) {
     PI_te <- PI_te + ((te_PI[, i]) * (sel_features2[i, 1]))
   }
 

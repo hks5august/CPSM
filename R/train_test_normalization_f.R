@@ -36,7 +36,7 @@
 train_test_normalization_f <- function(train_data, test_data, col_num) {
   # Check if any input variable is empty
   if (length(train_data) == 0 || length(test_data) == 0 ||
-        length(col_num) == 0) {
+    length(col_num) == 0) {
     message("Error: Empty input variable detected.")
   }
   # Check if col_num is valid

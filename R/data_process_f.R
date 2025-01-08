@@ -23,7 +23,7 @@ utils::globalVariables(c("OS_month"))
 data_process_f <- function(data, col_num, surv_time) {
   # Check if any input variable is empty or missing
   if (is.null(data) || nrow(data) == 0 || is.null(col_num) ||
-        is.null(surv_time)) {
+    is.null(surv_time)) {
     message("Error: Input variable is null or data frame is empty.")
   }
   if (any(is.na(col_num)) || any(is.na(surv_time))) {
