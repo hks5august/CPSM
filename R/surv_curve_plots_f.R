@@ -49,10 +49,6 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
     ) +
     guides(color = guide_legend(title = "Patients"))
 
-  # Plot
-  # print(Surv_curv_plot_all_pat)
-
-
   # selected patient ID
   Selected_patient <- selected_sample
 
@@ -84,8 +80,13 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
       length(unique(survCurves_m$Patient))
     )) +
     scale_color_manual(values = c("black", "red")) +
-    geom_line(aes(colour = "yellow"), size = 0.5, data = ~
-      subset(survCurves_m, Patient == Selected_patient)) +
+    geom_line(aes(colour = "yellow"),
+      size = 0.5,
+      data = ~ subset(
+        survCurves_m,
+        Patient == Selected_patient
+      )
+    ) +
     labs(x = "Time in Months", y = "Survival Probability") +
     theme(
       legend.position = "bottom",
@@ -95,12 +96,10 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
       legend.text = element_text(size = 4)
     ) +
     guides(
-      linetype = guide_legend(title = "Patients"), color =
-        guide_legend(title = "Selected Patient")
+      linetype = guide_legend(title = "Patients"),
+      color = guide_legend(title = "Selected Patient")
     )
 
-  # Plot
-  # print(Surv_curv_plot_all_pats_with_highlighting_one_pat )
   # Return the plots as a list
   return(list(
     all_patients_plot = Surv_curv_plot_all_pat,

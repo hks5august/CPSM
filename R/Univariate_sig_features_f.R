@@ -84,10 +84,10 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     fit1 <- survfit(surv_object ~ (tr_data1[, i]) > (median(tr_data1[1, i])),
       data = tr_data1
     )
-    # summary(fit1)
+    # fitcoxph model
     fit1.coxph <- coxph(surv_object ~ (tr_data1[, i]) >
-      (median(tr_data1[1, i])), data = tr_data1)
-    # summary(fit1.coxph)
+        (median(tr_data1[1, i])), data = tr_data1)
+    # coeff
     first <- coef(summary(fit1.coxph))
 
     # Check whether the p-value is significant (< 0.05) or not
@@ -138,9 +138,6 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
   results_list2 <- list()
 
   # Extract data for clinical features only
-  # tr_data_clin <-  tr_data1[1:n]
-  # te_data_clin <-  tr_data1[1:n]
-
   tr_data_clin <- tr_data1[seq_len(n)]
   te_data_clin <- tr_data1[seq_len(n)]
 
@@ -158,9 +155,9 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
       {
         # Survival analysis: fits cox ph model to find HR for median cut
         fit2 <- survfit(surv_object ~ tr_data2[, i], data = tr_data2)
-        # summary(fit1)
+        # COXPH model
         fit2.coxph <- coxph(surv_object ~ tr_data2[, i], data = tr_data2)
-        # summary(fit1.coxph)
+        # Coeff
         first2 <- coef(summary(fit2.coxph))
 
         # Check whether the p-value is significant (< 0.05) or not

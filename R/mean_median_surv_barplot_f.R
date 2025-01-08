@@ -22,7 +22,7 @@ utils::globalVariables(c("IDs", "value", "variable"))
 
 
 
-############ Mean Survival and Median Survival time Barplots ############
+# Mean Survival and Median Survival time Barplots
 mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample) {
   mean_median_surv_d <- surv_mean_med_data
   # reshape data
@@ -44,13 +44,9 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample) {
       size = 6
     ))
 
-  ### Highlight Selected patient
+  # Highlight Selected patient
   Selected_patient <- selected_sample
-
-
-  # Create a bar plot with ggplot2
-  # Create the bar plot with different colors for Mean and Median of the
-  # selected patient and other patients
+  # Create the barplot for selected patient and other patients with diff colors
   Barplot_with_highlighted_selected_pat <- ggplot(
     mean_median_surv_d_m,
     aes(

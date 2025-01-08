@@ -27,14 +27,13 @@ tr_test_f <- function(data, fraction) {
   # define train-test split fraction
   numberTrain <- floor(nrow(data) * fraction)
   # extract training index
-  # trInd <- sample(1:nrow(data), numberTrain)
   trInd <- sample(seq_len(nrow(data)), numberTrain)
 
   # create training data
   training <- data[trInd, ]
   # create test data
   testing <- data[-trInd, ]
-  ######################### Write into files  #################################
+  # Write into files
   train_data <- data.frame(training)
   test_data <- data.frame(testing)
   # Return a list containing train_data and test_data

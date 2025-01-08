@@ -33,8 +33,6 @@
 
 
 Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
-  # set.seed(7)
-
   # Check if any input variable is empty
   if (length(data) == 0 || length(Feature_List) == 0 || length(surv_time)
   == 0 || length(surv_event) == 0) {
@@ -161,38 +159,21 @@ Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
     col.grid = gray(c(0.85, 0.95))
   )
 
-
   # Redirect console output to a temporary file
   sink(tempfile())
   # Perform validation while suppressing output
   v <- suppressWarnings(suppressMessages(validate(cox1,
-    dxy = TRUE,
-    B = 1000
+    dxy = TRUE, B = 1000
   )))
   # Restore console output
   sink()
-
-  #   original_warn <- options("warn")
-  #   options(warn = 1)  # Convert warnings to errors to capture them
-  #
-  #   tryCatch({
-  #     v <- validate(cox1, dxy = TRUE, B = 1000)
-  #   }, warning = function(w) {
-  #     if (!grepl("expected_warning_pattern", w$message)) {
-  #       warning(w)  # Re-emit warning if it’s unexpected
-  #     }
-  #   })
-  #
-  #   options(warn = original_warn)  # Reset warning option
-
-
-
+  # Calculate C-index
   Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.corrected"]
   orig_Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.orig"]
   bias_corrected_c_index <- round(abs(Dxy) / 2 + 0.5, 2)
   orig_c_index <- round(abs(orig_Dxy) / 2 + 0.5, 2)
 
-  C_index_mat <- cbind(bias_corrected_c_index, bias_corrected_c_index)
+  C_index_mat <- cbind(bias_corrected_c_index, orig_c_index)
   colnames(C_index_mat) <- c("Bias-corrected C-index", "C-index")
 
   # Return a list containing data.

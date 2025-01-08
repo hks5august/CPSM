@@ -51,9 +51,6 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
 
   n <- col_num - 1
   # extract clinical data
-  # tr_clin <- training[1:n]
-  # te_clin <- testing[1:n]
-
   tr_clin <- training[seq_len(n)]
   te_clin <- testing[seq_len(n)]
 
@@ -73,11 +70,9 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
   # samples in columns and genes in the rows
 
   # transpose train data
-  # ref <- as.data.frame(t(tr_exp))
   ref <- as.data.frame(t(tr_log_mat))
 
   # transpose test data
-  # test <-as.data.frame(t(te_exp))
   test <- as.data.frame(t(te_log_mat))
 
   # convert into matrix
