@@ -2,41 +2,37 @@
 % Please edit documentation in R/data_process_f.R
 \name{data_process_f}
 \alias{data_process_f}
-\title{This function converting OS time (in days) into months and removing
-samples where OS time information is missing. Note: In the Example data OS time
-labelled is "OS.time" and OS event labelled as "OS"}
-\usage{
-data_process_f(data, col_num, surv_time)
-}
-
+\title{Data Processing f}
 \arguments{
-\item{data}{:args1 - Patients data with clinical and gene expression, where
-samples are in rows and features/genes are in columns}
-\item{col_num}{:args2 - column number in data at where clinical info ends}
-\item{surv_time}{:args3 - name of column which contain survival time (in days)
-information.}
-}
+\item{data}{A data frame containing clinical and expression data.}
 
+\item{col_num}{An integer indicating the column number where expression data
+starts.}
+
+\item{surv_time}{A character string specifying the name of the survival time
+column in the data.}
+}
+\value{
+A data frame combining processed clinical and expression data.
+Includes a new column \code{OS_month} for survival time in months, and retains
+only rows with positive \code{OS_month}.
+}
 \description{
-This function converting OS time (in days) into months and removing samples
-where OS time information is missing. Note: In the Example data OS time
-labellednis "OS.time" and OS event labelled as "OS"
+This function converting OS time (in days) into months and
+removing samples where OS time information is missing. Note: In the Example
+data OS time labelled is "OS.time" and OS event labelled as "OS"
 }
-
+\details{
+This function converting OS time (in days) into months and
+removing samples where OS time information is missing. Note: In the Example
+data OS time labelled is "OS.time" and OS event labelled as "OS"
+}
 \examples{
 library(SummarizedExperiment)
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-CPSM::data_process_f(data=assays(Example_TCGA_LGG_FPKM_data)$expression,
-col_num=20,surv_time= "OS.time")
+data_process_f(
+  data = assays(Example_TCGA_LGG_FPKM_data)$expression,
+  col_num = 20, surv_time = "OS.time"
+)
+
 }
-\value{
- Returns a data frame that can be saved as an output file, allowing the user to
- store the data as needed. In this output file, there is an additional column
- in the data with OS time information in terms of OS_month (where days are
- converted into months), and any samples with missing OS time information will
- be excluded.
-}
-
-
-
-

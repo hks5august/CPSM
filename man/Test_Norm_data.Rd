@@ -2044,7 +2044,9 @@ This is Test Norm data.
 \source{
 https://portal.gdc.cancer.gov/
 }
-
+\value{
+  Returns a dataframe.
+}
 \examples{
 data(Test_Norm_data)
 ## maybe str(Test_Norm_data)

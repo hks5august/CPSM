@@ -2,29 +2,36 @@
 % Please edit documentation in R/mean_median_surv_barplot_f.R
 \name{mean_median_surv_barplot_f}
 \alias{mean_median_surv_barplot_f}
-\title{This function generate barplots for mean and median survival of
-patients. Besides, user can also highlight one specific sample by providing
-sample IDs}
-\usage{
-mean_median_surv_barplot_f(surv_mean_med_data, selected_sample)
-}
+\title{Mean and Median Survival Bar Plot}
 \arguments{
-\item{surv_mean_med_data}{:args1 - Predicted Mean median survival time data for
-patients}
+\item{surv_mean_med_data}{:args1 - Predicted Mean median survival time data
+for patients}
 
 \item{selected_sample}{:args2 - ID of the sample for which user want to
-highlight in the plot}
-}
-\description{
-This function generate barplots for mean and median survival of patients.
-Besides, user can also highlight one specific sample by providing sample IDs
+highlight in the plot.}
 }
 \value{
-  Returns a plot.
+A list containing two \code{ggplot} objects:
+\itemize{
+\item \code{mean_med_all_pat}: Bar plot of mean and median survival
+times for
+all patients.
+\item \code{highlighted_selected_pat}: Bar plot highlighting the selected
+patient's
+mean and median survival times with distinct colors.
+}
+}
+\description{
+This function generate barplots for mean and median survival
+of patients. Besides, user can also highlight one specific sample by
+providing sample IDs
 }
 \examples{
 data(mean_median_survival_time_data, package = "CPSM")
-mean_median_surv_barplot_f(surv_mean_med_data = mean_median_survival_time_data,
-selected_sample="TCGA-TQ-A8XE-01")
-}
+mean_median_surv_barplot_f(
+  surv_mean_med_data =
+    mean_median_survival_time_data,
+  selected_sample = "TCGA-TQ-A8XE-01"
+)
 
+}
