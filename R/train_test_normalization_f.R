@@ -1,35 +1,51 @@
-#' This function first tranform FPKM data into log2-scale transformation,
-#' followed by quantile normalization, where training data values used as
-#' target matrix both for training and test data for quantile  normalization
-#' @param train_data :args1 - training data (TSV) (Patients data with clinical
-#' and gene expression, where samples are in rows and features/genes are in
-#' columns)
-#' @param test_data :args2 - test data (TSV) (Patients data with clinical and
-#' gene expression, where samples are in rows and features/genes are in
-#' columns)
-#' @param col_num :args3 - column number in data at where clinical info ends
-#' @param train_clin_data: args4- name of training data output which stores
-#' only clinical information
-#' @param test_clin_data: args5 - name of test data output which stores only
-#' clinical information
-#' @param train_Normalized_data_clin_data: args6 -  output file name - outfile
-#' file containing training clinical data and normalized data  (which is
-#' log-scaled followed by quantile normalized data).
-#' @param test_Normalized_data_clin_data: args7- output filename - outfile file
-#' containing test clinical data and normalized data  (which is log-scaled
-#' followed by quantile normalized data).
-#' @import MASS
-#' @import dplyr
-#' @import  preprocessCore
+#' Train-Test Data Normalization Function
+#'
+#' This function performs normalization on training and test datasets, which
+#' include clinical data and gene expression values.
+#' The function applies log transformation and quantile normalization to the
+#' gene expression values.
+#'
+#' @param train_data A data frame containing the training dataset. The first
+#' columns represent clinical data, and the rest represent gene expression
+#' data.
+#' @param test_data A data frame containing the test dataset. The structure
+#' is the same as `train_data`.
+#' @param col_num An integer specifying the starting column index of the gene
+#' expression data in the datasets.
+#'
+#' @return A list containing four data frames:
+#' \describe{
+#'   \item{Train_Clin}{A data frame containing the clinical data from the
+#'   training dataset.}
+#'   \item{Test_Clin}{A data frame containing the clinical data from the
+#'   test dataset.}
+#'   \item{Train_Norm_data}{A data frame containing the combined clinical
+#'   and normalized gene expression data for the training set.}
+#'   \item{Test_Norm_data}{A data frame containing the combined clinical
+#'   and normalized gene expression data for the test set.}
+#' }
+#'
+#' @details
+#' The function performs the following steps:
+#' \enumerate{
+#'   \item Splits clinical and gene expression data based on `col_num`.
+#'   \item Applies log2 transformation to the gene expression data.
+#'   \item Performs quantile normalization on the log-transformed data
+#'   for both training and test datasets.
+#'   \item Combines the clinical data with the normalized gene expression
+#'   data.
+#' }
+#'
 #' @examples
-#' data(train_FPKM, package = "CPSM")
-#' data(test_FPKM, package = "CPSM")
-#' train_test_normalization_f(
-#'   train_data = train_FPKM, test_data = test_FPKM,
-#'   col_num = 21
-#' )
-#' Usage:train_test_normalization_f(train_data, test_data, col_num)
-
+#' # Example datasets
+#' train_data <- data.frame(matrix(rnorm(100), nrow = 10))
+#' test_data <- data.frame(matrix(rnorm(100), nrow = 10))
+#' col_num <- 5
+#' result <- train_test_normalization_f(train_data, test_data, col_num)
+#' str(result$Train_Norm_data)
+#' str(result$Test_Norm_data)
+#'
+#' @import preprocessCore
 #' @export
 
 
@@ -51,6 +67,9 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
 
   n <- col_num - 1
   # extract clinical data
+  # tr_clin <- training[1:n]
+  # te_clin <- testing[1:n]
+
   tr_clin <- training[seq_len(n)]
   te_clin <- testing[seq_len(n)]
 
@@ -70,9 +89,11 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
   # samples in columns and genes in the rows
 
   # transpose train data
+  # ref <- as.data.frame(t(tr_exp))
   ref <- as.data.frame(t(tr_log_mat))
 
   # transpose test data
+  # test <-as.data.frame(t(te_exp))
   test <- as.data.frame(t(te_log_mat))
 
   # convert into matrix

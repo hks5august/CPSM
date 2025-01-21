@@ -1,26 +1,49 @@
-#' This function will generate Nomogram based on User Selected Clinical and
-#' other features (e.g. Here we are using PI (Prognostic Index) Score) to
-#' Predict Risk (Death Risk), 1 -year, 3- years, 5- years, and 10 years s
-#' urvival probability of the patients
-#' @param data :args1 - data containing all Clinical features and other
-#' features (Patients data with clinical and gene expression, where samples
-#' are in rows and features/genes are in columns). This data must contain
-#' survival information (OS column for - Event and survival time as OS_month,
-#' Note: Column name- OS, OS_month )
-#' @param  Feature_List :args2 -   A list of feature based on which user want
-#' to create nomogram for data
-#' @param surv_time :arg3 - name of column which contain survival time
-#' (in days) information
-#' @param surv_event :arg4 - name of column which contain survival
-#' eventinformation
-#' @import dplyr
+#' Nomogram Generation Function
+#'
+#' This function generates a Cox proportional hazards nomogram for survival
+#' prediction based on user-defined features and survival information. It also
+#' computes bias-corrected and original C-index values for model validation.
+#'
+#' @param data A data frame containing survival information and predictor
+#' variables. Must include columns for survival time, event status, and
+#' selected features.
+#' @param Feature_List A data frame or list containing the selected features
+#' (column names) to be included in the nomogram.
+#' @param surv_time A character string specifying the column name for survival
+#'  time in the input data.
+#' @param surv_event A character string specifying the column name for survival
+#' event status in the input data (1 for event, 0 for censored).
+#'
+#' @return A list with the following components:
+#' \itemize{
+#'   \item \code{C_index_mat}: A matrix containing the bias-corrected and
+#'   original C-index values.
+#' }
+#'
+#' @details The function dynamically creates a Cox proportional hazards model
+#' based on the selected features and survival data. It computes survival
+#' probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
+#' nomogram. The function uses internal validation with bootstrapping
+#' (B = 1000) to calculate the bias-corrected C-index.
+#'
+#' The following steps are performed:
+#' \itemize{
+#'   \item Validates input data and renames survival columns to standard names.
+#'   \item Prepares the data for modeling using \code{rms::datadist}.
+#'   \item Dynamically creates a Cox proportional hazards model formula.
+#'   \item Fits the Cox model using \code{rms::cph}.
+#'   \item Generates the nomogram with survival probabilities at specified
+#'   time points.
+#'   \item Validates the model and computes C-index values.
+#' }
+#'
 #' @import reshape2
 #' @import ggplot2
 #' @import rms
 #' @import survivalROC
-#' @import SurvMetrics
 #' @import Matrix
 #' @import svglite
+#'
 #' @examples
 #' data(Train_Data_Nomogram_input, package = "CPSM")
 #' data(feature_list_for_Nomogram, package = "CPSM")
@@ -28,11 +51,13 @@
 #'   data = Train_Data_Nomogram_input, Feature_List =
 #'     feature_list_for_Nomogram, surv_time = "OS_month", surv_event = "OS"
 #' )
-#' Usage:Nomogram_generate_f(data, Feature_List, surv_time, surv_event)
+#'
 #' @export
 
 
 Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
+  # set.seed(7)
+
   # Check if any input variable is empty
   if (length(data) == 0 || length(Feature_List) == 0 || length(surv_time)
   == 0 || length(surv_event) == 0) {
@@ -159,21 +184,38 @@ Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
     col.grid = gray(c(0.85, 0.95))
   )
 
+
   # Redirect console output to a temporary file
   sink(tempfile())
   # Perform validation while suppressing output
   v <- suppressWarnings(suppressMessages(validate(cox1,
-    dxy = TRUE, B = 1000
+    dxy = TRUE,
+    B = 1000
   )))
   # Restore console output
   sink()
-  # Calculate C-index
+
+  #   original_warn <- options("warn")
+  #   options(warn = 1)  # Convert warnings to errors to capture them
+  #
+  #   tryCatch({
+  #     v <- validate(cox1, dxy = TRUE, B = 1000)
+  #   }, warning = function(w) {
+  #     if (!grepl("expected_warning_pattern", w$message)) {
+  #       warning(w)  # Re-emit warning if it’s unexpected
+  #     }
+  #   })
+  #
+  #   options(warn = original_warn)  # Reset warning option
+
+
+
   Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.corrected"]
   orig_Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.orig"]
   bias_corrected_c_index <- round(abs(Dxy) / 2 + 0.5, 2)
   orig_c_index <- round(abs(orig_Dxy) / 2 + 0.5, 2)
 
-  C_index_mat <- cbind(bias_corrected_c_index, orig_c_index)
+  C_index_mat <- cbind(bias_corrected_c_index, bias_corrected_c_index)
   colnames(C_index_mat) <- c("Bias-corrected C-index", "C-index")
 
   # Return a list containing data.

@@ -1,39 +1,64 @@
-#' This function will create PI (Prognostic Index) score based on selected
-#' LASSO genes for training and test data.  Here, firstly, LASSO will select
-#' genes with beta coefficient values based on COX lasso regression using
-#' 5-fold cross validation. Subsequently, PI score will be calculated by
-#' multiplying expression of genes with their beta coeff values.
-#' @param train_data:args1 - training data (Patients data with clinical and
-#' gene expression, where samples are in rows and features/genes are in
-#' columns)
-#' @param test_data:args2 - training data (Patients data with clinical and
-#' gene expression, where samples are in rows and features/genes are in
-#' columns)
-#' @param nfolds:args3 - Number of folds for cross in cvglmnet model to select
-#' top features
-#' @param col_num:args4 - column number in data at where clinical info ends
-#' @param surv_time:arg5 - name of column which contain survival time (in days)
-#' information
-#' @param surv_event:arg6 - name of column which contain survival
-#' eventinformation
-#' @import dplyr
+#' Lasso-Based Prognostic Index Calculation
+#'
+#' This function calculates the Prognostic Index (PI) for both training and
+#' test data using the Lasso method with Cox proportional hazards regression.
+#' It selects important features based on Lasso coefficients, generates the
+#' PI, and combines it with survival information.
+#'
+#' @param train_data A data frame containing the training data, including
+#' survival time, event status, and features.
+#' @param test_data A data frame containing the test data, including survival
+#' time, event status, and features.
+#' @param nfolds An integer specifying the number of cross-validation folds
+#' for LASSO.
+#' @param col_num An integer indicating the starting column index for the
+#' feature variables.
+#' @param surv_time A character string specifying the column name for
+#' survival time in the data.
+#' @param surv_event A character string specifying the column name for
+#' survival event status in the data.
+#' @return A list with the following components:
+#' \itemize{
+#'   \item \code{Train_Lasso_key_variables}: A data frame of selected key
+#'   variables and their coefficients.
+#'   \item \code{Train_PI_data}: A data frame with training data, including
+#'   survival time, event status, and PI.
+#'   \item \code{Test_PI_data}: A data frame with test data, including
+#'   survival time, event status, and PI.
+#'   \item \code{cvfit}: A `cv.glmnet` object representing the fitted LASSO
+#'   Cox model.
+#' }
+#' @details The function first checks the validity of input data. It renames
+#' the survival time and event columns in the training and test datasets,
+#' then fits a Cox proportional hazards model using Lasso regularization
+#' via cross-validation. Based on the Lasso model, the function calculates
+#' the prognostic index (PI) for both the training and test datasets,
+#' appending the PI values to the original data frames.
+#'
 #' @import survival
 #' @import survminer
 #' @import ggplot2
 #' @import glmnet
 #' @import svglite
+#' @importFrom grDevices gray
+#' @importFrom stats as.formula coef na.omit predict
+#'
 #' @examples
 #' data(Train_Norm_data, package = "CPSM")
 #' data(Test_Norm_data, package = "CPSM")
-#' Lasso_PI_scores_f(
-#'   train_data = Train_Norm_data, test_data = Test_Norm_data,
-#'   nfolds = 5, col_num = 21, surv_time = "OS_month", surv_event = "OS"
-#' )
-#' Usage:Lasso_PI_scores_f(
-#'   train_data, test_data, nfolds, col_num, surv_time,
-#'   surv_event
-#' )
+#' Result_PI <- Lasso_PI_scores_f(
+#' train_data = Train_Norm_data,
+#' test_data = Test_Norm_data,
+#' nfolds = 5,
+#' col_num = 21,
+#' surv_time = "OS_month",
+#' surv_event = "OS")
+#'
 #' @export
+
+
+
+
 
 Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
                               surv_time, surv_event) {
@@ -59,6 +84,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
     message("Error: surv_event column not found in the data.")
   }
 
+
   # load data
   tr_data1 <- train_data
   te_data1 <- test_data
@@ -71,7 +97,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   colnames(te_data1)[colnames(te_data1) == surv_time] <- "OS_month"
   colnames(te_data1)[colnames(te_data1) == surv_event] <- "OS"
 
-  # LASSO COX
+  ######################## LASSO COX ######################
   # create survival object
   surv_object <- survival::Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
@@ -83,7 +109,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
     family = "cox", # specify Cox PH model
     type.measure = "C",
     nfolds = nfolds,
-    alpha = 1,
+    alpha = 1, # lasso: alpha = 1; ridge: alpha=0
     maxit = 1000
   )
 
@@ -102,35 +128,44 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   colnames(key_variables) <- c("coeff")
   key_variables <- round(key_variables, 3)
 
-  # Create PI Index for training data
+  # plot(cvfit1)
+  ################## Create PI Index for training data #######################
+
   sel_features2 <- key_variables
   sel_train2 <- as.data.frame(tr_data1[, colnames(tr_data1) %in%
     c(row.names(sel_features2)), ])
 
-  # Make final files with selected features  and survival information
+  ######### Make final files with the selected features (genes here)  and
+  # combine survival information #############################################
   train_feature_mat2 <- cbind(tr_data1["OS_month"], tr_data1["OS"], sel_train2)
 
-  # Create prognostic index (PI)
+  ######################## PI Index ########################
+  # Create prognostic index
   tr_PI <- train_feature_mat2[3:ncol(train_feature_mat2)]
   E <- length(tr_PI)
 
   PI_tr <- 0
-  for (i in seq(from = 1, to = E, by = 1)) {
+  for (i in seq(from = 1, to = E, by = 1))
+  {
     PI_tr <- PI_tr + ((tr_PI[, i]) * (sel_features2[i, 1]))
   }
 
   # add PI as new column to the data
   tr_PI$PI <- PI_tr
-  # combines PI information with survival info
+
+  # combines PI information with survival information
   train_PI <- cbind(
-    train_feature_mat2["OS"],
-    train_feature_mat2["OS_month"], tr_PI
+    train_feature_mat2["OS"], train_feature_mat2["OS_month"],
+    tr_PI
   )
-  # PI for Test data
+
+  ###################### PI for Test data ###############
+
   sel_test <- as.data.frame(te_data1[, colnames(te_data1) %in%
     c(row.names(sel_features2)), ])
 
-  # Make final files with selected features & survival info
+  ######### Make final files with the selected features (genes here)  and
+  # combine survival information #############################################
   test_feature_mat2 <- cbind(te_data1["OS_month"], te_data1["OS"], sel_test)
 
   # Create prognostic index
@@ -140,9 +175,11 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   sel_features2[2, 1]
 
   PI_te <- 0
-  for (i in seq(from = 1, to = E, by = 1)) {
+  for (i in seq(from = 1, to = E, by = 1))
+  {
     PI_te <- PI_te + ((te_PI[, i]) * (sel_features2[i, 1]))
   }
+
 
   # add PI as new column to the data
   te_PI$PI <- PI_te

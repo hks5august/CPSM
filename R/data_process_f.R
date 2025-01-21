@@ -1,21 +1,33 @@
-#' This function converting OS time (in days) into months and removing samples
-#' where OS time information is missing. Note: In the Example data OS time
-#' labelled is "OS.time" and OS event labelled as "OS"
-#' @param data:args1 - data (Patients data with clinical and gene expression,
-#' where samples are in rows and features/genes are in columns)
-#' @param col_num:args2 - column number in data at where clinical info ends
-#' @param surv_time:arg3 - name of column which contain survival time (in days)
-#' information
-#' @param output:arg4 - name of output file, in chich user want to store data
+#' @title Data Processing f
+#'
+#' @description This function converting OS time (in days) into months and
+#' removing samples where OS time information is missing. Note: In the Example
+#' data OS time labelled is "OS.time" and OS event labelled as "OS"
+#'
+#' @details This function converting OS time (in days) into months and
+#' removing samples where OS time information is missing. Note: In the Example
+#' data OS time labelled is "OS.time" and OS event labelled as "OS"
+#'
+#' @name data_process_f
+#'
+#' @param data A data frame containing clinical and expression data.
+#' @param col_num An integer indicating the column number where expression data
+#' starts.
+#' @param surv_time A character string specifying the name of the survival time
+#' column in the data.
+#' @return A data frame combining processed clinical and expression data.
+#' Includes a new column `OS_month` for survival time in months, and retains
+#' only rows with positive `OS_month`.
 #' @import MASS
-#' @import dplyr
+#' @import SummarizedExperiment
 #' @examples
+#' library(SummarizedExperiment)
 #' data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 #' data_process_f(
 #'   data = assays(Example_TCGA_LGG_FPKM_data)$expression,
 #'   col_num = 20, surv_time = "OS.time"
 #' )
-#' Usage:data_process_f(data, col_num, surv_time)
+#'
 #' @export
 utils::globalVariables(c("OS_month"))
 
@@ -34,6 +46,7 @@ data_process_f <- function(data, col_num, surv_time) {
   }
   n <- col_num - 1
   # Extract Clinical data
+  # data_clin <- data[1:n]
   data_clin <- data[seq_len(n)]
 
   OS.time1 <- surv_time
