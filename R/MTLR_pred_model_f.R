@@ -95,10 +95,10 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
   # Load user defined a list of features forclinical data
   ftr_list <- Clin_Feature_List
 
-  ##############
+  ##
   if (Model_type == 1) {
-    ##################### Selected Clin features models #####################
-    ##################### MTLR Clinical features ############################
+    # Selected Clin features models #
+    # MTLR Clinical features ##
 
     # Load user defined a list of features forclinical data
     ftr_list <- Clin_Feature_List
@@ -127,7 +127,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
 
 
-    ############  Prediction on Test Data #############
+    ######  Prediction on Test Data #
 
     survCurves1 <- predict(Mod1, sel_clin_te1, type = "survivalcurve")
 
@@ -193,14 +193,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj1_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS_1_tr <- round(IBS(surv_obj1_tr,
-    #   sp_matrix = survivalProbs_t_mat1_t2_tr,
-    #   survivalProbs_p1_tr$time[-1]
-    # ), 3)
-
-
-
     # calculate the C-index
     c_index1_tr <- round(
       survival::concordance(
@@ -215,13 +207,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # create survival object
     surv_obj1 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS_1 <- round(IBS(surv_obj1,
-    #   sp_matrix = survivalProbs_t_mat1_t2,
-    #   survivalProbs_p1$time[-1]
-    # ), 3)
-
 
     # Calculate the C-index
     c_index1 <- round(
@@ -240,7 +225,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     rownames(Error_mat_1) <- c("Training_set", "Test_set")
   }
 
-  ########################## Model with only PI score #######################
+  ###### Model with only PI score ###
 
   else if (Model_type == 2) {
     # combine clinical and feature data
@@ -340,14 +325,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj_2_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_2_tr <- round(IBS(surv_obj_2_tr,
-    #   sp_matrix =
-    #     survivalProbs_t_mat1_t2_2_tr,
-    #   survivalProbs_p2_tr$time[-1]
-    # ), 3)
-
-
     # Calculate the C-index
     c_index_2_tr <- round(
       survival::concordance(
@@ -355,7 +332,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       )$concordance,
       2
     )
-
 
     # Combine evaluation parameters to get Matrix
     #Error_mat_2_tr <- cbind(IBS1_2_tr, c_index_2_tr)
@@ -365,14 +341,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Calcualte Evalulation/prediction parameters on test data
     # create survival object
     surv_obj_2 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_2 <- round(IBS(surv_obj_2,
-    #   sp_matrix = survivalProbs_t_mat1_t2_2,
-    #   survivalProbs_p2$time[-1]
-    # ), 3)
-
-
 
     # Calculate the C-index
     c_index_2 <- round(
@@ -391,7 +359,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat_2) <- c("c_index")
     rownames(Error_mat_2) <- c("Training_set", "Test_set")
   } else if (Model_type == 3) {
-    ########################### PI with Clin features ################
+    # PI with Clin features ####
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
       c(ftr_list$ID), ])
@@ -496,15 +464,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj_3_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_3_tr <- round(IBS(surv_obj_3_tr,
-    #   sp_matrix =
-    #     survivalProbs_t_mat1_t2_3_tr,
-    #   survivalProbs_p3_tr$time[-1]
-    # ), 3)
-
-
-
     # Calculate the C-index
     c_index_3_tr <- round(
       survival::concordance(
@@ -513,24 +472,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       2
     )
 
-
     # Combine evaluation parameters to get Matrix
     #Error_mat_3_tr <- cbind(IBS1_3_tr, c_index_3_tr)
     Error_mat_3_tr <- c_index_3_tr
 
-
-
     # Calcualte Evaluation parameters on test data
     # create survival object
     surv_obj_3 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_3 <- round(IBS(surv_obj_3,
-    #   sp_matrix = survivalProbs_t_mat1_t2_3,
-    #   survivalProbs_p3$time[-1]
-    # ), 3)
-
-
 
     # Calculate the C-index
      c_index_3 <- round(
@@ -550,7 +498,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat_3) <- c("c_index")
     rownames(Error_mat_3) <- c("Training_set", "Test_set")
   } else if (Model_type == 4) {
-    #################### Univariate with Clin features ####################
+    ## Univariate with Clin features ##
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
       c(ftr_list$ID), ])
@@ -629,12 +577,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj_5_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_5_tr <- round(IBS(surv_obj_5_tr,
-    #   sp_matrix =
-    #     survivalProbs_t_mat1_t2_5_tr,
-    #   survivalProbs_p5_tr$time[-1]
-    # ), 3)
 
 
     # Calculate the C-index
@@ -651,14 +593,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # create survival object
     surv_obj_5 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # calculate IBS (Integrated Brier Score for test data
-    # IBS1_5 <- round(IBS(surv_obj_5,
-    #   sp_matrix = survivalProbs_t_mat1_t2_5,
-    #   survivalProbs_p5$time[-1]
-    # ), 3)
-
-
 
     # Calculate the C-index
     c_index_5 <- round(
