@@ -1,11 +1,27 @@
-#' This function generate barplots for mean and median survival of patients.
-#' Besides, user can also highlight one specific sample by providing sample IDs
+#' @title Mean and Median Survival Bar Plot
+#'
+#' @description This function generate barplots for mean and median survival
+#' of patients. Besides, user can also highlight one specific sample by
+#' providing sample IDs
+#'
+#' @name mean_median_surv_barplot_f
+#'
 #' @param surv_mean_med_data :args1 - Predicted Mean median survival time data
 #' for patients
 #' @param selected_sample :args2 - ID of the sample for which user want to
-#' highlight in the plot
+#' highlight in the plot.
+#'
+#' @return A list containing two `ggplot` objects:
+#' \itemize{
+#'   \item \code{mean_med_all_pat}: Bar plot of mean and median survival
+#'   times for
+#'   all patients.
+#'   \item \code{highlighted_selected_pat}: Bar plot highlighting the selected
+#'   patient's
+#'   mean and median survival times with distinct colors.
+#' }
+#'
 #' @import MASS
-#' @import dplyr
 #' @import reshape2
 #' @import ggplot2
 #' @import svglite
@@ -16,7 +32,7 @@
 #'     mean_median_survival_time_data,
 #'   selected_sample = "TCGA-TQ-A8XE-01"
 #' )
-#' usgae:mean_median_surv_barplot_f(surv_mean_med_data, selected_sample)
+#'
 #' @export
 utils::globalVariables(c("IDs", "value", "variable"))
 

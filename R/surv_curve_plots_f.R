@@ -1,22 +1,55 @@
-#' This function generate individual survival curve for patients. Moreover,
-#' user can also highlight one specific sample by providing sample IDs
-#' @param Surv_curve_data :args1 - Survival probabilty data for survival curve
-#' of patients
-#' @param selected_sample:args2 - ID of a specific sample user wants to
-#' highlights on the plot against the background of curves of other samples
-#' @import MASS
-#' @import dplyr
-#' @import reshape2
-#' @import ggplot2
-#' @import svglite
+#' Generate Survival Curve Plots
+#'
+#' This function creates survival curve plots for all patients and highlights a
+#' specific patient based on the selected sample.
+#'
+#' @param Surv_curve_data A data frame containing survival curve data. The
+#' data frame must include a column named `time_point` representing time and
+#' other columns corresponding to patient survival probabilities.
+#' @param selected_sample A character string specifying the patient ID to be
+#' highlighted in the plot.
+#'
+#' @return A list containing two ggplot2 objects:
+#'   \item{all_patients_plot}{A ggplot object displaying survival curves for
+#'   all patients.}
+#'   \item{highlighted_patient_plot}{A ggplot object displaying survival
+#'   curves for all patients with the selected patient highlighted.}
+#'
+#' @details
+#' - The input data (`Surv_curve_data`) must be structured such that the
+#' first column (`time_point`) represents time points, and each subsequent
+#' column represents the survival probabilities for a specific patient.
+#' - If the `selected_sample` is not present in the column names
+#' of `Surv_curve_data`, a message will indicate that the sample is missing.
+#' - The function uses the `ggplot2` package for generating survival
+#' curve plots.
+#'
+#' @import Hmisc
+#' @import ROCR
+#' @import ggfortify
+#'
+#' @name surv_curve_plots_f
+#'
 #' @examples
-#' data(survCurves_data, package = "CPSM")
-#' surv_curve_plots_f(
-#'   Surv_curve_data = survCurves_data, selected_sample =
-#'     "TCGA-TQ-A8XE-01"
+#' # Example survival curve data
+#' Surv_curve_data <- data.frame(
+#'   time_point = c(0, 1, 2, 3, 4),
+#'   Patient1 = c(1, 0.9, 0.8, 0.7, 0.6),
+#'   Patient2 = c(1, 0.85, 0.75, 0.65, 0.55)
 #' )
-#' usgae:surv_curve_plots_f(Surv_curve_data, selected_sample)
+#'
+#' # Generate plots with Patient1 highlighted
+#' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1")
+#'
+#' # View the plots
+#' print(plots$all_patients_plot)
+#' print(plots$highlighted_patient_plot)
+#'
+#' @import ggplot2
+#' @import reshape2
+#'
 #' @export
+
 
 utils::globalVariables(c("Time", "Value", "Patient"))
 

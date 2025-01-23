@@ -2,13 +2,7 @@
 % Please edit documentation in R/Lasso_PI_scores_f.R
 \name{Lasso_PI_scores_f}
 \alias{Lasso_PI_scores_f}
-\title{This function will create PI (Prognostic Index) score based on selected
-LASSO genes for training and test data.  Here, firstly, LASSO will select genes
-with beta coefficient values based on COX lasso regression using 5-fold cross
-validation. Subsequently, PI score will be calculated by multiplying expression
-of genes with their beta coeff values.
-#' @param train_data :args1 - training data (Patients data with clinical and
-gene expression, where samples are in rows and features/genes are in columns)}
+\title{Lasso-Based Prognostic Index Calculation}
 \usage{
 Lasso_PI_scores_f(
   train_data,
@@ -16,52 +10,64 @@ Lasso_PI_scores_f(
   nfolds,
   col_num,
   surv_time,
-  surv_event)
+  surv_event
+)
 }
 \arguments{
-\item{test_data}{:args2 - testing data (Patients data with clinical and gene
-expression, where samples are in rows and features/genes are in columns)}
+\item{train_data}{A data frame containing the training data, including
+survival time, event status, and features.}
 
-\item{train_data}{:args1 - training data (Patients data with clinical and gene
-expression, where samples are in rows and features/genes are in columns)}
+\item{test_data}{A data frame containing the test data, including survival
+time, event status, and features.}
 
-\item{nfolds}{: args3 - Number of folds for cross in cvglmnet model to select
-top features}
+\item{nfolds}{An integer specifying the number of cross-validation folds
+for LASSO.}
 
-\item{col_num}{:args4 - column number in data at where clinical info ends}
+\item{col_num}{An integer indicating the starting column index for the
+feature variables.}
 
-\item{surv_time}{:arg5 - name of column which contain survival time (in days)
-information}
+\item{surv_time}{A character string specifying the column name for
+survival time in the data.}
 
-\item{surv_event}{:arg6- name of column which contain survival
-eventinformation}
-
-
-}
-\description{
-This function will create PI (Prognostic Index) score based on selected LASSO
-genes for training and test data.  Here, firstly, LASSO will select genes with
-beta coefficient values based on COX lasso regression using 5-fold cross
-validation. Subsequently, PI score will be calculated by multiplying expression
-of genes with their beta coeff values.
-#' @param train_data :args1 - training data (Patients data with clinical and
-gene expression, where samples are in rows and features/genes are in columns)
+\item{surv_event}{A character string specifying the column name for
+survival event status in the data.}
 }
 \value{
-  Returns a data frame.
+A list with the following components:
+\itemize{
+\item \code{Train_Lasso_key_variables}: A data frame of selected key
+variables and their coefficients.
+\item \code{Train_PI_data}: A data frame with training data, including
+survival time, event status, and PI.
+\item \code{Test_PI_data}: A data frame with test data, including
+survival time, event status, and PI.
+\item \code{cvfit}: A \code{cv.glmnet} object representing the fitted LASSO
+Cox model.
+}
+}
+\description{
+This function calculates the Prognostic Index (PI) for both training and
+test data using the Lasso method with Cox proportional hazards regression.
+It selects important features based on Lasso coefficients, generates the
+PI, and combines it with survival information.
+}
+\details{
+The function first checks the validity of input data. It renames
+the survival time and event columns in the training and test datasets,
+then fits a Cox proportional hazards model using Lasso regularization
+via cross-validation. Based on the Lasso model, the function calculates
+the prognostic index (PI) for both the training and test datasets,
+appending the PI values to the original data frames.
 }
 \examples{
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
-Lasso_PI_scores_f(train_data= Train_Norm_data,
-test_data= Test_Norm_data,
-nfolds=5,
-col_num=21,
-surv_time="OS_month",
-surv_event="OS" )
+Result_PI <- Lasso_PI_scores_f(
+train_data = Train_Norm_data,
+test_data = Test_Norm_data,
+nfolds = 5,
+col_num = 21,
+surv_time = "OS_month",
+surv_event = "OS")
+
 }
-
-
-
-
-

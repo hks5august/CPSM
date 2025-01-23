@@ -2,37 +2,39 @@
 % Please edit documentation in R/tr_test_f.R
 \name{tr_test_f}
 \alias{tr_test_f}
-\title{This function split data into training and test data as per user defined
-ratio}
+\title{Train-Test Split Function}
 \usage{
 tr_test_f(data, fraction)
 }
 \arguments{
-\item{data}{:args1 - a dataframe where features in the columns and samples must
-be in rows.}
+\item{data}{A data frame containing the dataset to be split.}
 
-\item{fraction}{:args2 - by which user want to split data for training data;
-e.g. 90\% training, so fraction would be 0.9}
-
+\item{fraction}{A numeric value between 0 and 1 indicating the proportion
+of data to include in the training set.}
+}
+\value{
+A list containing two data frames:
+\describe{
+\item{train_data}{A data frame containing the training set.}
+\item{test_data}{A data frame containing the testing set.}
+}
 }
 \description{
-This function split data into training and test data as per user defined ratio
-or fraction.
+This function splits a given dataset into training and testing sets based
+on a specified fraction.
 }
-
-\value{
-train_data: name of the training set that the user can provide.
-test_data: name of the test set that the user can provide.
-
+\details{
+The function checks whether the input \code{data} is valid and whether the
+\code{fraction} is a number between 0 and 1.
+It then performs a random split of the dataset into training and testing
+sets.
 }
-
 \examples{
-library(SummarizedExperiment)
-data(New_data, package = "CPSM")
-tr_test_f(data=assays(New_data)$expression, fraction=0.9)
+# Example dataset
+data <- data.frame(x = rnorm(100), y = rnorm(100))
+fraction <- 0.7
+result <- tr_test_f(data, fraction)
+head(result$train_data)
+head(result$test_data)
 
 }
-
-
-
-

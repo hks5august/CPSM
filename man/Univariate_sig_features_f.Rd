@@ -2,8 +2,7 @@
 % Please edit documentation in R/Univariate_sig_features_f.R
 \name{Univariate_sig_features_f}
 \alias{Univariate_sig_features_f}
-\title{This function selects significant features (p-value <0.05)s based on
-median expression values of features using Univariate Survival analysis.}
+\title{Perform Univariate Survival Analysis}
 \usage{
 Univariate_sig_features_f(
   train_data,
@@ -14,42 +13,84 @@ Univariate_sig_features_f(
 )
 }
 \arguments{
-\item{train_data}{:args1 - training data (Patients data with clinical and gene
-expression, where samples are in rows and features/genes are in columns)}
+\item{train_data}{A data frame containing the training dataset. It must
+include survival time and event columns.}
 
-\item{test_data}{:args2 - Test data (Patients data with clinical and gene
-expression, where samples are in rows and features/genes are in columns)}
+\item{test_data}{A data frame containing the test dataset. It must include
+survival time and event columns.}
 
-\item{col_num}{:args3 - column number in data at where clinical info ends}
+\item{col_num}{An integer specifying the column number in the dataset from
+which feature analysis should begin.}
 
-\item{surv_time}{:arg4 - name of column which contain survival time (in days)
-information}
+\item{surv_time}{A string specifying the name of the survival time column
+in the dataset.}
 
-\item{surv_event}{:arg5 - name of column which contain survival
-eventinformation}
-
-
-}
-\description{
-This function selects significant features (p-value <0.05)s based on median
-expression values of features using Univariate Survival analysis.
+\item{surv_event}{A string specifying the name of the survival event column
+in the dataset.}
 }
 \value{
-  A data frame with columns X and Y. Name of the output to store univariate
-  selected features for test data
+A list containing:
+\item{Univariate_Survival_Significant_genes_List}{A data frame of
+significant gene features with associated statistics.}
+\item{Train_Uni_sig_data}{A data frame of selected significant gene
+features for the training dataset.}
+\item{Test_Uni_sig_data}{A data frame of selected significant gene
+features for the test dataset.}
+\item{Univariate_Survival_Significant_clin_List}{A data frame of
+significant clinical features with associated statistics.}
+\item{Train_Uni_sig_clin_data}{A data frame of selected significant
+clinical features for the training dataset.}
+\item{Test_Uni_sig_clin_data}{A data frame of selected significant
+clinical features for the test dataset.}
+}
+\description{
+This function performs univariate survival analysis on the provided
+datasets to identify significant features
+(genes or clinical features) associated with survival outcomes. It applies
+Cox proportional hazards models
+to compute hazard ratios and p-values for median expression cut-offs or
+clinical feature values.
+}
+\details{
+The function first checks the validity of the input variables, such as
+whether the survival time and event columns
+are present in the training and test datasets. It then renames these
+columns to "OS_month" and "OS" internally
+for consistency. For each feature starting from the specified column
+number (\code{col_num}), univariate Cox proportional
+hazards models are fitted to assess the association between the feature
+and survival outcomes.
+
+For clinical features, a similar process is applied, but the analysis is
+limited to the initial \code{col_num - 1} columns.
+
+Significant features are determined based on a p-value threshold of 0.05.
+The function returns the significant
+features and their corresponding hazard ratios, p-values, and other related
+statistics for both training and test datasets.
 }
 \examples{
-data(Train_Norm_data, package = "CPSM")
-data(Test_Norm_data, package = "CPSM")
-Univariate_sig_features_f(train_data=Train_Norm_data,
-test_data=Test_Norm_data,
-col_num=21,
-surv_time="OS_month" ,
-surv_event="OS")
+# Example data (requires real survival datasets for testing)
+train_data <- data.frame(
+  OS_month = c(10, 15, 20, 25),
+  OS = c(1, 0, 1, 1),
+  Gene1 = c(2.3, 3.4, 1.2, 2.5),
+  Gene2 = c(0.5, 1.8, 0.9, 0.6),
+  Clinical1 = c(1, 0, 1, 0)
+)
+test_data <- data.frame(
+  OS_month = c(12, 18, 22, 28),
+  OS = c(1, 1, 0, 1),
+  Gene1 = c(2.0, 3.1, 1.0, 2.3),
+  Gene2 = c(0.4, 1.5, 1.0, 0.7),
+  Clinical1 = c(1, 1, 0, 0)
+)
+#result <- Univariate_sig_features_f(
+#   train_data = train_data,
+#   test_data = test_data,
+#   col_num = 3,
+#   surv_time = "OS_month",
+#   surv_event = "OS"
+#)
+
 }
-
-
-
-
-
-

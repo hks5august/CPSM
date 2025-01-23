@@ -2,56 +2,60 @@
 % Please edit documentation in R/Nomogram_generate_f.R
 \name{Nomogram_generate_f}
 \alias{Nomogram_generate_f}
-\title{This function will generate Nomogram based on User Selected Clinical and
-other features (e.g. Here we are using PI (Prognostic Index) Score) to Predict
-Risk (Death Risk), 1 -year, 3- years, 5- years, and 10 years survival
-probability of the patients
-#'@param data :args1 - data containing all Clinical features and other features
-(Patients data with clinical and gene expression, where samples are in rows and
-features/genes are in columns). This data must contain survival information (OS
-column for - Event and survival time as OS_month, Note: Column name- OS,
-OS_month )}
+\title{Nomogram Generation Function}
 \usage{
 Nomogram_generate_f(data, Feature_List, surv_time, surv_event)
 }
 \arguments{
-\item{data}{:args1 -   data containing all Clinical features and other features
-(Patients data with clinical and gene expression, where samples are in rows and
-features/genes are in columns). This data must contain survival information
-(OS column for - Event and survival time as OS_month, Note: Column name- OS,
-OS_month)}
+\item{data}{A data frame containing survival information and predictor
+variables. Must include columns for survival time, event status, and
+selected features.}
 
-\item{Feature_List}{:args2 -   A list of feature based on which user want to
-create nomogram for data}
+\item{Feature_List}{A data frame or list containing the selected features
+(column names) to be included in the nomogram.}
 
-\item{surv_time}{:arg3 - name of column which contain survival time (in days)
-information}
+\item{surv_time}{A character string specifying the column name for survival
+time in the input data.}
 
-\item{surv_event}{:arg4 - name of column which contain survival
-eventinformation}
-}
-\description{
-This function will generate Nomogram based on User Selected Clinical and other
-features (e.g. Here we are using PI (Prognostic Index) Score) to Predict Risk
-(Death Risk), 1 -year, 3- years, 5- years, and 10 years survival probability of
-the patients
-#'@param data :args1 - data containing all Clinical features and other features
-(Patients data with clinical and gene expression, where samples are in rows and
-features/genes are in columns). This data must contain survival information
-(OS column for - Event and survival time as OS_month, Note: Column name- OS,
-OS_month )
+\item{surv_event}{A character string specifying the column name for survival
+event status in the input data (1 for event, 0 for censored).}
 }
 \value{
-  Retturns a plot.
+A list with the following components:
+\itemize{
+\item \code{C_index_mat}: A matrix containing the bias-corrected and
+original C-index values.
+}
+}
+\description{
+This function generates a Cox proportional hazards nomogram for survival
+prediction based on user-defined features and survival information. It also
+computes bias-corrected and original C-index values for model validation.
+}
+\details{
+The function dynamically creates a Cox proportional hazards model
+based on the selected features and survival data. It computes survival
+probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
+nomogram. The function uses internal validation with bootstrapping
+(B = 1000) to calculate the bias-corrected C-index.
+
+The following steps are performed:
+\itemize{
+\item Validates input data and renames survival columns to standard names.
+\item Prepares the data for modeling using \code{rms::datadist}.
+\item Dynamically creates a Cox proportional hazards model formula.
+\item Fits the Cox model using \code{rms::cph}.
+\item Generates the nomogram with survival probabilities at specified
+time points.
+\item Validates the model and computes C-index values.
+}
 }
 \examples{
 data(Train_Data_Nomogram_input, package = "CPSM")
 data(feature_list_for_Nomogram, package = "CPSM")
-Nomogram_generate_f(data = Train_Data_Nomogram_input,
-Feature_List = feature_list_for_Nomogram,
-surv_time="OS_month",
-surv_event="OS")
+Nomogram_generate_f(
+  data = Train_Data_Nomogram_input, Feature_List =
+    feature_list_for_Nomogram, surv_time = "OS_month", surv_event = "OS"
+)
+
 }
-
-
-

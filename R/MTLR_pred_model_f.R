@@ -1,55 +1,61 @@
-#' This function can generate 5 Prediction models types based on :(1)Clinical
-#' features,  (2) PI score , (3) PI score + Clin, (4) Significant Univariate
-#' features, (5) Significant Univariate features + clin features, using MTLR
-#' method.
-#' Further, this model will predict the survival of test data in terms of
-#' survival probability over different time points, mean and median survival
-#' time pf patients in test data.
-
-#' @param train_clin_data :args1 - training data with Clin features (Patients
-#' data with clinical and gene expression, where samples are in rows and
-#' features/genes are in columns)
-#' @param test_clin_data :args2 -  test data with Clin features  (Patients data
-#' with clinical and gene expression, where samples are in rows and
-#' features/genes are in columns)
-#' @param  Model_type: args3 - Prediction Model type : 1 - Clinical features,
-#' 2 - PI score features, 3-  PI score + Clinical features ; 4 - Univariate
-#' features, 5 -  Univariate features + Clinical features
-#' @param train_features_data :args4 - Training data with selected features
-#' only (Significant Univariate/LASSO PI score)
-#' @param test_features_data :args5 - Training data with selected features
-#' only (Significant Univariate/LASSO PI score)
-#' @param Clin_Feature_List :args6 - List of key clinical features which
-#' contain non-unique values (e.g. Key_Clin_feature_list.txt, Key_PI_list.txt
-#' Key_Clin_features_with_PI_list.txt, Key_univariate_features_list.txt,
-#' Key_univariate_features_with_Clin_list.txt)
-#' @param surv_time :arg7 - name of column which contain survival time
-#' (in days) information
-#' @param surv_event :arg8 - name of column which contain survival
-#' eventinformation
-#' @import dplyr
+#' MTLR Prediction Model Function
+#'
+#' This function builds a Multi-Task Logistic Regression (MTLR) survival model
+#' based on clinical and feature data for training and testing datasets. It can
+#' handle various model types based on user input (e.g., Clinical features
+#' only, Clinical features with PI score).
+#'
+#' @param train_clin_data A data frame containing the clinical data for the
+#' training set.
+#' @param test_clin_data A data frame containing the clinical data for the
+#' test set.
+#' @param Model_type An integer indicating the model type:
+#'   \itemize{
+#'     \item 1: Clinical features model
+#'     \item 2: PI score model
+#'     \item 3: PI score with Clinical features model
+#'   }
+#' @param train_features_data A data frame containing the feature data for the
+#' training set.
+#' @param test_features_data A data frame containing the feature data for the
+#' test set.
+#' @param Clin_Feature_List A list of clinical features to be used in the
+#' model.
+#' @param surv_time A string specifying the name of the survival time column.
+#' @param surv_event A string specifying the name of the survival event column.
+#'
+#' @return A list containing the following components:
+#' \item{Model}{The fitted MTLR model.}
+#' \item{Error_matrix}{A matrix of error evaluation metrics (IBS and C-index)
+#' for training and test sets.}
+#' \item{Survival_predictions}{Predicted survival probabilities, mean survival
+#' times, and median survival times.}
+#' \item{Model_type}{The model type selected by the user.}
+#'
 #' @import reshape2
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @import SurvMetrics
 #' @import pec
 #' @import ggplot2
+#'
 #' @examples
+#' # Example usage of the MTLR_pred_model_f function
 #' data(Train_Clin, package = "CPSM")
 #' data(Test_Clin, package = "CPSM")
 #' data(Key_Clin_feature_list, package = "CPSM")
-#' MTLR_pred_model_f(
-#'   train_clin_data = Train_Clin, test_clin_data =
-#'     test_clin_data, Model_type = 1, train_features_data = Train_Clin,
-#'   test_features_data = test_clin_data, Clin_Feature_List =
-#'     Key_Clin_feature_list, surv_time = "OS_month", surv_event = "OS"
-#' )
-#' Usage:MTLR_pred_model_f(
-#'   train_clin_data, test_clin_data, Model_type,
-#'   train_features_data, test_features_data, Clin_Feature_List, surv_time,
-#'   surv_event
-#' )
+#' result <- MTLR_pred_model_f(
+#'    train_clin_data = Train_Clin,
+#'    test_clin_data = Test_Clin,
+#'    Model_type = 1,
+#'    train_features_data = Train_Clin,
+#'    test_features_data = Test_Clin,
+#'    Clin_Feature_List = Key_Clin_feature_list,
+#'    surv_time = "OS_month",
+#'    surv_event = "OS"
+#'   )
+#'
+#'
 #' @export
 
 
@@ -82,7 +88,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
   te_data2 <- cbind(te_clin1, test_features_data1)
   # Load user defined a list of features forclinical data
   ftr_list <- Clin_Feature_List
-  # model1 - MTLR Model with Selected Clin features
+  
+# model1 - MTLR Model with Selected Clin features
   if (Model_type == 1) {
     # Load user defined a list of features for clin data
     ftr_list <- Clin_Feature_List
@@ -102,7 +109,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     formula1 <- survival::Surv(OS_month, OS) ~ .
     # make  model!
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
-    # Prediction on Test Data
+    
+# Prediction on Test Data
     survCurves1 <- predict(Mod1, sel_clin_te1, type = "survivalcurve")
     # define column names
     colnames(survCurves1) <- c("time_point", rownames(sel_clin_te2))
@@ -153,33 +161,41 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Calcualte Evalulation parameters on training data
     # create survival object
     surv_obj1_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
-    # calculate IBS (Integrated Brier Score for test data
-    IBS_1_tr <- round(IBS(surv_obj1_tr,
-        sp_matrix = survivalProbs_t_mat1_t2_tr,
-        survivalProbs_p1_tr$time[-1]), 3)
 
-    # Calculate Concordance Index
-    c_index1_tr <- round(SurvMetrics::Cindex(surv_obj1_tr,
-        predicted = medianSurv1_tr), 2)
+    # calculate the C-index
+    c_index1_tr <- round(
+      survival::concordance(
+        surv_obj1_tr ~ medianSurv1_tr
+      )$concordance,
+      2
+    )
+
     # Combine evaluation parameters to get Matrix
-    Error_mat_1_tr <- cbind(IBS_1_tr, c_index1_tr)
-    # Calcualte Evalulation parameters on test data
+    Error_mat_1_tr <- c_index1_tr
+
     # create survival object
     surv_obj1 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    IBS_1 <- round(IBS(surv_obj1,
-        sp_matrix = survivalProbs_t_mat1_t2,
-        survivalProbs_p1$time[-1]), 3)
-    # Calculate Concordance Index
-    c_index1 <- round(SurvMetrics::Cindex(surv_obj1,
-        predicted = medianSurv1), 2)
+    # Calculate the C-index
+    c_index1 <- round(
+      survival::concordance(
+        surv_obj1 ~ medianSurv1
+      )$concordance,
+      2
+    )
+
+
     # Combine evaluation parameters to get Matrix
-    Error_mat_1_te <- cbind(IBS_1, c_index1)
+    Error_mat_1_te <- c_index1
     Error_mat_1 <- rbind(Error_mat_1_tr, Error_mat_1_te)
-    colnames(Error_mat_1) <- c("IBS_score", "c_index")
+    colnames(Error_mat_1) <- c("c_index")
     rownames(Error_mat_1) <- c("Training_set", "Test_set")
-  } else if (Model_type == 2) { # Model2- Model with only PI score
+
+  }
+
+# Model2 -  Model with only PI score
+
+  else if (Model_type == 2) {
     # combine clinical and feature data
     sel_clin_tr1 <- cbind(
       tr_clin1["OS"], tr_clin1["OS_month"],
@@ -272,38 +288,39 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj_2_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_2_tr <- round(IBS(surv_obj_2_tr,
-        sp_matrix = survivalProbs_t_mat1_t2_2_tr,
-        survivalProbs_p2_tr$time[-1]), 3)
-
-    # Concordance Index
-    c_index_2_tr <- round(SurvMetrics::Cindex(surv_obj_2_tr,
-        predicted = medianSurv2_tr), 2)
+    # Calculate the C-index
+    c_index_2_tr <- round(
+      survival::concordance(
+        surv_obj_2_tr ~ medianSurv2_tr
+      )$concordance,
+      2
+    )
 
     # Combine evaluation parameters to get Matrix
-    Error_mat_2_tr <- cbind(IBS1_2_tr, c_index_2_tr)
+    Error_mat_2_tr <- c_index_2_tr
 
     # Calcualte Evalulation/prediction parameters on test data
     # create survival object
     surv_obj_2 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_2 <- round(IBS(surv_obj_2,
-        sp_matrix = survivalProbs_t_mat1_t2_2,
-        survivalProbs_p2$time[-1]), 3)
+    # Calculate the C-index
+    c_index_2 <- round(
+      survival::concordance(
+        surv_obj_2 ~ medianSurv2
+      )$concordance,
+      2
+    )
 
-    # Concordance Index
-    c_index_2 <- round(SurvMetrics::Cindex(surv_obj_2,
-        predicted = medianSurv2), 2)
 
     # Combine evaluation parameters to get Matrix
-    Error_mat_2_te <- cbind(IBS1_2, c_index_2)
+    Error_mat_2_te <- c_index_2
 
     Error_mat_2 <- rbind(Error_mat_2_tr, Error_mat_2_te)
-    colnames(Error_mat_2) <- c("IBS_Score", "c_index")
+    colnames(Error_mat_2) <- c("c_index")
     rownames(Error_mat_2) <- c("Training_set", "Test_set")
-  } else if (Model_type == 3) { # Model3- Model with PI & Clin features
+
+#model3  
+} else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
         c(ftr_list$ID), ])
@@ -401,19 +418,17 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create survival object
     surv_obj_3_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_3_tr <- round(IBS(surv_obj_3_tr,
-      sp_matrix = survivalProbs_t_mat1_t2_3_tr,
-      survivalProbs_p3_tr$time[-1]
-    ), 3)
-
-    # Concordance Index
-    c_index_3_tr <- round(SurvMetrics::Cindex(surv_obj_3_tr,
-      predicted = medianSurv3_tr
-    ), 2)
+    # Calculate the C-index
+    c_index_3_tr <- round(
+      survival::concordance(
+        surv_obj_3_tr ~ medianSurv3_tr
+      )$concordance,
+      2
+    )
 
     # Combine evaluation parameters to get Matrix
-    Error_mat_3_tr <- cbind(IBS1_3_tr, c_index_3_tr)
+    Error_mat_3_tr <- c_index_3_tr
+
     # Calcualte Evaluation parameters on test data
     # create survival object
     surv_obj_3 <- survival::Surv(
@@ -421,23 +436,23 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       sel_clin_te2$OS
     )
 
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_3 <- round(IBS(surv_obj_3,
-      sp_matrix = survivalProbs_t_mat1_t2_3,
-      survivalProbs_p3$time[-1]
-    ), 3)
+    # Calculate the C-index
+     c_index_3 <- round(
+      survival::concordance(
+        surv_obj_3 ~ medianSurv3
+      )$concordance,
+      2
+    )
 
-    # Concordance Index
-    c_index_3 <- round(SurvMetrics::Cindex(surv_obj_3,
-      predicted = medianSurv3
-    ), 2)
     # Combine evaluation parameters to get Matrix
-    Error_mat_3_te <- cbind(IBS1_3, c_index_3)
+    Error_mat_3_te <- c_index_3
+
     Error_mat_3 <- rbind(Error_mat_3_tr, Error_mat_3_te)
-    # column names
-    colnames(Error_mat_3) <- c("IBS_Score", "c_index")
+
+    colnames(Error_mat_3) <- c("c_index")
     rownames(Error_mat_3) <- c("Training_set", "Test_set")
-  } else if (Model_type == 4) { # model 4-  Univariate with Clin features
+  } else if (Model_type == 4) {
+    ## Univariate with Clin features ##
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
       c(ftr_list$ID), ])
@@ -521,31 +536,33 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Calcualte Evalulation parameters on Training data
     # create survival object
     surv_obj_5_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_5_tr <- round(IBS(surv_obj_5_tr,
-        sp_matrix = survivalProbs_t_mat1_t2_5_tr,
-        survivalProbs_p5_tr$time[-1]), 3)
-    # Concordance Index
-    c_index_5_tr <- round(SurvMetrics::Cindex(surv_obj_5_tr,
-        predicted = medianSurv5_tr), 2)
 
+    # Calculate the C-index
+    c_index_5_tr <- round(
+      survival::concordance(
+        surv_obj_5_tr ~ medianSurv5_tr
+      )$concordance,
+      2
+    )
     # Combine evaluation parameters to get Matrix
-    Error_mat_5_tr <- cbind(IBS1_5_tr, c_index_5_tr)
-    # Calcualte Evalulation parameters on test data
+    Error_mat_5_tr <- c_index_5_tr
+
     # create survival object
     surv_obj_5 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-    # calculate IBS (Integrated Brier Score for test data
-    IBS1_5 <- round(IBS(surv_obj_5,
-        sp_matrix = survivalProbs_t_mat1_t2_5,
-        survivalProbs_p5$time[-1]), 3)
-    # Concordance Index
-    c_index_5 <- round(SurvMetrics::Cindex(surv_obj_5,
-        predicted = medianSurv5), 2)
+
+    # Calculate the C-index
+    c_index_5 <- round(
+      survival::concordance(
+        surv_obj_5 ~ surv_obj_5
+      )$concordance,
+      2
+    )
+
     # Combine evaluation parameters to get Matrix
-    Error_mat_5_te <- cbind(IBS1_5, c_index_5)
+    Error_mat_5_te <- c_index_5
+
     Error_mat_5 <- rbind(Error_mat_5_tr, Error_mat_5_te)
-    # add column and row names
-    colnames(Error_mat_5) <- c("IBS_Score", "c_index")
+    colnames(Error_mat_5) <- c("c_index")
     rownames(Error_mat_5) <- c("Training_set", "Test_set")
   }
   if (Model_type == 1) {

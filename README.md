@@ -35,8 +35,6 @@ library(survminer)
 library(ggplot2)
 library(MASS)
 library(MTLR)
-library(dplyr)
-library(SurvMetrics)
 library(pec)
 library(glmnet)
 library(reshape2)
@@ -397,13 +395,12 @@ CPSM: R-package of an Automated Machine Learning Pipeline for Predicting the Sur
 6. Kassambara, A., Kosinski, M., Biecek, P., & Scheipl, F. (2021). survminer: Drawing survival curves using 'ggplot2' (Version 0.4.9) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.survminer 
 7. Haider, H. (2019). MTLR: Survival Prediction with Multi-Task Logistic Regression (Version 0.2.1) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.MTLR
 8. Wickham H, François R, Henry L, Müller K, Vaughan D (2023). dplyr: A Grammar of Data Manipulation. R package version 1.1.4, https://github.com/tidyverse/dplyr, https://dplyr.tidyverse.org.
-9. Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN 978-3-319-24277-4, https://ggplot2.tidyverse.org.
-10. Zhou, H., Cheng, X., Wang, S., Zou, Y., & Wang, H. (2022). SurvMetrics: Predictive Evaluation Metrics in Survival Analysis (Version 0.5.0) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.SurvMetrics
-11. Simon N, Friedman J, Tibshirani R, Hastie T (2011). “Regularization Paths for Cox's Proportional Hazards Model via Coordinate Descent.” Journal of Statistical Software, 39(5), 1–13. doi:10.18637/jss.v039.i05.
-12. Gerds TA (2023). pec: Prediction Error Curves for Risk Prediction Models in Survival Analysis. R package version 2023.04.12, https://CRAN.R-project.org/package=pec.
-13. Heagerty, P. J., & Saha-Chaudhuri, P. (2022). survivalROC: Time-Dependent ROC Curve Estimation from Censored Survival Data (Version 1.0.3.1) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.survivalROC
-14. Harrell, F. E. Jr. (2024). rms: Regression Modeling Strategies (Version 6.8-1) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.rms
-15. Sing T, Sander O, Beerenwinkel N, Lengauer T (2005). “ROCR: visualizing classifier performance in R.” Bioinformatics, 21(20), 7881. http://rocr.bioinf.mpi-sb.mpg.de.
-16. Bates, D., Maechler, M., Jagan, M., Davis, T. A., Karypis, G., Riedy, J., Oehlschlägel, J., & R Core Team. (2024). Matrix: Sparse and Dense Matrix Classes and Methods (Version 1.7-0) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.Matrix
-17. Harrell, F. E. Jr., & Dupont, C. (2024). Hmisc: Harrell Miscellaneous (Version 5.1-3) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.Hmisc
+9. Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN 978-3-319-24277-4, https://ggplot2.tidyverse.org. 
+10. Simon N, Friedman J, Tibshirani R, Hastie T (2011). “Regularization Paths for Cox's Proportional Hazards Model via Coordinate Descent.” Journal of Statistical Software, 39(5), 1–13. doi:10.18637/jss.v039.i05.
+11. Gerds TA (2023). pec: Prediction Error Curves for Risk Prediction Models in Survival Analysis. R package version 2023.04.12, https://CRAN.R-project.org/package=pec.
+12. Heagerty, P. J., & Saha-Chaudhuri, P. (2022). survivalROC: Time-Dependent ROC Curve Estimation from Censored Survival Data (Version 1.0.3.1) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.survivalROC
+13. Harrell, F. E. Jr. (2024). rms: Regression Modeling Strategies (Version 6.8-1) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.rms
+14. Sing T, Sander O, Beerenwinkel N, Lengauer T (2005). “ROCR: visualizing classifier performance in R.” Bioinformatics, 21(20), 7881. http://rocr.bioinf.mpi-sb.mpg.de.
+15. Bates, D., Maechler, M., Jagan, M., Davis, T. A., Karypis, G., Riedy, J., Oehlschlägel, J., & R Core Team. (2024). Matrix: Sparse and Dense Matrix Classes and Methods (Version 1.7-0) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.Matrix
+16. Harrell, F. E. Jr., & Dupont, C. (2024). Hmisc: Harrell Miscellaneous (Version 5.1-3) [R package]. CRAN. https://doi.org/10.32614/CRAN.package.Hmisc
 Wickham H (2007). “Reshaping Data with the reshape Package.” Journal of Statistical Software, 21(12), 1–20. http://www.jstatsoft.org/v21/i12/.

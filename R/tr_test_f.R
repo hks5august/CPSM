@@ -1,18 +1,32 @@
-#' This function split data into training and test data as per user defined
-#' ratio
-#' @param data:args1 a data frame where features in the columns and samples
-#'  must be in rows
-#' @param fraction:args2 , by which user want to split data for training data;
-#' e.g. 90% training, so fraction would be 0.9
-#' @param train_data:args3, name of training set that user can provide
-#' @param test_data:args4, name of test set that user can provide
-#' @return  training and test data
-#' @import MASS
-#' @import dplyr
+#' Train-Test Split Function
+#'
+#' This function splits a given dataset into training and testing sets based
+#' on a specified fraction.
+#'
+#' @param data A data frame containing the dataset to be split.
+#' @param fraction A numeric value between 0 and 1 indicating the proportion
+#' of data to include in the training set.
+#'
+#' @return A list containing two data frames:
+#' \describe{
+#'   \item{train_data}{A data frame containing the training set.}
+#'   \item{test_data}{A data frame containing the testing set.}
+#' }
+#'
+#' @details
+#' The function checks whether the input `data` is valid and whether the
+#' `fraction` is a number between 0 and 1.
+#' It then performs a random split of the dataset into training and testing
+#' sets.
+#'
 #' @examples
-#' data(New_data, package = "CPSM")
-#' tr_test_f(data = assays(New_data)$expression, fraction = 0.9)
-#' Usage:tr_test_f(data, fraction)
+#' # Example dataset
+#' data <- data.frame(x = rnorm(100), y = rnorm(100))
+#' fraction <- 0.7
+#' result <- tr_test_f(data, fraction)
+#' head(result$train_data)
+#' head(result$test_data)
+#'
 #' @export
 
 tr_test_f <- function(data, fraction) {

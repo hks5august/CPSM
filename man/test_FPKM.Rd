@@ -2044,7 +2044,9 @@ This is test FPKM.
 \source{
 https://portal.gdc.cancer.gov/
 }
-
+\value{
+  Returns a dataframe.
+}
 \examples{
 data(test_FPKM)
 ## maybe str(test_FPKM)

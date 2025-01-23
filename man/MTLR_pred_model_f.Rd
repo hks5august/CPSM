@@ -2,16 +2,7 @@
 % Please edit documentation in R/MTLR_pred_model_f.R
 \name{MTLR_pred_model_f}
 \alias{MTLR_pred_model_f}
-\title{This function can generate 5 Prediction models types based on :
-(1)Clinical features,  (2) PI score , (3) PI score + Clin,
-(4) Significant Univariate features, (5) Significant Univariate features +
-clin features, using MTLR method.
-Further, this model will predict the survival of test data in terms of survival
-probability over different time points, mean and median survival time pf
-patients in test data.
-#'@param train_clin_data :args1 - training data with Clin features (Patients
-data with clinical and gene expression, where samples are in rows and
-features/genes are in columns)}
+\title{MTLR Prediction Model Function}
 \usage{
 MTLR_pred_model_f(
   train_clin_data,
@@ -24,67 +15,63 @@ MTLR_pred_model_f(
   surv_event
 )
 }
-
-
 \arguments{
-\item{train_clin_data}{:args1 -  training data with Clin features  (Patients
-data with clinical and gene expression, where samples are in rows and
-features/genes are in columns)}
+\item{train_clin_data}{A data frame containing the clinical data for the
+training set.}
 
-\item{test_clin_data}{:args2 -  test data with Clin features  (Patients data
-with clinical and gene expression, where samples are in rows and features/genes
-are in columns)}
+\item{test_clin_data}{A data frame containing the clinical data for the
+test set.}
 
-\item{Model_type}{:args3 -  Prediction Model type  (1 - Clinical features,
-2 - PI score features, 3-  PI score + Clinical features ;
-4 - Univariate features, 5 -  Univariate features + Clinical features)}
+\item{Model_type}{An integer indicating the model type:
+\itemize{
+\item 1: Clinical features model
+\item 2: PI score model
+\item 3: PI score with Clinical features model
+}}
 
-\item{train_features_data}{:args4 - Training data with selected features only
-(Significant Univariate/LASSO PI score)}
+\item{train_features_data}{A data frame containing the feature data for the
+training set.}
 
-\item{test_features_data}{:args5 - Training data with selected features only
-(Significant Univariate/LASSO PI score)}
+\item{test_features_data}{A data frame containing the feature data for the
+test set.}
 
-\item{Clin_Feature_List}{:args6 - List of key clinical features which contain
-non-unique values (e.g. Key_Clin_feature_list.txt,
-Key_PI_list.txt Key_Clin_features_with_PI_list.txt,
-Key_univariate_features_list.txt, Key_univariate_features_with_Clin_list.txt)}
+\item{Clin_Feature_List}{A list of clinical features to be used in the
+model.}
 
-\item{surv_time}{:arg7 - name of column which contain survival time (in days)
-information}
+\item{surv_time}{A string specifying the name of the survival time column.}
 
-\item{surv_event}{:arg8 - name of column which contain survival
-eventinformation}
-
-}
-\description{
-This function can generate 5 Prediction models types based on :(1)Clinical
-features,  (2) PI score , (3) PI score + Clin, (4) Significant Univariate
-features, (5) Significant Univariate features + clin features, using MTLR
-method. Further, this model will predict the survival of test data in terms of
-survival probability over different time points, mean and median survival time
-pf patients in test data.
-#'@param train_clin_data :args1 - training data with Clin features
-(Patients data with clinical and gene expression, where samples are in rows and
-features/genes are in columns)
+\item{surv_event}{A string specifying the name of the survival event column.}
 }
 \value{
-  Returns processed data.
+A list containing the following components:
+\item{Model}{The fitted MTLR model.}
+\item{Error_matrix}{A matrix of error evaluation metrics (IBS and C-index)
+for training and test sets.}
+\item{Survival_predictions}{Predicted survival probabilities, mean survival
+times, and median survival times.}
+\item{Model_type}{The model type selected by the user.}
+}
+\description{
+This function builds a Multi-Task Logistic Regression (MTLR) survival model
+based on clinical and feature data for training and testing datasets. It can
+handle various model types based on user input (e.g., Clinical features
+only, Clinical features with PI score).
 }
 \examples{
+# Example usage of the MTLR_pred_model_f function
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
 data(Key_Clin_feature_list, package = "CPSM")
-MTLR_pred_model_f(train_clin_data = Train_Clin,
-test_clin_data = Test_Clin,
-Model_type = 1,
-train_features_data = Train_Clin,
-test_features_data = Test_Clin ,
-Clin_Feature_List = Key_Clin_feature_list,
-surv_time="OS_month",
-surv_event="OS")
+result <- MTLR_pred_model_f(
+   train_clin_data = Train_Clin,
+   test_clin_data = Test_Clin,
+   Model_type = 1,
+   train_features_data = Train_Clin,
+   test_features_data = Test_Clin,
+   Clin_Feature_List = Key_Clin_feature_list,
+   surv_time = "OS_month",
+   surv_event = "OS"
+  )
+
+
 }
-
-
-
-
