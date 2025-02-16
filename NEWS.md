@@ -18,3 +18,9 @@
 - Resolved issues with the NAMESPACE file:
 - Removed exportPattern("^[[:alpha:]]+") from the NAMESPACE file.
 - Bumped the version from 0.99.4 to 0.99.5 as per Bioconductor guidelines
+
+# CPSM 0.99.6 (Unreleased)
+- Updated vigenette file "CPSM.Rmd" included YAML header of the vignette
+- corrected input in MTLR_pred_model_f.R file
+- updated .gitignore file
+- Bumped the version from 0.99.5 to 0.99.6 as per Bioconductor guidelines

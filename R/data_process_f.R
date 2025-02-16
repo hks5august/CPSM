@@ -46,7 +46,6 @@ data_process_f <- function(data, col_num, surv_time) {
   }
   n <- col_num - 1
   # Extract Clinical data
-  # data_clin <- data[1:n]
   data_clin <- data[seq_len(n)]
 
   OS.time1 <- surv_time

@@ -97,7 +97,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   colnames(te_data1)[colnames(te_data1) == surv_time] <- "OS_month"
   colnames(te_data1)[colnames(te_data1) == surv_event] <- "OS"
 
-  ######################## LASSO COX ######################
+  # LASSO COX
   # create survival object
   surv_object <- survival::Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
@@ -109,7 +109,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
     family = "cox", # specify Cox PH model
     type.measure = "C",
     nfolds = nfolds,
-    alpha = 1, # lasso: alpha = 1; ridge: alpha=0
+    alpha = 1,
     maxit = 1000
   )
 
@@ -128,44 +128,35 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   colnames(key_variables) <- c("coeff")
   key_variables <- round(key_variables, 3)
 
-  # plot(cvfit1)
-  ################## Create PI Index for training data #######################
-
+  # Create PI Index for training data
   sel_features2 <- key_variables
   sel_train2 <- as.data.frame(tr_data1[, colnames(tr_data1) %in%
     c(row.names(sel_features2)), ])
 
-  ######### Make final files with the selected features (genes here)  and
-  # combine survival information #############################################
+  # Make final files with selected features  and survival information
   train_feature_mat2 <- cbind(tr_data1["OS_month"], tr_data1["OS"], sel_train2)
 
-  ######################## PI Index ########################
-  # Create prognostic index
+  # Create prognostic index (PI)
   tr_PI <- train_feature_mat2[3:ncol(train_feature_mat2)]
   E <- length(tr_PI)
 
   PI_tr <- 0
-  for (i in seq(from = 1, to = E, by = 1))
-  {
+  for (i in seq(from = 1, to = E, by = 1)) {
     PI_tr <- PI_tr + ((tr_PI[, i]) * (sel_features2[i, 1]))
   }
 
   # add PI as new column to the data
   tr_PI$PI <- PI_tr
-
-  # combines PI information with survival information
+  # combines PI information with survival info
   train_PI <- cbind(
-    train_feature_mat2["OS"], train_feature_mat2["OS_month"],
-    tr_PI
+    train_feature_mat2["OS"],
+    train_feature_mat2["OS_month"], tr_PI
   )
-
-  ###################### PI for Test data ###############
-
+  # PI for Test data
   sel_test <- as.data.frame(te_data1[, colnames(te_data1) %in%
     c(row.names(sel_features2)), ])
 
-  ######### Make final files with the selected features (genes here)  and
-  # combine survival information #############################################
+  # Make final files with selected features & survival info
   test_feature_mat2 <- cbind(te_data1["OS_month"], te_data1["OS"], sel_test)
 
   # Create prognostic index
@@ -175,11 +166,9 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   sel_features2[2, 1]
 
   PI_te <- 0
-  for (i in seq(from = 1, to = E, by = 1))
-  {
+  for (i in seq(from = 1, to = E, by = 1)) {
     PI_te <- PI_te + ((te_PI[, i]) * (sel_features2[i, 1]))
   }
-
 
   # add PI as new column to the data
   te_PI$PI <- PI_te
