@@ -1,3 +1,5 @@
+yaml
+
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Uma Shankavaram"
@@ -30,22 +32,7 @@ and barplots for predicted mean and median survival time of patients.
 ```{r, warning=FALSE, message=FALSE }
 # Load CPSM packages
 library(CPSM)
-# Load other required packages
-library(preprocessCore)
-library(ggfortify)
-library(survival)
-library(survminer)
-library(ggplot2)
-library(MASS)
-library(MTLR)
-library(pec)
-library(glmnet)
-library(reshape2)
-library(rms)
-library(Matrix)
-library(Hmisc)
-library(survivalROC)
-library(ROCR)
+
 ```
 
 ```{r }
@@ -70,7 +57,7 @@ survival). In the data, column names OS, PFS, DSS and DFS represent event
 information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival 
 time in days.
 
-```{r }
+```{r , warning=FALSE, message=FALSE}
 library(SummarizedExperiment)
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 Example_TCGA_LGG_FPKM_data
@@ -79,11 +66,11 @@ Example_TCGA_LGG_FPKM_data
 # Step 1- Data Processing 
 This function converts OS time (in days) into months and then removes samples 
 where OS/OS.time information is missing.
-Here, we need to provide input data in tsv or txt  format. Further, we needs 
+Here, we need to provide input data in tsv format. Further, we needs 
 to define col_num (column number at which clinical/demographic and survival 
 information ends,e.g. 20,  surv_time (name of column which contain survival 
 time (in days) information, e.g. OS.time ) and output file name, e.g.  
-“New_data.txt”
+“New_data”
 
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
@@ -93,7 +80,7 @@ New_data <- data_process_f(assays(Example_TCGA_LGG_FPKM_data)$expression,
 str(New_data[1:10])
 ```
 
-After data processing, we got a new output file “New_data”, which contains 176 
+After data processing, we got a new output “New_data”, which contains 176 
 samples. Thus, data_process_f function removes 8 samples where OS/OS time 
 information is missing. Besides, here is a new 21st column in the data with  
 column name “OS_month”  where OS time is available in months.
@@ -102,11 +89,11 @@ column name “OS_month”  where OS time is available in months.
 # Step 2 - Split Data into Training and Test Subset
 Before proceeding further, we need to split our data into training and test 
 subset for the purpose of feature selection and model development. Here, we 
-need output from the previous step as an input ( which was “New_data.txt”). 
+need output from the previous step as an input ( which was “New_data”). 
 Next we need to define the fraction (e.g. 0.9) by which we want to split data 
 into training and test. Thus, fraction=0.9 will split data into 90% training 
 and 10% as test set. Besides, we also need to provide training and set output 
-names (e.g. train_FPKM.txt,test_FPKM.txt )
+names (e.g. train_FPKM,test_FPKM )
 
 
 ```{r}
@@ -226,8 +213,8 @@ package, we can select significant (p-value <0.05) features based on
 univariate survival analysis. These features are selected based on their 
 capability to stratify high-risk and low-risk survival groups using the cut 
 off value of their median expression.  
-Here, we need to provide Normalized training (Train_Norm_data.txt) and test 
-data (Test_Norm_data.txt)as input data that we have obtained from the previous 
+Here, we need to provide Normalized training (Train_Norm_data) and test 
+data (Test_Norm_data)as input data that we have obtained from the previous 
 function “train_test_normalization_f”. Further, we need to provide a “col_num” 
 (e.g 21)column number at which clinical features ends. Further, we need to 
 provide surv_time (name of column containing survival time in months, e.g. 
@@ -277,13 +264,13 @@ in developing a model based on PI score. Thus, we need to provide following
 inputs: (1) Training data with only clinical features, (2) Test data with only 
 clinical features, (3) Model type (e.g. 2, since we want to develop model based 
 on PI score), (4) Training data with PI score , (5) Test data with PI score, 
-(6) Clin_Feature_List (e.g. Key_PI_list.txt), a list of features which will be  
+(6) Clin_Feature_List (e.g. Key_PI_list), a list of features which will be  
 used to build model . Furthermore, we also need to provide surv_time (name of 
 column containing survival time in months, e.g. OS_month) and surv_event (name 
 of column containing survival event information, e.g. OS) information in the 
 clinical data
 
-#Model for only Clinical features
+# Model for only Clinical features
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")

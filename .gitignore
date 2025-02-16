@@ -1,5 +1,18 @@
+# R Project files
 *.Rproj
-*.DS_Store
-.Rhistory
-.RData
-.Rproj.user
+*.Rproj.user
+
+# R history and session data
+*.Rhistory
+*.RData
+
+# macOS system files
+.DS_Store
+
+# RStudio project files
+CPSM.Rproj
+
+# Cache and temporary files
+.Rapp.history
+.Ruserdata
+

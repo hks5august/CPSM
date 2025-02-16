@@ -553,7 +553,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Calculate the C-index
     c_index_5 <- round(
       survival::concordance(
-        surv_obj_5 ~ surv_obj_5
+        surv_obj_5 ~ medianSurv5
       )$concordance,
       2
     )
