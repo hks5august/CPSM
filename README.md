@@ -27,22 +27,6 @@ library("CPSM")
 ```{r, warning=FALSE, message=FALSE }
 #Load CPSM packages
 library(CPSM)
-#Load other required packages
-library(preprocessCore)
-library(ggfortify)
-library(survival)
-library(survminer)
-library(ggplot2)
-library(MASS)
-library(MTLR)
-library(pec)
-library(glmnet)
-library(reshape2)
-library(rms)
-library(Matrix)
-library(Hmisc)
-library(survivalROC)
-library(ROCR)
 ```
 
 ```{r }
@@ -59,7 +43,7 @@ Types of Survival: 4 types of Survival include OS (overall survival), PFS (progr
 
 ## Step 1- Data Processing 
 This function converts OS time (in days) into months and then removes samples where OS/OS.time information is missing.
-Here, we need to provide input data in tsv or txt  format. Further, we needs to define col_num (column number at which clinical/demographic and survival information ends,e.g. 20,  surv_time (name of column which contain survival time (in days) information, e.g. OS.time ) and output file name, e.g.  “New_data.txt”
+Here, we need to provide input data in tsv or txt  format. Further, we needs to define col_num (column number at which clinical/demographic and survival information ends,e.g. 20,  surv_time (name of column which contain survival time (in days) information, e.g. OS.time ) and output  name, e.g.  “New_data”
 
 ```{r }
 library(SummarizedExperiment)
@@ -77,7 +61,7 @@ After data processing, we got a new output file “New_data”, which contains 1
 
 
 ## Step 2 - Split Data into Training and Test Subset
-Before proceeding further, we need to split our data into training and test subset for the purpose of feature selection and model development. Here, we need output from the previous step as an input ( which was “New_data.txt”). Next we need to define the fraction (e.g. 0.9) by which we want to split data into training and test. Thus, fraction=0.9 will split data into 90% training and 10% as test set. Besides, we also need to provide training and set output names (e.g. train_FPKM.txt,test_FPKM.txt )
+Before proceeding further, we need to split our data into training and test subset for the purpose of feature selection and model development. Here, we need output from the previous step as an input ( which was “New_data”). Next we need to define the fraction (e.g. 0.9) by which we want to split data into training and test. Thus, fraction=0.9 will split data into 90% training and 10% as test set. Besides, we also need to provide training and set output names (e.g. train_FPKM,test_FPKM )
 
 
 ```{r}
