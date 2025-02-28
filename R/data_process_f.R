@@ -23,8 +23,10 @@
 #' @examples
 #' library(SummarizedExperiment)
 #' data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-#' data_process_f(
-#'   data = assays(Example_TCGA_LGG_FPKM_data)$expression,
+#' combined_df <- cbind(as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
+#' [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],
+#' t(as.data.frame(assay(Example_TCGA_LGG_FPKM_data, "expression"))))
+#' data_process_f(data = combined_df,
 #'   col_num = 20, surv_time = "OS.time"
 #' )
 #'

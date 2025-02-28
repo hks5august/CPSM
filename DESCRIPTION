@@ -1,11 +1,13 @@
 Package: CPSM
 Type: Package
 Title: CPSM: Cancer patient survival model 
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com", 
          role = c("aut", "cre"),
          comment = c(ORCID = "0000-0003-0421-8341")),
          person("Pijush", "Das", email = "topijush@gmail.com",
+         role = c("aut")),
+	 person("Kevin", "Camphausen", email = "camphauk@mail.nih.gov",
          role = c("aut")),
          person("Uma", "Shankavaram" , email = "uma@mail.nih.gov",
          role = c("aut")))

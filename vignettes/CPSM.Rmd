@@ -1,10 +1,9 @@
-yaml
 
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Uma Shankavaram"
 date: 'August 12, 2024'
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{CPSM: Cancer patient survival model}
   %\VignetteEngine{knitr::rmarkdown}
@@ -28,21 +27,18 @@ Score, Develop Prediction model for survival probability based on different
 features and draw survival curve based on predicted survival probability values 
 and barplots for predicted mean and median survival time of patients.
 
-#Load Packages
-```{r, warning=FALSE, message=FALSE }
-# Load CPSM packages
-library(CPSM)
 
-```
-
-```{r }
-# set seed
-set.seed(7)
+# Installation 
+To install this package, start R (version "4.4") and enter the code provided:
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("CPSM")
 ```
 
 
 # Input Data
-Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated file.  It 
+Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated data.  It 
 contains Samples (184 LGG Cancer Samples) in the rows and Features in the 
 columns. Gene Expression is available in terms of FPKM values in the data.
 Features information: In the data there are 11 clinical + demographic, 4 types 
@@ -58,7 +54,9 @@ information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival
 time in days.
 
 ```{r , warning=FALSE, message=FALSE}
+library(CPSM)
 library(SummarizedExperiment)
+set.seed(7) # set seed
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 Example_TCGA_LGG_FPKM_data
 ```
@@ -69,14 +67,15 @@ where OS/OS.time information is missing.
 Here, we need to provide input data in tsv format. Further, we needs 
 to define col_num (column number at which clinical/demographic and survival 
 information ends,e.g. 20,  surv_time (name of column which contain survival 
-time (in days) information, e.g. OS.time ) and output file name, e.g.  
-“New_data”
+time (in days) information, e.g. OS.time ) and output, e.g. “New_data”.
 
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-New_data <- data_process_f(assays(Example_TCGA_LGG_FPKM_data)$expression,
-  col_num = 20, surv_time = "OS.time"
-)
+combined_df <- cbind(as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
+                      [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],  
+                     t(as.data.frame(assay(Example_TCGA_LGG_FPKM_data, 
+                                           "expression"))))  
+New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
 
@@ -99,7 +98,7 @@ names (e.g. train_FPKM,test_FPKM )
 ```{r}
 data(New_data, package = "CPSM")
 # Call the function
-result <- tr_test_f(data = assays(New_data)$expression, fraction = 0.9)
+result <- tr_test_f(data = New_data, fraction = 0.9)
 # Access the train and test data
 train_FPKM <- result$train_data
 str(train_FPKM[1:10])
@@ -107,9 +106,9 @@ test_FPKM <- result$test_data
 str(test_FPKM[1:10])
 ```
 
-After the train-test split, we got a two new outputs:  “train_FPKM”, 
-“test_FPKM”, where, train_FPKM contains 158 samples and test_FPKM contains 18 
-samples. Thus, tr_test_f function splits data into 90:10 ratio. 
+After the train-test split, we got a two new outputs:“train_FPKM”, “test_FPKM”, 
+where, train_FPKM contains 158 samples and test_FPKM contains 18 samples. 
+Thus, tr_test_f function splits data into 90:10 ratio. 
 
 # Step 3 - Data Normalization
 Next to select features and develop ML models, data must be normalized. Since, 
@@ -120,7 +119,7 @@ scale [log2(FPKM+1) followed by quantile normalization using the
 for quantile normalization.  Here, we need to provide training and test 
 datasets (that we obtained from the  previous step of Train/Test Split). 
 Further, we need to provide column number where clinical information ends 
-(e.g. 21) in the input datasets. Besides, we also need to provide output files 
+(e.g. 21) in the input datasets. Besides, we also need to provide output 
 names (train_clin_data (which contains only Clinical information of training 
 data), test_clin_data (which contains only Clinical information of training 
 data), train_Normalized_data_clin_data (which contains Clinical information and 
@@ -173,8 +172,7 @@ e.g. 5) for the LASSO regression method to select features. We implemented
 LASSO using the “glmnet” package.  Further, we need to provide surv_time (name 
 of column containing survival time in months, e.g. OS_month) and surv_event 
 (name of column containing survival event information, e.g. OS) information in 
-the data. Besides, we also need to provide names and training and test output 
-file names to store data containing LASSO genes and PI values.
+the data. Besides, we also need to provide names and training and test outputs to store data containing LASSO genes and PI values.
 
 
 ```{r, warning=FALSE, message=FALSE, fig.width=7, fig.height=4 }
@@ -220,7 +218,7 @@ function “train_test_normalization_f”. Further, we need to provide a “col_
 provide surv_time (name of column containing survival time in months, e.g. 
 OS_month) and surv_event (name of column containing survival event information, 
 e.g. OS) information in the data. Besides, we also need to provide names and 
-training and test output file names to store data containing expression of 
+training and test output to store data containing expression of 
 selected genes.
 
 
@@ -270,7 +268,7 @@ column containing survival time in months, e.g. OS_month) and surv_event (name
 of column containing survival event information, e.g. OS) information in the 
 clinical data
 
-# Model for only Clinical features
+## Model for only Clinical features
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -292,9 +290,7 @@ Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
 ```
 
 
-
-
-# Model for PI
+## Model for PI
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -318,7 +314,7 @@ Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
 ```
 
 
-# Model for Clinical features + PI
+## Model for Clinical features + PI
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -342,7 +338,7 @@ Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
 ```
 
 
-# Model for Univariate + Clinical features
+## Model for Univariate + Clinical features
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -406,8 +402,8 @@ Here, we obtained two output plots:
 in the test data 
 
 
-# Step 7 - Bar Plot for predicted mean and median survival time of individual 
-# patients
+# Step 7 - Predicted mean and median survival time of individual patients 
+
 Next to visualize predicted survival time of patients, we will plot barplot 
 for mean/median using “mean_median_surv_barplot_f” function based on the data 
 that we obtained from step 5 after running the  MTLR_pred_model_f function. 
@@ -481,10 +477,7 @@ a newer version of a package.
 sessionInfo()
 ```
 
-
 # References
-
-
 1. Kuhn, Max (2008). “Building Predictive Models in R Using the caret Package.” 
 Journal of Statistical Software, 28(5), 1–26. doi:10.18637/jss.v028.i05, 
 https://www.jstatsoft.org/index.php/jss/article/view/v028i05.

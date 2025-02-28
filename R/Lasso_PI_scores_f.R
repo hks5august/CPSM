@@ -114,7 +114,6 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   )
 
   # calculate lambda minimum
-  lambda_min <- cvfit1$lambda.min
   est.coef <- coef(cvfit1, s = cvfit1$lambda.min)
   # returns the p length coefficient vector
   # of the solution corresponding to lambda
