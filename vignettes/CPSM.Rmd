@@ -1,7 +1,7 @@
 
 ---
 title: "CPSM: Cancer patient survival model"
-author: "Harpreet Kaur, Pijush Das, Uma Shankavaram"
+author: "Harpreet Kaur, Pijush Das,Kevin Camphausen, Uma Shankavaram"
 date: 'August 12, 2024'
 output: BiocStyle::html_document
 vignette: >
