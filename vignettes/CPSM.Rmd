@@ -17,15 +17,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
 # Installation 
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 BiocManager::install("CPSM")
 ```
 
@@ -47,10 +47,14 @@ The **data_process_f** function converts OS time (in days) into months and remov
 
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-combined_df <- cbind(as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
-                      [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],  
-                     t(as.data.frame(assay(Example_TCGA_LGG_FPKM_data, 
-                                           "expression"))))  
+combined_df <- cbind(
+  as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
+  [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],
+  t(as.data.frame(assay(
+    Example_TCGA_LGG_FPKM_data,
+    "expression"
+  )))
+)
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
@@ -364,9 +368,7 @@ Result_Nomogram <- Nomogram_generate_f(
 )
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
-After running the function, the output is a nomogram that predicts the risk (e.g., Event risk such as death), as well as the 1-year, 3-year, 5-year, and 10-year survival probabilities for patients based on the selected features.
-This nomogram provides a visual representation to estimate the patient's survival outcomes over multiple time points, helping clinicians make more informed decisions.
-
+After running the function, the output is a nomogram that predicts the risk (e.g., Event risk such as death), as well as the 1-year, 3-year, 5-year, and 10-year survival probabilities for patients based on the selected features.The nomogram provides a visual representation to estimate the patient's survival outcomes over multiple time points, helping clinicians make more informed decisions.
 
 # SessionInfo
 
