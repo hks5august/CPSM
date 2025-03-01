@@ -19,14 +19,7 @@ knitr::opts_chunk$set(
 
 
 # Introduction
-The CPSM  is a R-package for a computational pipeline for the predicting the 
-Survival Probability of Cancer Patients. It performs various steps: Data 
-Processing, Split data into training and test subset, Data Normalization, 
-Select Significant features based on Univariate survival, Generate LASSO PI 
-Score, Develop Prediction model for survival probability based on different 
-features and draw survival curve based on predicted survival probability values 
-and barplots for predicted mean and median survival time of patients.
-
+CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
 # Installation 
 To install this package, start R (version "4.4") and enter the code provided:
@@ -38,20 +31,7 @@ BiocManager::install("CPSM")
 
 
 # Input Data
-Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated data.  It 
-contains Samples (184 LGG Cancer Samples) in the rows and Features in the 
-columns. Gene Expression is available in terms of FPKM values in the data.
-Features information: In the data there are 11 clinical + demographic, 4 types 
-survival with time and event information  and 19,978 protein coding genes.
-Clinical and demographic features: Clinical demographic features that are 
-present in this example data include Age,  subtype,  gender,  race,  
-ajcc_pathologic_tumor_stage,  histological_type, histological_grade,  
-treatment_outcome_first_course, radiation_treatment_adjuvant,  sample_type,  
-type. Types of Survival: 4 types of Survival include OS (overall survival), PFS 
-(progression-free survival), DSS (disease-specific survival), DFS (Disease-free 
-survival). In the data, column names OS, PFS, DSS and DFS represent event 
-information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival 
-time in days.
+The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
@@ -62,12 +42,8 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 # Step 1- Data Processing 
-This function converts OS time (in days) into months and then removes samples 
-where OS/OS.time information is missing.
-Here, we need to provide input data in tsv format. Further, we needs 
-to define col_num (column number at which clinical/demographic and survival 
-information ends,e.g. 20,  surv_time (name of column which contain survival 
-time (in days) information, e.g. OS.time ) and output, e.g. “New_data”.
+The **data_process_f** function converts OS time (in days) into months and removes samples where OS/OS.time information is missing. To use this function, the input data should be provided in TSV format. Additionally, you need to define `col_num` (the column number at which clinical, demographic, and survival information ends, e.g., 20), `surv_time` (the name of the column that contains survival time information, e.g., `OS.time`), and `output` (the desired name for the output, e.g., "New_data"). 
+
 
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
@@ -79,21 +55,10 @@ New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
 
-After data processing, we got a new output “New_data”, which contains 176 
-samples. Thus, data_process_f function removes 8 samples where OS/OS time 
-information is missing. Besides, here is a new 21st column in the data with  
-column name “OS_month”  where OS time is available in months.
-
+After data processing, the output object **`New_data`** is generated, which contains 176 samples. This indicates that the function has removed 8 samples where OS/OS.time information was missing. Moreover, a new 21st column, **`OS_month`**, is added to the data, containing OS time values in months.
 
 # Step 2 - Split Data into Training and Test Subset
-Before proceeding further, we need to split our data into training and test 
-subset for the purpose of feature selection and model development. Here, we 
-need output from the previous step as an input ( which was “New_data”). 
-Next we need to define the fraction (e.g. 0.9) by which we want to split data 
-into training and test. Thus, fraction=0.9 will split data into 90% training 
-and 10% as test set. Besides, we also need to provide training and set output 
-names (e.g. train_FPKM,test_FPKM )
-
+Before proceeding further, we need to split the data into training and test subsets for feature selection and model development. The output from the previous step, **`New_data`**, serves as the input for this process. Next, you need to define the fraction (e.g., 0.9) by which to split the data into training and test sets. For example, setting `fraction = 0.9` will divide the data into 90% for training and 10% for testing. Additionally, you should specify names for the training and test outputs (e.g., `train_FPKM` and `test_FPKM`).
 
 ```{r}
 data(New_data, package = "CPSM")
@@ -105,27 +70,10 @@ str(train_FPKM[1:10])
 test_FPKM <- result$test_data
 str(test_FPKM[1:10])
 ```
-
-After the train-test split, we got a two new outputs:“train_FPKM”, “test_FPKM”, 
-where, train_FPKM contains 158 samples and test_FPKM contains 18 samples. 
-Thus, tr_test_f function splits data into 90:10 ratio. 
+After the train-test split, two new output objects are generated: **`train_FPKM`** and **`test_FPKM`**. The **`train_FPKM`** object contains 158 samples, while **`test_FPKM`** contains 18 samples. This indicates that the **`tr_test_f`** function splits the data in a 90:10 ratio.
 
 # Step 3 - Data Normalization
-Next to select features and develop ML models, data must be normalized. Since, 
-expression is available in terms of FPKM values. Thus,  
-`train_test_normalization_f` function will first convert FPKM value into log 
-scale [log2(FPKM+1) followed by quantile normalization using the 
-“preprocessCore” package. Here, training data will be used as a target matrix 
-for quantile normalization.  Here, we need to provide training and test 
-datasets (that we obtained from the  previous step of Train/Test Split). 
-Further, we need to provide column number where clinical information ends 
-(e.g. 21) in the input datasets. Besides, we also need to provide output 
-names (train_clin_data (which contains only Clinical information of training 
-data), test_clin_data (which contains only Clinical information of training 
-data), train_Normalized_data_clin_data (which contains Clinical information and 
-normalized values of genes of training samples), test_Normalized_data_clin_data 
-(which contains Clinical information and normalized values of genes of test 
-samples).
+In order to select features and develop ML models, the data must be normalized. Since the expression data is available in terms of FPKM values, the **`train_test_normalization_f`** function will first convert the FPKM values into a log scale using the formula [log2(FPKM+1)], followed by quantile normalization. The training data will be used as the target matrix for the quantile normalization process. For this function, you need to provide the training and test datasets obtained from the previous step (Train/Test Split). Additionally, you must specify the column number where clinical information ends (e.g., 21) in the input datasets. Finally, you need to define output names for the resulting datasets: **`train_clin_data`** (which contains only clinical information from the training data), **`test_clin_data`** (which contains only clinical information from the test data), **`train_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the training samples), and **`test_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the test samples).
 
 
 ```{r }
@@ -146,33 +94,18 @@ Test_Norm_data <- Result_N_data$Test_Norm_data
 str(Train_Clin[1:10])
 str(Train_Norm_data[1:10])
 ```
-
-After, running the function, we obtained 4 outputs: Train_Clin - Contains only 
-Clinical features, Test_Clin - contains only Clinical features of Test 
-samples; Train_Norm_data - Clinical features with normalized values of genes 
-for training samples; Test_Norm_data - Clinical features with normalized 
-values of genes for test samples.
+After running the function, four outputs objects are generated: **`Train_Clin`** (which contains only clinical features from the training data), **`Test_Clin`** (which contains only clinical features from the test data), **`Train_Norm_data`** (which includes clinical features and normalized gene expression values for the training samples), and **`Test_Norm_data`** (which includes clinical features and normalized gene expression values for the test samples).
 
 
 # Step 4a - Prognostic Index (PI)  Score Calculation
-Next to create a survival model, we  will  create a Prognostic Index (PI)  
-Score. PI score is calculated based on the expression of the features selected 
-by the LASSO regression model and their beta coefficients. For instance, 5 
-features  (G1, G2, G3, G4, and G5 and their coefficient values are B1, B2, 
-B3, B4, and B5, respectively) selected by the LASSO method. Then PI score will 
-be computed as following:
 
-PI score  = G1*B1 + G2*B2 + G3 * B3 + G4*B4+ G5*B5
+To create a survival model, the next step is to calculate the Prognostic Index (PI) score. The PI score is based on the expression levels of features selected by the LASSO regression model and their corresponding beta coefficients. For example, suppose five features (**G1**, **G2**, **G3**, **G4**, **G5**) are selected by the LASSO method, and their associated coefficients are **B1**, **B2**, **B3**, **B4**, and **B5**, respectively. The PI score is then computed using the following formula:
 
-Here, we need to provide Normalized training (Train_Norm_data) and test data 
-(Test_Norm_data)as input data that we have obtained from the previous function 
-“train_test_normalization_f”. Further, we need to provide col_num n column 
-number at which clinical features ends (e.g. 21), nfolds  (number of folds  
-e.g. 5) for the LASSO regression method to select features. We implemented 
-LASSO using the “glmnet” package.  Further, we need to provide surv_time (name 
-of column containing survival time in months, e.g. OS_month) and surv_event 
-(name of column containing survival event information, e.g. OS) information in 
-the data. Besides, we also need to provide names and training and test outputs to store data containing LASSO genes and PI values.
+
+**PI score = G1 * B1 + G2 * B2 + G3 * B3 + G4 * B4 + G5 * B5**
+
+
+To perform this calculation, you need to provide the normalized training data object  (**Train_Norm_data**) and test data object (**Test_Norm_data**) obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where clinical features end (e.g., 21), the number of folds (`nfolds`) for the LASSO regression method (e.g., 5), and the survival time (`surv_time`) and survival event (`surv_event`) columns in the data (e.g., `OS_month` and `OS`, respectively). The LASSO regression is implemented using the **`glmnet`** package. Finally, you need to define names of output object to store the results, which will include the selected LASSO features and their corresponding PI values. 
 
 
 ```{r, warning=FALSE, message=FALSE, fig.width=7, fig.height=4 }
@@ -195,31 +128,16 @@ str(Test_PI_data[1:10])
 plot(Result_PI$cvfit)
 ```
 
-Thus, Lasso_PI_scores_f gave us following outputs:
-1. Train_Lasso_key_variables: List of features selected by LASSO and their beta 
-coefficient values
-2. Train_Cox_Lasso_Regression_lamda_plot: Lasso Regression Lambda plot.
-3. Train_PI_data: It contains expression of genes selected by LASSO and PI 
-score in the last column for training samples.
-4. Test_PI_data: It contains expression of genes selected by LASSO and PI score 
-in the last column for test samples.
+The **`Lasso_PI_scores_f`** function generates the following outputs objects:
+1. **`Train_Lasso_key_variables`**: A list of features selected by LASSO along with their beta coefficient values.
+2. **`Train_Cox_Lasso_Regression_lambda_plot`**: The Lasso regression lambda plot.
+3. **`Train_PI_data`**: This dataset contains the expression values of genes selected by LASSO along with the PI score in the last column for the training samples.
+4. **`Test_PI_data`**: This dataset contains the expression values of genes selected by LASSO along with the PI score in the last column for the test samples.
 
 
 # Step 4b - Univariate  Survival Significant Feature Selection
-Besides PI score, with the “Univariate_sig_features_f” function of CPSM 
-package, we can select significant (p-value <0.05) features based on 
-univariate survival analysis. These features are selected based on their 
-capability to stratify high-risk and low-risk survival groups using the cut 
-off value of their median expression.  
-Here, we need to provide Normalized training (Train_Norm_data) and test 
-data (Test_Norm_data)as input data that we have obtained from the previous 
-function “train_test_normalization_f”. Further, we need to provide a “col_num” 
-(e.g 21)column number at which clinical features ends. Further, we need to 
-provide surv_time (name of column containing survival time in months, e.g. 
-OS_month) and surv_event (name of column containing survival event information, 
-e.g. OS) information in the data. Besides, we also need to provide names and 
-training and test output to store data containing expression of 
-selected genes.
+In addition to the Prognostic Index (PI) score, the **`Univariate_sig_features_f`** function in the CPSM package allows for the selection of significant features based on univariate cox-regression survival analysis. This function identifies features with a p-value less than 0.05, which are able to stratify high-risk and low-risk survival groups. The stratification is done by using the median expression value of each feature as a cutoff.
+To use this function, you need to provide the normalized training (**Train_Norm_data**) and test (**Test_Norm_data**) dataset objects, which were obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where the clinical features end (e.g., 21), as well as the names of the columns containing survival time (`surv_time`, e.g., `OS_month`) and survival event information (`surv_event`, e.g., `OS`). Furthermore, you need to define output names for the resulting datasets that will contain the expression values of the selected genes. These outputs will be used to store the significant genes identified through univariate survival analysis.
 
 
 ```{r, warning=FALSE, message=FALSE }
@@ -241,32 +159,33 @@ Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
 Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
 str(Univariate_Suv_Sig_G_L[1:10])
 ```
+The **`Univariate_sig_features_f`** function generates the following output objects:
+1. **`Univariate_Surv_Sig_G_L`**: A table of univariate significant genes, along with their corresponding coefficient values, hazard ratio (HR) values, p-values, and C-Index values.
+2. **`Train_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the training samples.
+3. **`Test_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the test samples.
 
-Thus, Univariate_sig_features_f  gave us following outputs:
-Univariate_Suv_Sig_G_L: a table of univariate significant genes along with 
-their corresponding coefficient values, HR value, P-values, C-Index values.
-Train_Uni_sig_data: It contains expression of significant genes selected by 
-univariate survival analysis for training samples.
-Test_Uni_sig_data: It contains expression of significant genes selected by 
-univariate survival analysis for test samples.
 
 # Step 5 - Prediction model development for survival probability of patients
-After selecting significant or key features using LASSO or Univariate survival 
-analysis, next we want to develop an ML prediction model to predict survival 
-probability of patients. MTLR_pred_model_f function of CPSM give us multiple 
-options to develop models including Only Clinical features (Model_type=1), PI 
-score (Model_type=2), PI Score + Clinical features (Model_type=3), Significant 
-Univariate features (Model_type=4), Significant Univariate features Clinical 
-features (Model_type=5) using MTLR package. Further, here, we were interested 
-in developing a model based on PI score. Thus, we need to provide following 
-inputs: (1) Training data with only clinical features, (2) Test data with only 
-clinical features, (3) Model type (e.g. 2, since we want to develop model based 
-on PI score), (4) Training data with PI score , (5) Test data with PI score, 
-(6) Clin_Feature_List (e.g. Key_PI_list), a list of features which will be  
-used to build model . Furthermore, we also need to provide surv_time (name of 
-column containing survival time in months, e.g. OS_month) and surv_event (name 
-of column containing survival event information, e.g. OS) information in the 
-clinical data
+After selecting significant features using LASSO or univariate survival analysis, the next step is to develop a machine learning (ML) prediction model to estimate the survival probability of patients. The **`MTLR_pred_model_f`** function in the CPSM package provides several options for building prediction models based on different feature sets. These options include:
+- **Model_type = 1**: Model based on only clinical features
+- **Model_type = 2**: Model based on PI score
+- **Model_type = 3**: Model based on PI score + clinical features
+- **Model_type = 4**: Model based on significant univariate features
+- **Model_type = 5**: Model based on significant univariate features + clinical features
+
+
+For this analysis, we are interested in developing a model based on the PI score (i.e., **Model_type = 2**). To use this function, the following inputs are required:
+1. **Training data with only clinical features**
+2. **Test data with only clinical features**
+3. **Model type** (e.g., **2** for a model based on PI score)
+4. **Training data with PI score**
+5. **Test data with PI score**
+6. **`Clin_Feature_List`** (e.g., **Key_PI_list**), a list of features to be used for building the model
+7. **`surv_time`**: The name of the column containing survival time in months (e.g., `OS_month`)
+8. **`surv_event`**: The name of the column containing survival event information (e.g., `OS`)
+
+These inputs will allow the **`MTLR_pred_model_f`** function to generate a prediction model for the survival probability of patients based on the provided data.
+
 
 ## Model for only Clinical features
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
@@ -361,27 +280,22 @@ survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
 Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
 ```
 
-After, implementing MTLR_pred_model_f function , we got following outputs:
-1. Model_with_PI.RData : Model on training data
-2. survCurves_data : Table containing predicted survival probability of each 
-patient at different time points. This data can be further used to plot the 
-survival curve of patients.
-3. mean_median_survival_time_data : Table containing predicted mean and median 
-survival time  of each patient in the test data. This data can be further used 
-for bar plots.
-4. Error_mat_for_Model : Table containing performance parameters obtained on 
-test data based on prediction model. It contains IBS score (Integrated Brier 
-Score) =0.192, C-Index =0.81.
+After implementing the **`MTLR_pred_model_f`** function, the following outputs are generated:
+
+
+1. **Model_with_PI.RData**: This object contains the trained model based on the input data.
+2. **survCurves_data**: This object contains the predicted survival probabilities for each patient at various time points. This data can be used to plot survival curves for patients.
+3. **mean_median_survival_time_data**: Object containing the predicted mean and median survival times for each patient in the test data. This data can be used to generate bar plots illustrating the predicted survival times.
+4. **Error_mat_for_Model**: Object containing performance metrics of the model based on the training and test data. It includes the following key performance scores:
+   - **C-Index** = 0.81
+These outputs allow you to evaluate the model's performance and visualize survival probabilities and survival times for the training test data.
 
 
 # Step 6 - Survival curves/plots for individual patient
-Next to visualize survival of patients, we will plot survival curve plots using 
-the surv_curve_plots_f function  based on the data “survCurves_data ” that we 
-obtained from the previous step after running the  MTLR_pred_model_f function. 
-Further,  the surv_curve_plots_f function also allows highlighting a specific 
-patient on the curve. Thus the function  needs only two inputs: 1) 
-Surv_curve_data, (2) Sample ID of a specific patient (e.g. TCGA-TQ-A8XE-01) 
-that needs to be highlighted.
+To visualize the survival of patients, we use the **`surv_curve_plots_f`** function, which generates survival curve plots based on the **`survCurves_data`** obtained from the previous step (after running the **`MTLR_pred_model_f`** function). This function also provides the option to highlight the survival curve of a specific patient. 
+The function requires two inputs:
+1. **Surv_curve_data**: The data object containing predicted survival probabilities for all patients.
+2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A8XE-01`) whose survival curve you want to highlight.
 
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
@@ -396,21 +310,18 @@ print(plots$all_patients_plot)
 print(plots$highlighted_patient_plot)
 ```
 
-Here, we obtained two output plots:
-1. Survival curves for all patients in the test data with different colors 
-2. Survival curves for all patients (in black) and highlighted patient (yellow) 
-in the test data 
+After running the function, two output plots are generated:
+1. **Survival curves for all patients** in the test data, displayed with different colors for each patient.
+2. **Survival curves for all patients (in black)** with the selected patient highlighted in **red**.
+
+These plots allow for easy visualization of individual patient survival in the context of the overall test data.
 
 
 # Step 7 - Predicted mean and median survival time of individual patients 
-
-Next to visualize predicted survival time of patients, we will plot barplot 
-for mean/median using “mean_median_surv_barplot_f” function based on the data 
-that we obtained from step 5 after running the  MTLR_pred_model_f function. 
-Further, the mean_median_surv_barplot_f function also allows highlighting a 
-specific patient on the curve. Thus the function  needs only two inputs: 1) 
-surv_mean_med_data, (2) Sample ID of a specific patient 
-(e.g. TCGA-TQ-A8XE-01) that needs to be highlighted.
+To visualize the predicted survival times for patients, we use the **`mean_median_surv_barplot_f`** function, which generates bar plots for the mean and median survival times based on the data obtained from **Step 5** after running the **`MTLR_pred_model_f`** function. This function also provides the option to highlight a specific patient on the bar plot.
+The function requires two inputs:
+1. **surv_mean_med_data**: The data containing the predicted mean and median survival times for all patients.
+2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A8XE-01`) whose bar plot should be highlighted.
 
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
@@ -425,26 +336,21 @@ print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
 ```
 
-Here, we obtained two output plots:
-1. Barplot for all patients in the test data, where the red color bar 
-represents mean survival and cyan/green color bar represents median survival 
-time. 
-2. Barplot for all patients with a highlighted patient (dashed black outline) 
-in the test data. It shows  this patient has a predicted mean and median 
-survival is 81.58 and 75.50 months.
+After running the function, two output bar plots are generated:
+1. **Bar plot for all patients** in the test data, where the red-colored bars represent the mean survival time, and the cyan/green-colored bars represent the median survival time.
+2. **Bar plot for all patients with a highlighted patient** (indicated by a dashed black outline). This plot shows that the highlighted patient has predicted mean and median survival times of 81.58 and 75.50 months, respectively.
+
+These plots provide a clear comparison of the predicted survival times for all patients and the highlighted individual patient.
 
 
 # Step 8 - Nomogram based on Key features
-Next, the Nomogram_generate_f function of CPSM  also provides an option to 
-generate a nomogram plot based on user defined clinical and other features in 
-the data. For instance, we will generate a nomogram based on 6 features (Age, 
-gender, race, histological_type, sample_type, PI). Here, we will provide data 
-containing all the features (Samples in rows and features in columns) (e.g. 
-Train_Data_Nomogram_input) and a list of features (feature_list_for_Nomogram) 
-based on which we want to generate a nomogram.  Further, we also need to 
-provide surv_time (name of column containing survival time in months, e.g. 
-OS_month) and surv_event (name of column containing survival event information, 
-e.g. OS) information in the data.
+The **`Nomogram_generate_f`** function in the CPSM package allows you to generate a nomogram plot based on user-defined clinical and other relevant features in the data. For example, we will generate a nomogram using six features: Age, Gender, Race, Histological Type, Sample Type, and PI score. 
+
+To create the nomogram, we need to provide the following inputs:
+1. **Train_Data_Nomogram_input**: A dataset containing all the features, where samples are in the rows and features are in the columns.
+2. **feature_list_for_Nomogram**: A list of features (e.g., Age, Gender, etc.) that will be used to generate the nomogram.
+3. **surv_time**: The column name containing survival time in months (e.g., `OS_month`).
+4. **surv_event**: The column name containing survival event information (e.g., `OS`).
 
 
 ```{r, warning=FALSE, message=FALSE, error = TRUE, fig.width=7, fig.height=6 }
@@ -458,10 +364,9 @@ Result_Nomogram <- Nomogram_generate_f(
 )
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
+After running the function, the output is a nomogram that predicts the risk (e.g., Event risk such as death), as well as the 1-year, 3-year, 5-year, and 10-year survival probabilities for patients based on the selected features.
+This nomogram provides a visual representation to estimate the patient's survival outcomes over multiple time points, helping clinicians make more informed decisions.
 
-Here, we will get a Nomogram based on features that we provide. This nomogram 
-can predict Risk (Event risk, eg, Death), 1-year, 3-year, 5-year and 10 years 
-survival of patients.
 
 # SessionInfo
 

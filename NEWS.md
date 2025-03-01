@@ -27,6 +27,6 @@
 
 # CPSM 0.99.7 (Unreleased)
 - Updated vigenette file "CPSM.Rmd", updated installation instruction as per Bioconductor guidelines
-- updated data_process_f.R for input data
-- Updated DESCRIPTION  file to add author info
+- updated data_process_f.R
+- Updated DESCRIPTION  file to add author and version update
 - Bumped the version from 0.99.6 to 0.99.7 as per Bioconductor guidelines
