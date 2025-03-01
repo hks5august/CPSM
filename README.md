@@ -9,7 +9,7 @@ The CPSM R-package is an advanced computational pipeline designed to predict the
 Figure: The workflow of the CPSM package represents different steps performed by various functions of the CPSM package.
 
 
-# Follow the Steps to Install the CPSM package on your Local R system:
+# Follow the Steps to Install the CPSM package on your Local R system from Github:
 ```r
 #Step1: First Install remote package
 install.packages("remotes") 
@@ -23,6 +23,15 @@ remotes::install_github("hks5august/CPSM", local = TRUE, , dependencies=TRUE)
 library("CPSM") 
 ```
 
+
+# Installation From Bioconductor
+To install this package, start R (version "4.4") and enter the code provided:
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("CPSM")
+```
+
 ## Load Packages
 ```{r, warning=FALSE, message=FALSE }
 #Load CPSM packages
@@ -32,14 +41,6 @@ library(CPSM)
 ```{r }
 #set seed
 set.seed(7)
-```
-
-# Installation From Bioconductor
-To install this package, start R (version "4.4") and enter the code provided:
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-BiocManager::install("CPSM")
 ```
 
 
