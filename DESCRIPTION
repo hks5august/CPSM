@@ -51,7 +51,8 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    BiocStyle
 URL: https://github.com/hks5august/CPSM/
 BugReports: https://github.com/hks5august/CPSM/issues
 VignetteBuilder: knitr
