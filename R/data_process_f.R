@@ -1,10 +1,6 @@
-#' @title Data Processing f
+#' @title Data Processing function
 #'
 #' @description This function converting OS time (in days) into months and
-#' removing samples where OS time information is missing. Note: In the Example
-#' data OS time labelled is "OS.time" and OS event labelled as "OS"
-#'
-#' @details This function converting OS time (in days) into months and
 #' removing samples where OS time information is missing. Note: In the Example
 #' data OS time labelled is "OS.time" and OS event labelled as "OS"
 #'
