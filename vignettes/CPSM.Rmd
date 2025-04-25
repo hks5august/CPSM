@@ -1,3 +1,4 @@
+yaml
 
 ---
 title: "CPSM: Cancer patient survival model"
@@ -125,6 +126,7 @@ To create a survival model, the next step is to calculate the Prognostic Index (
 For this function, you need to provide the normalized training data object  (**Train_Norm_data**) and test data object (**Test_Norm_data**) obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where clinical features end (e.g., 21), the number of folds (`nfolds`) for the LASSO regression method (e.g., 5), and the survival time (`surv_time`) and survival event (`surv_event`) columns in the data (e.g., `OS_month` and `OS`, respectively). The LASSO regression is implemented using the **`glmnet`** package. Finally, you need to define names of output object to store the results, which will include the selected LASSO features and their corresponding PI values. 
 
 ## Example Code
+
 ```{r, warning=FALSE, message=FALSE, fig.width=7, fig.height=4 }
 # Step 4 - Lasso PI Score
 data(Train_Norm_data, package = "CPSM")
@@ -144,6 +146,7 @@ str(Train_PI_data[1:10])
 str(Test_PI_data[1:10])
 plot(Result_PI$cvfit)
 ```
+
 ## Outputs
 The **`Lasso_PI_scores_f`** function generates the following outputs objects:
 1. **`Train_Lasso_key_variables`**: A list of features selected by LASSO along with their beta coefficient values.
@@ -178,6 +181,7 @@ Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
 Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
 str(Univariate_Suv_Sig_G_L[1:10])
 ```
+
 ## Outputs
 The **`Univariate_sig_features_f`** function generates the following output objects:
 1. **`Univariate_Surv_Sig_G_L`**: A table of univariate significant genes, along with their corresponding coefficient values, hazard ratio (HR) values, p-values, and C-Index values.

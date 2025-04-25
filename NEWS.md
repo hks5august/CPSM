@@ -24,6 +24,7 @@
 - corrected input in MTLR_pred_model_f.R file
 - updated .gitignore file
 - Bumped the version from 0.99.5 to 0.99.6 as per Bioconductor guidelines
+<<<<<<< HEAD
 
 # CPSM 0.99.7 (Unreleased)
 - Updated vigenette file "CPSM.Rmd", updated installation instruction as per Bioconductor guidelines
@@ -63,4 +64,3 @@
   - Enhanced step-by-step explanation of prediction and visualization workflows.
 ## Version update
 - Bumped version from **1.0.0** to **1.2.0**
-
