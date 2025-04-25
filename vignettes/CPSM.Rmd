@@ -21,18 +21,31 @@ knitr::opts_chunk$set(
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
+
 # Installation 
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
 BiocManager::install("CPSM")
 ```
 
 
 # Input Data
-The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
+Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated data.  It 
+contains Samples (184 LGG Cancer Samples) in the rows and Features in the 
+columns. Gene Expression is available in terms of FPKM values in the data.
+Features information: In the data there are 11 clinical + demographic, 4 types 
+survival with time and event information  and 19,978 protein coding genes.
+Clinical and demographic features: Clinical demographic features that are 
+present in this example data include Age,  subtype,  gender,  race,  
+ajcc_pathologic_tumor_stage,  histological_type, histological_grade,  
+treatment_outcome_first_course, radiation_treatment_adjuvant,  sample_type,  
+type. Types of Survival: 4 types of Survival include OS (overall survival), PFS 
+(progression-free survival), DSS (disease-specific survival), DFS (Disease-free 
+survival). In the data, column names OS, PFS, DSS and DFS represent event 
+information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival 
+time in days.
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
@@ -43,7 +56,6 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 # Step 1- Data Processing 
-
 ## Description 
 The **data_process_f** function converts OS time (in days) into months and removes samples where OS/OS.time information is missing. 
 ## Required inputs
@@ -52,14 +64,10 @@ To use this function, the input data should be provided in TSV format. Additiona
 ## Example Code
 ```{r }
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-combined_df <- cbind(
-  as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
-  [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],
-  t(as.data.frame(assay(
-    Example_TCGA_LGG_FPKM_data,
-    "expression"
-  )))
-)
+combined_df <- cbind(as.data.frame(colData(Example_TCGA_LGG_FPKM_data))
+                      [, -ncol(colData(Example_TCGA_LGG_FPKM_data))],  
+                     t(as.data.frame(assay(Example_TCGA_LGG_FPKM_data, 
+                                           "expression"))))  
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
@@ -159,7 +167,7 @@ The **`Lasso_PI_scores_f`** function generates the following outputs objects:
 ## Description 
 In addition to the Prognostic Index (PI) score, the **`Univariate_sig_features_f`** function in the CPSM package allows for the selection of significant features based on univariate cox-regression survival analysis. This function identifies features with a p-value less than 0.05, which are able to stratify high-risk and low-risk survival groups. The stratification is done by using the median expression value of each feature as a cutoff.
 ## Required inputs
-To use this function, you need to provide the normalized training (**Train_Norm_data**) and test (**Test_Norm_data**) dataset objects, which were obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where the clinical features end (e.g., 21), as well as the names of the columns containing survival time (`surv_time`, e.g., `OS_month`) and survival event information (`surv_event`, e.g., `OS`). Furthermore, you need to define output names for the resulting datasets that will contain the expression values of the selected genes. These outputs will be used to store the significant genes identified through univariate survival analysis.
+To use this function, user need to provide the normalized training (**Train_Norm_data**) and test (**Test_Norm_data**) dataset objects, which were obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where the clinical features end (e.g., 21), as well as the names of the columns containing survival time (`surv_time`, e.g., `OS_month`) and survival event information (`surv_event`, e.g., `OS`). Furthermore, you need to define output names for the resulting datasets that will contain the expression values of the selected genes. These outputs will be used to store the significant genes identified through univariate survival analysis.
 
 ## Example Code
 ```{r, warning=FALSE, message=FALSE }
@@ -198,7 +206,6 @@ After selecting significant features using LASSO or univariate survival analysis
 - **Model_type = 4**: Model based on significant univariate features
 - **Model_type = 5**: Model based on significant univariate features + clinical features
 
-
 For this analysis, we are interested in developing a model based on the PI score (i.e., **Model_type = 2**). 
 ## Required inputs
 To use this function, the following inputs are required:
@@ -215,6 +222,7 @@ These inputs will allow the **`MTLR_pred_model_f`** function to generate a predi
 
 ## Model for only Clinical features
 ## Example  Code
+
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -238,6 +246,7 @@ Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
 
 ## Model for PI
 ## Example  Code
+
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -263,6 +272,7 @@ Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
 
 ## Model for Clinical features + PI
 ## Example  Code
+
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -288,6 +298,7 @@ Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
 
 ## Model for Univariate + Clinical features
 ## Example  Code
+
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
