@@ -289,8 +289,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       Median = median_survival_tr2,
       OS_month = sel_clin_tr2$OS_month
     )
-<<<<<<< HEAD
-
 
     # C-Index calculation
 
@@ -421,8 +419,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # Create survival object for training data
     surv_obj1_tr3 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
-<<<<<<< HEAD
-
     # Calculate C-index for training data
     c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
 
