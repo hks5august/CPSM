@@ -110,7 +110,6 @@ str(Train_Norm_data[1:10])
 ```
 ## Outputs
 After running the function, four outputs objects are generated: **`Train_Clin`** (which contains only clinical features from the training data), **`Test_Clin`** (which contains only clinical features from the test data), **`Train_Norm_data`** (which includes clinical features and normalized gene expression values for the training samples), and **`Test_Norm_data`** (which includes clinical features and normalized gene expression values for the test samples).
-<<<<<<< HEAD
 
 # Step 4a - Prognostic Index (PI)  Score Calculation
 ## Description 
@@ -190,7 +189,6 @@ After selecting significant features using LASSO or univariate survival analysis
 - **Model_type = 3**: Model based on PI score + clinical features
 - **Model_type = 4**: Model based on significant univariate features
 - **Model_type = 5**: Model based on significant univariate features + clinical features
-
 
 For this analysis, we are interested in developing a model based on the PI score (i.e., **Model_type = 2**). 
 ## Required inputs
@@ -337,7 +335,6 @@ print(plots$highlighted_patient_plot)
 After running the function, two output plots are generated:
 1. **Survival curves for all patients** in the test data, displayed with different colors for each patient.
 2. **Survival curves for all patients (in black)** with the selected patient highlighted in **red**.
-
 These plots allow for easy visualization of individual patient survival in the context of the overall test data.
 
 
@@ -361,6 +358,7 @@ plots_2 <- mean_median_surv_barplot_f(
 # Print the plots
 print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
+<<<<<<< HEAD
 ```
 
 ## Outputs
@@ -425,7 +423,6 @@ The output is a list that includes:
 User can use these results for further validation and visualization, such as overlaying test sample survival curves on the training KM plot (see next step).
 
 # Step 9 – Visual Overlay of Predicted Test Sample on Kaplan-Meier Curve
-
 ## Description
 To visually evaluate how a specific test sample compares to survival risk groups defined in the training dataset, we use the `km_overlay_plot_f()` function.
 This function overlays the predicted **survival curve of a selected test sample** onto the Kaplan-Meier (KM) survival plot derived from the training data. This visual comparison helps determine how closely the test sample aligns with population-level survival trends.
