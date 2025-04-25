@@ -1,5 +1,4 @@
 # CPSM: Cancer patient survival model
-
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability and Risk-group prediction of patients. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
