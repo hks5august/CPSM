@@ -30,6 +30,9 @@ The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data f
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
+```
+
+```{r }
 library(SummarizedExperiment)
 set.seed(7) # set seed
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
