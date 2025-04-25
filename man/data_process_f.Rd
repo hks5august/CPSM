@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_process_f.R
 \name{data_process_f}
 \alias{data_process_f}
-\title{Data Processing f}
+\title{Data Processing function}
 \arguments{
 \item{data}{A data frame containing clinical and expression data.}
 
@@ -18,11 +18,6 @@ Includes a new column \code{OS_month} for survival time in months, and retains
 only rows with positive \code{OS_month}.
 }
 \description{
-This function converting OS time (in days) into months and
-removing samples where OS time information is missing. Note: In the Example
-data OS time labelled is "OS.time" and OS event labelled as "OS"
-}
-\details{
 This function converting OS time (in days) into months and
 removing samples where OS time information is missing. Note: In the Example
 data OS time labelled is "OS.time" and OS event labelled as "OS"

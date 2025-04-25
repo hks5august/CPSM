@@ -26,18 +26,6 @@ A list with the following components:
 \item \code{C_index_mat}: A matrix containing the bias-corrected and
 original C-index values.
 }
-}
-\description{
-This function generates a Cox proportional hazards nomogram for survival
-prediction based on user-defined features and survival information. It also
-computes bias-corrected and original C-index values for model validation.
-}
-\details{
-The function dynamically creates a Cox proportional hazards model
-based on the selected features and survival data. It computes survival
-probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
-nomogram. The function uses internal validation with bootstrapping
-(B = 1000) to calculate the bias-corrected C-index.
 
 The following steps are performed:
 \itemize{
@@ -49,6 +37,16 @@ The following steps are performed:
 time points.
 \item Validates the model and computes C-index values.
 }
+}
+\description{
+Nomogram Generation Function
+}
+\details{
+The function dynamically creates a Cox proportional hazards model
+based on the selected features and survival data. It computes survival
+probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
+nomogram. The function uses internal validation with bootstrapping
+(B = 1000) to calculate the bias-corrected C-index.
 }
 \examples{
 data(Train_Data_Nomogram_input, package = "CPSM")
