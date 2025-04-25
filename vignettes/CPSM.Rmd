@@ -501,7 +501,10 @@ Result_Nomogram <- Nomogram_generate_f(
 )
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
+<<<<<<< HEAD
 ## Outputs 
+=======
+>>>>>>> 03741fe (Add files via upload)
 After running the function, the output is a nomogram that predicts the risk (e.g., Event risk such as death), as well as the 1-year, 3-year, 5-year, and 10-year survival probabilities for patients based on the selected features.The nomogram provides a visual representation to estimate the patient's survival outcomes over multiple time points, helping clinicians make more informed decisions.
 
 # SessionInfo
