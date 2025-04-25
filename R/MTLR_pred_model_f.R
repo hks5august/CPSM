@@ -151,7 +151,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     )
     rownames(survival_results_te) <- rownames(sel_clin_te2)
 
-
     # Prepare mean/median survival summary
     survival_summary_te <- cbind(
       ID = rownames(sel_clin_te2),
@@ -159,7 +158,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       Median = median_survival_te,
       OS_month = sel_clin_te2$OS_month
     )
-
 
     # Prepare mean/median survival summary
     survival_summary_tr <- cbind(
@@ -462,6 +460,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat3) <- c("Training_set", "Test_set")
 
+
+#model4
 
   } else if (Model_type == 4) {
     ## Univariate with Clin features ##
