@@ -44,7 +44,7 @@
 - Ensured compliance with Bioconductor submission guidelines.
 - Bumped version from **0.99.7** (development) to **1.0.0** (release).
 
-# CPSM 1.2.0 
+# CPSM 1.1.0 
 ## New Features
 - **`predict_survival_risk_group_f()`**:
   - Added a new function to build Random Forest-based survival risk group classifiers using selected molecular features.
@@ -62,4 +62,4 @@
   - Included usage details and examples for new functions.
   - Enhanced step-by-step explanation of prediction and visualization workflows.
 ## Version update
-- Bumped version from **1.0.0** to **1.2.0**
+- Bumped version from **1.0.0** to **1.1.0**
