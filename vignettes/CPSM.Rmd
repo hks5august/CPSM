@@ -21,7 +21,6 @@ knitr::opts_chunk$set(
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
-
 # Installation 
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
@@ -32,20 +31,7 @@ BiocManager::install("CPSM")
 
 
 # Input Data
-Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated data.  It 
-contains Samples (184 LGG Cancer Samples) in the rows and Features in the 
-columns. Gene Expression is available in terms of FPKM values in the data.
-Features information: In the data there are 11 clinical + demographic, 4 types 
-survival with time and event information  and 19,978 protein coding genes.
-Clinical and demographic features: Clinical demographic features that are 
-present in this example data include Age,  subtype,  gender,  race,  
-ajcc_pathologic_tumor_stage,  histological_type, histological_grade,  
-treatment_outcome_first_course, radiation_treatment_adjuvant,  sample_type,  
-type. Types of Survival: 4 types of Survival include OS (overall survival), PFS 
-(progression-free survival), DSS (disease-specific survival), DFS (Disease-free 
-survival). In the data, column names OS, PFS, DSS and DFS represent event 
-information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival 
-time in days.
+The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
@@ -130,6 +116,7 @@ To create a survival model, the next step is to calculate the Prognostic Index (
 
 **PI score = G1 * B1 + G2 * B2 + G3 * B3 + G4 * B4 + G5 * B5**
 
+
 ## Required inputs
 For this function, you need to provide the normalized training data object  (**Train_Norm_data**) and test data object (**Test_Norm_data**) obtained from the previous step (**train_test_normalization_f**). Additionally, you must specify the column number (`col_num`) where clinical features end (e.g., 21), the number of folds (`nfolds`) for the LASSO regression method (e.g., 5), and the survival time (`surv_time`) and survival event (`surv_event`) columns in the data (e.g., `OS_month` and `OS`, respectively). The LASSO regression is implemented using the **`glmnet`** package. Finally, you need to define names of output object to store the results, which will include the selected LASSO features and their corresponding PI values. 
 
@@ -156,6 +143,8 @@ plot(Result_PI$cvfit)
 ```
 
 ## Outputs
+=======
+>>>>>>> 8b8832b (Add files via upload)
 The **`Lasso_PI_scores_f`** function generates the following outputs objects:
 1. **`Train_Lasso_key_variables`**: A list of features selected by LASSO along with their beta coefficient values.
 2. **`Train_Cox_Lasso_Regression_lambda_plot`**: The Lasso regression lambda plot.
@@ -189,6 +178,10 @@ Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
 Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
 str(Univariate_Suv_Sig_G_L[1:10])
 ```
+The **`Univariate_sig_features_f`** function generates the following output objects:
+1. **`Univariate_Surv_Sig_G_L`**: A table of univariate significant genes, along with their corresponding coefficient values, hazard ratio (HR) values, p-values, and C-Index values.
+2. **`Train_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the training samples.
+3. **`Test_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the test samples.
 
 ## Outputs
 The **`Univariate_sig_features_f`** function generates the following output objects:
@@ -324,7 +317,6 @@ Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
 ## Outputs
 After implementing the **`MTLR_pred_model_f`** function, the following outputs are generated:
 
-
 1. **Model_with_PI.RData**: This object contains the trained model based on the input data.
 2. **survCurves_data**: This object contains the predicted survival probabilities for each patient at various time points. This data can be used to plot survival curves for patients.
 3. **mean_median_survival_time_data**: Object containing the predicted mean and median survival times for each patient in the test data. This data can be used to generate bar plots illustrating the predicted survival times.
@@ -385,7 +377,6 @@ print(plots_2$highlighted_selected_pat)
 ```
 
 ## Outputs
-
 After running the function, two output bar plots are generated:
 1. **Bar plot for all patients** in the test data, where the red-colored bars represent the mean survival time, and the cyan/green-colored bars represent the median survival time.
 2. **Bar plot for all patients with a highlighted patient** (indicated by a dashed black outline). This plot shows that the highlighted patient has predicted mean and median survival times of 81.58 and 75.50 months, respectively.
