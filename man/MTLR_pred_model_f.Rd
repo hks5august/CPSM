@@ -27,6 +27,7 @@ test set.}
 \item 1: Clinical features model
 \item 2: PI score model
 \item 3: PI score with Clinical features model
+\item 4: selected gene set or clinical with selected gene set based model
 }}
 
 \item{train_features_data}{A data frame containing the feature data for the
@@ -45,7 +46,7 @@ model.}
 \value{
 A list containing the following components:
 \item{Model}{The fitted MTLR model.}
-\item{Error_matrix}{A matrix of error evaluation metrics (IBS and C-index)
+\item{Error_matrix}{A matrix of error evaluation metrics ( C-index and MAE)
 for training and test sets.}
 \item{Survival_predictions}{Predicted survival probabilities, mean survival
 times, and median survival times.}
@@ -53,9 +54,9 @@ times, and median survival times.}
 }
 \description{
 This function builds a Multi-Task Logistic Regression (MTLR) survival model
-based on clinical and feature data for training and testing datasets. It can
+based on clinical or selected feature or their combinations. It can
 handle various model types based on user input (e.g., Clinical features
-only, Clinical features with PI score).
+only, Clinical features with PI score, selected genes set).
 }
 \examples{
 # Example usage of the MTLR_pred_model_f function

@@ -39,8 +39,8 @@
 #'
 #' @import reshape2
 #' @import ggplot2
-#' @import rms
-#' @import survivalROC
+#' @importFrom rms cph datadist nomogram validate Survival
+#' @importFrom survival Surv
 #' @import Matrix
 #' @import svglite
 #'
