@@ -22,9 +22,6 @@ library("remotes")
 remotes::install_github("hks5august/CPSM", local = TRUE, , dependencies=TRUE)
 # Check if package get installed, load package
 library("CPSM")
-```
-
-
 
 # Input Data
 The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
@@ -64,7 +61,10 @@ After data processing, the output object **`New_data`** is generated, which cont
 
 
 # Step 2 - Split Data into Training and Test Subset
-Before proceeding further, we need to split the data into training and test subsets for feature selection and model development. The output from the previous step, **`New_data`**, serves as the input for this process. Next, you need to define the fraction (e.g., 0.9) by which to split the data into training and test sets. For example, setting `fraction = 0.9` will divide the data into 90% for training and 10% for testing. Additionally, you should specify names for the training and test outputs (e.g., `train_FPKM` and `test_FPKM`).
+## Description 
+Before proceeding further, we need to split the data into training and test subsets for feature selection and model development. 
+## Required inputs
+The output from the previous step, **`New_data`**, serves as the input for this process. Next, you need to define the fraction (e.g., 0.9) by which to split the data into training and test sets. For example, setting `fraction = 0.9` will divide the data into 90% for training and 10% for testing. Additionally, you should specify names for the training and test outputs (e.g., `train_FPKM` and `test_FPKM`).
 
 ## Example Code
 ```{r}
@@ -83,7 +83,10 @@ After the train-test split, two new output objects are generated: **`train_FPKM`
 # Step 3 - Data Normalization
 ## Description 
 In order to select features and develop ML models, the data must be normalized. Since the expression data is available in terms of FPKM values, the **`train_test_normalization_f`** function will first convert the FPKM values into a log scale using the formula [log2(FPKM+1)], followed by quantile normalization. The training data will be used as the target matrix for the quantile normalization process. 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ## Required inputs
 For this function, you need to provide the training and test datasets obtained from the previous step (Train/Test Split). Additionally, you must specify the column number where clinical information ends (e.g., 21) in the input datasets. Finally, you need to define output names for the resulting datasets: **`train_clin_data`** (which contains only clinical information from the training data), **`test_clin_data`** (which contains only clinical information from the test data), **`train_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the training samples), and **`test_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the test samples).
 
@@ -107,6 +110,11 @@ str(Train_Clin[1:10])
 str(Train_Norm_data[1:10])
 ```
 ## Outputs
+<<<<<<< HEAD
+=======
+After running the function, four outputs objects are generated: **`Train_Clin`** (which contains only clinical features from the training data), **`Test_Clin`** (which contains only clinical features from the test data), **`Train_Norm_data`** (which includes clinical features and normalized gene expression values for the training samples), and **`Test_Norm_data`** (which includes clinical features and normalized gene expression values for the test samples).
+
+>>>>>>> 7fba218 (Add files via upload)
 
 # Step 4a - Prognostic Index (PI)  Score Calculation
 ## Description 
@@ -188,9 +196,15 @@ After selecting significant features using LASSO or univariate survival analysis
 - **Model_type = 5**: Model based on significant univariate features + clinical features
 
 
+<<<<<<< HEAD
 ## Required inputs
 To use this function, the following inputs are required:
 We are interested in developing a model based on the PI score (i.e., **Model_type = 2**). To use this function, the following inputs are required:
+=======
+For this analysis, we are interested in developing a model based on the PI score (i.e., **Model_type = 2**). 
+## Required inputs
+To use this function, the following inputs are required:
+>>>>>>> 7fba218 (Add files via upload)
 1. **Training data with only clinical features**
 2. **Test data with only clinical features**
 3. **Model type** (e.g., **2** for a model based on PI score)
@@ -204,7 +218,10 @@ These inputs will allow the **`MTLR_pred_model_f`** function to generate a predi
 
 ## Model for only Clinical features
 ## Example  Code
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -228,7 +245,10 @@ Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
 
 ## Model for PI
 ## Example  Code
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -254,7 +274,10 @@ Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
 
 ## Model for Clinical features + PI
 ## Example  Code
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -280,7 +303,10 @@ Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
 
 ## Model for Univariate + Clinical features
 ## Example  Code
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
 data(Train_Clin, package = "CPSM")
 data(Test_Clin, package = "CPSM")
@@ -324,7 +350,10 @@ The function requires two inputs:
 2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A8XE-01`) whose survival curve you want to highlight.
 
 ## Example Code
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7fba218 (Add files via upload)
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
 # Create Survival curves/plots for individual patients
 data(survCurves_data, package = "CPSM")
@@ -352,9 +381,13 @@ To visualize the predicted survival times for patients, we use the **`mean_media
 This function requires two inputs:
 1. **surv_mean_med_data**: The data containing the predicted mean and median survival times for all patients.
 2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A7RQ-01`) whose bar plot should be highlighted.
+<<<<<<< HEAD
 
 ## Example Code
+=======
+>>>>>>> 7fba218 (Add files via upload)
 
+## Example Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
 data(mean_median_survival_time_data, package = "CPSM")
 plots_2 <- mean_median_surv_barplot_f(
