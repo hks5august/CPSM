@@ -2,7 +2,7 @@
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
-# Installation 
+# Installation from the Bioconductor
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -11,6 +11,16 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 BiocManager::install("CPSM")
 ```
 
+
+# Installation from Github:
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+#Step1: First Install remote package
+install.packages("remotes")
+#load remotes package
+library("remotes")
+#Step2: install CPSM package
+remotes::install_github("hks5august/CPSM", local = TRUE, , dependencies=TRUE)
+```
 
 # Input Data
 The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
