@@ -41,7 +41,6 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 # Step 1- Data Processing 
-<<<<<<< HEAD
 ## Description 
 The **data_process_f** function converts OS time (in days) into months and removes samples where OS/OS.time information is missing. 
 ## Required inputs
@@ -365,6 +364,8 @@ print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
 ```
 
+## Outputs
+
 After running the function, two output bar plots are generated:
 1. **Bar plot for all patients** in the test data, where the red-colored bars represent the mean survival time, and the cyan/green-colored bars represent the median survival time.
 2. **Bar plot for all patients with a highlighted patient** (indicated by a dashed black outline). This plot shows that the highlighted patient has predicted mean and median survival times of 81.58 and 75.50 months, respectively.
@@ -501,10 +502,7 @@ Result_Nomogram <- Nomogram_generate_f(
 )
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
-<<<<<<< HEAD
 ## Outputs 
-=======
->>>>>>> 03741fe (Add files via upload)
 After running the function, the output is a nomogram that predicts the risk (e.g., Event risk such as death), as well as the 1-year, 3-year, 5-year, and 10-year survival probabilities for patients based on the selected features.The nomogram provides a visual representation to estimate the patient's survival outcomes over multiple time points, helping clinicians make more informed decisions.
 
 # SessionInfo

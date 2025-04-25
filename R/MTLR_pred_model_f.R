@@ -129,7 +129,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       Event_Probability = event_probabilities_tr,
       Actual_OS_Time = sel_clin_tr2$OS_month,
       OS_Event = sel_clin_tr2$OS
-    
     )
     rownames(survival_results_tr) <- rownames(sel_clin_tr2)
 
@@ -237,7 +236,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Mod2 <- mtlr(formula = formula2, data = sel_clin_tr2)
 
     # Model Predictions
-    
     # Predictions on training data
     survival_curves_tr2 <- predict(Mod2, sel_clin_tr2, type = "survivalcurve")
     mean_survival_tr2 <- predict(Mod2, sel_clin_tr2, type = "mean_time")
@@ -293,6 +291,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       Median = median_survival_tr2,
       OS_month = sel_clin_tr2$OS_month
     )
+<<<<<<< HEAD
 
 
     # C-Index calculation
@@ -339,7 +338,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
 
 #model3  
-
 } else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
@@ -425,6 +423,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # Create survival object for training data
     surv_obj1_tr3 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+<<<<<<< HEAD
 
     # Calculate C-index for training data
     c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
@@ -587,8 +586,8 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat5) <- c("Training_set", "Test_set")
 
-
   }
+
   if (Model_type == 1) {
     survCurves_df <- survCurves_te_df
     selected_train_data = as.data.frame(sel_clin_tr2)
