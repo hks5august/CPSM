@@ -29,11 +29,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 BiocManager::install("CPSM")
 
-#Load Packages
-```{r, warning=FALSE, message=FALSE }
-# Load CPSM packages
-library(CPSM)
-
 ```
 
 # Input Data
@@ -120,7 +115,6 @@ After running the function, four outputs objects are generated: **`Train_Clin`**
 # Step 4a - Prognostic Index (PI)  Score Calculation
 ## Description 
 To create a survival model, the next step is to calculate the Prognostic Index (PI) score. The PI score is based on the expression levels of features selected by the LASSO regression model and their corresponding beta coefficients. For example, suppose five features (**G1**, **G2**, **G3**, **G4**, **G5**) are selected by the LASSO method, and their associated coefficients are **B1**, **B2**, **B3**, **B4**, and **B5**, respectively. The PI score is then computed using the following formula:
-
 
 **PI score = G1 * B1 + G2 * B2 + G3 * B3 + G4 * B4 + G5 * B5**
 
