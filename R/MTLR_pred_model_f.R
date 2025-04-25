@@ -1,10 +1,11 @@
-#' MTLR Prediction Model Function
+#' @title MTLR Prediction Model Function
 #'
-#' This function builds a Multi-Task Logistic Regression (MTLR) survival model
-#' based on clinical and feature data for training and testing datasets. It can
+#' @description This function builds a Multi-Task Logistic Regression (MTLR) survival model
+#' based on clinical or selected feature or their combinations. It can
 #' handle various model types based on user input (e.g., Clinical features
-#' only, Clinical features with PI score).
+#' only, Clinical features with PI score, selected genes set).
 #'
+#' @name MTLR_pred_model_f
 #' @param train_clin_data A data frame containing the clinical data for the
 #' training set.
 #' @param test_clin_data A data frame containing the clinical data for the
@@ -14,6 +15,7 @@
 #'     \item 1: Clinical features model
 #'     \item 2: PI score model
 #'     \item 3: PI score with Clinical features model
+#'      \item 4: selected gene set or clinical with selected gene set based model
 #'   }
 #' @param train_features_data A data frame containing the feature data for the
 #' training set.
@@ -26,7 +28,7 @@
 #'
 #' @return A list containing the following components:
 #' \item{Model}{The fitted MTLR model.}
-#' \item{Error_matrix}{A matrix of error evaluation metrics (IBS and C-index)
+#' \item{Error_matrix}{A matrix of error evaluation metrics ( C-index and MAE)
 #' for training and test sets.}
 #' \item{Survival_predictions}{Predicted survival probabilities, mean survival
 #' times, and median survival times.}
@@ -36,8 +38,8 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @import pec
 #' @import ggplot2
+#' @importFrom stats median complete.cases
 #'
 #' @examples
 #' # Example usage of the MTLR_pred_model_f function
@@ -88,7 +90,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
   te_data2 <- cbind(te_clin1, test_features_data1)
   # Load user defined a list of features forclinical data
   ftr_list <- Clin_Feature_List
-  
+
 # model1 - MTLR Model with Selected Clin features
   if (Model_type == 1) {
     # Load user defined a list of features for clin data
@@ -109,89 +111,108 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     formula1 <- survival::Surv(OS_month, OS) ~ .
     # make  model!
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
-    
-# Prediction on Test Data
-    survCurves1 <- predict(Mod1, sel_clin_te1, type = "survivalcurve")
-    # define column names
-    colnames(survCurves1) <- c("time_point", rownames(sel_clin_te2))
-    survCurves1_df <- as.data.frame(survCurves1)
-    survivalcurve1 <- predict(Mod1, sel_clin_te2, type = "survivalcurve")
-    Survival_prob_event1 <- predict(Mod1, sel_clin_te2, type = "prob_event")
-    # Predicted Mean
-    meanSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
-    meanSurv1 <- predict(Mod1, sel_clin_te2, type = "mean_time")
-    # Predicted Median
-    medianSurv1_tr <- predict(Mod1, sel_clin_tr2, type = "median_time")
-    medianSurv1 <- predict(Mod1, sel_clin_te2, type = "median_time")
-    # create a dataframe of  predicted  mean survival time
-    meanSurv_d1 <- as.data.frame(meanSurv1)
-    # create a dataframe of  predicted  median survival time
-    medianSurv_d1 <- as.data.frame(medianSurv1)
-    names1 <- as.data.frame(rownames(sel_clin_te2))
-    # create dataframe combining both predicted mean & median survivaltime
-    mean_median_surv1_d <- cbind(names1, meanSurv_d1, medianSurv_d1)
-    rownames(mean_median_surv1_d) <- c(rownames(sel_clin_te2))
-    colnames(mean_median_surv1_d) <- c("IDs", "Mean", "Median")
-    # Survival Probability at Event Time
-    survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
-    # extract prob times at diff times points
-    survivalProbs_t_mat_tr <- as.matrix(survivalProbs_p1_tr)
-    survivalProbs_t_mat1_tr <- survivalProbs_t_mat_tr[, -1]
-    survivalProbs_t_mat1_t_tr <- t(survivalProbs_t_mat1_tr)
-    survivalProbs_t_mat1_t2_tr <- survivalProbs_t_mat1_t_tr[, -1]
-    # Test data
-    survivalProbs_p1 <- predict(Mod1, sel_clin_te2, type = "prob_times")
-    # extract prob times at diff times points
-    survivalProbs_t_mat <- as.matrix(survivalProbs_p1)
-    survivalProbs_t_mat1 <- survivalProbs_t_mat[, -1]
-    survivalProbs_t_mat1_t <- t(survivalProbs_t_mat1)
-    survivalProbs_t_mat1_t2 <- survivalProbs_t_mat1_t[, -1]
-    # combine predicted mean, median, survival
-    # probability and actual time and event
-    surv_res1 <- cbind(
-      meanSurv1, medianSurv1, Survival_prob_event1,
-      sel_clin_te2$OS_month, sel_clin_te2$OS
+
+    # Predictions on training data
+    survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
+    mean_survival_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
+    median_survival_tr <- predict(Mod1, sel_clin_tr2, type = "median_time")
+    event_probabilities_tr <- predict(Mod1, sel_clin_tr2, type = "prob_event")
+
+    # Prepare survival curve data
+    colnames(survival_curves_tr) <- c("time_point", rownames(sel_clin_tr2))
+    survCurves_tr_df <- as.data.frame(survival_curves_tr)
+
+
+    survival_results_tr <- cbind(
+      Mean_Survival = mean_survival_tr,
+      Median_Survival = median_survival_tr,
+      Event_Probability = event_probabilities_tr,
+      Actual_OS_Time = sel_clin_tr2$OS_month,
+      OS_Event = sel_clin_tr2$OS
     )
-    # add column names and row names
-    colnames(surv_res1) <- c(
-      "Mean_Surv", "Median_surv", "Prob_event",
-      "Actual_OS_time", "OS_event"
+    rownames(survival_results_tr) <- rownames(sel_clin_tr2)
+
+    # Predictions on test data
+    survival_curves_te <- predict(Mod1, sel_clin_te2, type = "survivalcurve")
+    mean_survival_te <- predict(Mod1, sel_clin_te2, type = "mean_time")
+    median_survival_te <- predict(Mod1, sel_clin_te2, type = "median_time")
+    event_probabilities_te <- predict(Mod1, sel_clin_te2, type = "prob_event")
+
+    # Prepare survival curve data
+    colnames(survival_curves_te) <- c("time_point", rownames(sel_clin_te2))
+    survCurves_te_df <- as.data.frame(survival_curves_te)
+
+    survival_results_te <- cbind(
+      Mean_Survival = mean_survival_te,
+      Median_Survival = median_survival_te,
+      Event_Probability = event_probabilities_te,
+      Actual_OS_Time = sel_clin_te2$OS_month,
+      OS_Event = sel_clin_te2$OS
     )
-    rownames(surv_res1) <- rownames(sel_clin_te2)
-    # Calcualte Evalulation parameters on training data
-    # create survival object
-    surv_obj1_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+    rownames(survival_results_te) <- rownames(sel_clin_te2)
 
-    # calculate the C-index
-    c_index1_tr <- round(
-      survival::concordance(
-        surv_obj1_tr ~ medianSurv1_tr
-      )$concordance,
-      2
-    )
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_1_tr <- c_index1_tr
-
-    # create survival object
-    surv_obj1 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # Calculate the C-index
-    c_index1 <- round(
-      survival::concordance(
-        surv_obj1 ~ medianSurv1
-      )$concordance,
-      2
+    # Prepare mean/median survival summary
+    survival_summary_te <- cbind(
+      ID = rownames(sel_clin_te2),
+      Mean = mean_survival_te,
+      Median = median_survival_te,
+      OS_month = sel_clin_te2$OS_month
     )
 
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_1_te <- c_index1
-    Error_mat_1 <- rbind(Error_mat_1_tr, Error_mat_1_te)
-    colnames(Error_mat_1) <- c("c_index")
-    rownames(Error_mat_1) <- c("Training_set", "Test_set")
+    # Prepare mean/median survival summary
+    survival_summary_tr <- cbind(
+      ID = rownames(sel_clin_tr2),
+      Mean = mean_survival_tr,
+      Median = median_survival_tr,
+      OS_month = sel_clin_tr2$OS_month
+    )
 
-  }
+
+    # C-Index calculation
+
+    # Create survival object for training data
+    surv_obj1_tr <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+
+    # Calculate C-index for training data
+    c_index1_tr <- round(concordance(surv_obj1_tr ~ median_survival_tr)$concordance, 2)
+
+    # Create survival object for test data
+    surv_obj1_te <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
+
+    # Calculate C-index for test data
+    c_index1_te <- round(concordance(surv_obj1_te ~ median_survival_te)$concordance, 2)
+
+    # --- MAE Calculation ----
+    # Convert training survival summary to a data frame and ensure numeric values
+    survival_summary_tr <- as.data.frame(survival_summary_tr)
+    survival_summary_tr$OS_month <- as.numeric(survival_summary_tr$OS_month)
+    survival_summary_tr$Mean <- as.numeric(survival_summary_tr$Mean)
+    survival_summary_tr$Median <- as.numeric(survival_summary_tr$Median)
+
+    # Compute MAE for training data
+    mean_mae_tr <- round(mean(abs(survival_summary_tr$OS_month - survival_summary_tr$Mean), na.rm = TRUE), 2)
+    median_mae_tr <- round(median(abs(survival_summary_tr$OS_month - survival_summary_tr$Median), na.rm = TRUE), 2)
+
+    # Convert test survival summary to a data frame and ensure numeric values
+    survival_summary_te <- as.data.frame(survival_summary_te)
+    survival_summary_te$OS_month <- as.numeric(survival_summary_te$OS_month)
+    survival_summary_te$Mean <- as.numeric(survival_summary_te$Mean)
+    survival_summary_te$Median <- as.numeric(survival_summary_te$Median)
+
+    # Compute MAE for test data
+    mean_mae_te <- round(mean(abs(survival_summary_te$OS_month - survival_summary_te$Mean), na.rm = TRUE), 2)
+    median_mae_te <- round(median(abs(survival_summary_te$OS_month - survival_summary_te$Median), na.rm = TRUE), 2)
+
+    Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
+    Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
+
+    Error_mat <- rbind(Error_mat_tr , Error_mat_te)
+    colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
+    rownames(Error_mat) <- c("Training_set", "Test_set")
+
+ }
 
 # Model2 -  Model with only PI score
 
@@ -215,111 +236,108 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Mod2 <- mtlr(formula = formula2, data = sel_clin_tr2)
 
     # Model Predictions
-    # prediction on Test data
-    survCurves2 <- predict(Mod2, sel_clin_te2, type = "survivalcurve")
-    # add column names
-    colnames(survCurves2) <- c("time_point", rownames(sel_clin_te2))
+    # Predictions on training data
+    survival_curves_tr2 <- predict(Mod2, sel_clin_tr2, type = "survivalcurve")
+    mean_survival_tr2 <- predict(Mod2, sel_clin_tr2, type = "mean_time")
+    median_survival_tr2 <- predict(Mod2, sel_clin_tr2, type = "median_time")
+    event_probabilities_tr2 <- predict(Mod2, sel_clin_tr2, type = "prob_event")
 
-    # create dataframe of survival curve data
-    survCurves2_df <- as.data.frame(survCurves2)
+    # Prepare survival curve data
+    colnames(survival_curves_tr2) <- c("time_point", rownames(sel_clin_tr2))
+    survCurves_tr_df2 <- as.data.frame(survival_curves_tr2)
 
-    # survivalcurve
-    survivalcurve2 <- predict(Mod2, sel_clin_te2, type = "survivalcurve")
-    # Prob_Event
-    Survival_prob_event2_tr <- predict(Mod2, sel_clin_tr2,
-      type = "prob_event"
+
+    survival_results_tr2 <- cbind(
+      Mean_Survival = mean_survival_tr2,
+      Median_Survival = median_survival_tr2,
+      Event_Probability = event_probabilities_tr2,
+      Actual_OS_Time = sel_clin_tr2$OS_month,
+      OS_Event = sel_clin_tr2$OS
     )
-    Survival_prob_event2 <- predict(Mod2, sel_clin_te2, type = "prob_event")
+    rownames(survival_results_tr2) <- rownames(sel_clin_tr2)
 
-    # Mean/Median Survival Time: In addition to the entire survival curve one
-    # may also be interested in the average survival time.
-    # This is again available from the predict function.
-    # Predicted Mean
-    meanSurv2_tr <- predict(Mod2, sel_clin_tr2, type = "mean_time")
-    meanSurv2 <- predict(Mod2, sel_clin_te2, type = "mean_time")
-    # Predicted Median
-    medianSurv2_tr <- predict(Mod2, sel_clin_tr2, type = "median_time")
-    medianSurv2 <- predict(Mod2, sel_clin_te2, type = "median_time")
-    ## create a dataframe of  predicted  mean and median survival time
-    meanSurv2_d <- as.data.frame(meanSurv2)
-    medianSurv2_d <- as.data.frame(medianSurv2)
+    # Predictions on test data
+    survival_curves_te2 <- predict(Mod2, sel_clin_te2, type = "survivalcurve")
+    mean_survival_te2 <- predict(Mod2, sel_clin_te2, type = "mean_time")
+    median_survival_te2 <- predict(Mod2, sel_clin_te2, type = "median_time")
+    event_probabilities_te2 <- predict(Mod2, sel_clin_te2, type = "prob_event")
 
-    # add rownames
-    names_2 <- as.data.frame(rownames(sel_clin_te2))
+    # Prepare survival curve data
+    colnames(survival_curves_te2) <- c("time_point", rownames(sel_clin_te2))
+    survCurves_te_df2 <- as.data.frame(survival_curves_te2)
 
-    # create a dataframe combining both predicted  mean and median survival
-    # time
-    mean_median_surv2_d <- cbind(names_2, meanSurv2_d, medianSurv2_d)
-    rownames(mean_median_surv2_d) <- c(rownames(sel_clin_te2))
-
-    # add column names
-    colnames(mean_median_surv2_d) <- c("IDs", "Mean", "Median")
-
-    # Survival Probability at Event Time
-    # training data prediction
-    survivalProbs_p2_tr <- predict(Mod2, sel_clin_tr2, type = "prob_times")
-    # extract prob times at diff times points
-    survivalProbs_t_mat_2_tr <- as.matrix(survivalProbs_p2_tr)
-    survivalProbs_t_mat1_2_tr <- survivalProbs_t_mat_2_tr[, -1]
-    survivalProbs_t_mat1_t_2_tr <- t(survivalProbs_t_mat1_2_tr)
-    survivalProbs_t_mat1_t2_2_tr <- survivalProbs_t_mat1_t_2_tr[, -1]
-    # test data prediction
-    survivalProbs_p2 <- predict(Mod2, sel_clin_te2, type = "prob_times")
-    # extract prob times at diff times points
-    survivalProbs_t_mat_2 <- as.matrix(survivalProbs_p2)
-    survivalProbs_t_mat1_2 <- survivalProbs_t_mat_2[, -1]
-    survivalProbs_t_mat1_t_2 <- t(survivalProbs_t_mat1_2)
-    survivalProbs_t_mat1_t2_2 <- survivalProbs_t_mat1_t_2[, -1]
-
-    # create a data frame combining predicted mean, median, survival
-    # probability and actual time and event
-    surv_res2 <- cbind(
-      meanSurv2, medianSurv2, Survival_prob_event2,
-      sel_clin_te2$OS_month, sel_clin_te2$OS
+    survival_results_te2 <- cbind(
+      Mean_Survival = mean_survival_te2,
+      Median_Survival = median_survival_te2,
+      Event_Probability = event_probabilities_te,
+      Actual_OS_Time = sel_clin_te2$OS_month,
+      OS_Event = sel_clin_te2$OS
     )
-    # add column and rownames
-    colnames(surv_res2) <- c(
-      "Mean_Surv", "Prob_event", "Median_surv",
-      "Actual_OS_time", "OS_event"
-    )
-    rownames(surv_res2) <- rownames(sel_clin_te2)
+    rownames(survival_results_te2) <- rownames(sel_clin_te2)
 
-    # Calcualte Evalulation/prediction parameters on training data
-    # create survival object
-    surv_obj_2_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # Calculate the C-index
-    c_index_2_tr <- round(
-      survival::concordance(
-        surv_obj_2_tr ~ medianSurv2_tr
-      )$concordance,
-      2
-    )
-
-    # Combine evaluation parameters to get Matrix
-    Error_mat_2_tr <- c_index_2_tr
-
-    # Calcualte Evalulation/prediction parameters on test data
-    # create survival object
-    surv_obj_2 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # Calculate the C-index
-    c_index_2 <- round(
-      survival::concordance(
-        surv_obj_2 ~ medianSurv2
-      )$concordance,
-      2
+    # Prepare mean/median survival summary
+    survival_summary_te2 <- cbind(
+      ID = rownames(sel_clin_te2),
+      Mean = mean_survival_te2,
+      Median = median_survival_te2,
+      OS_month = sel_clin_te2$OS_month
     )
 
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_2_te <- c_index_2
+    # Prepare mean/median survival summary
+    survival_summary_tr2 <- cbind(
+      ID = rownames(sel_clin_tr2),
+      Mean = mean_survival_tr2,
+      Median = median_survival_tr2,
+      OS_month = sel_clin_tr2$OS_month
+    )
 
-    Error_mat_2 <- rbind(Error_mat_2_tr, Error_mat_2_te)
-    colnames(Error_mat_2) <- c("c_index")
-    rownames(Error_mat_2) <- c("Training_set", "Test_set")
 
-#model3  
+    # C-Index calculation
+
+    # Create survival object for training data
+    surv_obj1_tr2 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+
+    # Calculate C-index for training data
+    c_index1_tr2 <- round(concordance(surv_obj1_tr2 ~ median_survival_tr2)$concordance, 2)
+
+    # Create survival object for test data
+    surv_obj1_te2 <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
+
+    # Calculate C-index for test data
+    c_index1_te2 <- round(concordance(surv_obj1_te2 ~ median_survival_te2)$concordance, 2)
+
+    # --- MAE Calculation ----
+    # Convert training survival summary to a data frame and ensure numeric values
+    survival_summary_tr2 <- as.data.frame(survival_summary_tr2)
+    survival_summary_tr2$OS_month <- as.numeric(survival_summary_tr2$OS_month)
+    survival_summary_tr2$Mean <- as.numeric(survival_summary_tr2$Mean)
+    survival_summary_tr2$Median <- as.numeric(survival_summary_tr2$Median)
+
+    # Compute MAE for training data
+    mean_mae_tr2 <- round(mean(abs(survival_summary_tr2$OS_month - survival_summary_tr2$Mean), na.rm = TRUE), 2)
+    median_mae_tr2 <- round(median(abs(survival_summary_tr2$OS_month - survival_summary_tr2$Median), na.rm = TRUE), 2)
+
+    # Convert test survival summary to a data frame and ensure numeric values
+    survival_summary_te2 <- as.data.frame(survival_summary_te2)
+    survival_summary_te2$OS_month <- as.numeric(survival_summary_te2$OS_month)
+    survival_summary_te2$Mean <- as.numeric(survival_summary_te2$Mean)
+    survival_summary_te2$Median <- as.numeric(survival_summary_te2$Median)
+
+    # Compute MAE for test data
+    mean_mae_te2 <- round(mean(abs(survival_summary_te2$OS_month - survival_summary_te2$Mean), na.rm = TRUE), 2)
+    median_mae_te2 <- round(median(abs(survival_summary_te2$OS_month - survival_summary_te2$Median), na.rm = TRUE), 2)
+
+    Error_mat_tr2 <- cbind(c_index1_tr2,  mean_mae_tr2,  median_mae_tr2)
+    Error_mat_te2 <- cbind(c_index1_te2,  mean_mae_te2,  median_mae_te2)
+
+    Error_mat2 <- rbind(Error_mat_tr2 , Error_mat_te2)
+    colnames(Error_mat2) <- c("C_index", "Mean_MAE", "Median_MAE")
+    rownames(Error_mat2) <- c("Training_set", "Test_set")
+
+
+#model3
 } else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
@@ -342,115 +360,109 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #  make our model
     Mod3 <- mtlr(formula = formula3, data = sel_clin_tr2)
 
-    # survival curve data
-    survCurves3 <- predict(Mod3, sel_clin_te2, type = "survivalcurve")
-    # add column names
-    colnames(survCurves3) <- c("time_point", rownames(sel_clin_te2))
+    # Model Predictions
+    # Predictions on training data
+    survival_curves_tr3 <- predict(Mod3, sel_clin_tr2, type = "survivalcurve")
+    mean_survival_tr3 <- predict(Mod3, sel_clin_tr2, type = "mean_time")
+    median_survival_tr3 <- predict(Mod3, sel_clin_tr2, type = "median_time")
+    event_probabilities_tr3 <- predict(Mod3, sel_clin_tr2, type = "prob_event")
 
-    # make dataframe
-    survCurves3_df <- as.data.frame(survCurves3)
-    # Predicted Mean Survival Time
-    # training data
-    meanSurv3_tr <- predict(Mod3, sel_clin_tr2, type = "mean_time")
-    # test data
-    meanSurv3 <- predict(Mod3, sel_clin_te2, type = "mean_time")
+    # Prepare survival curve data
+    colnames(survival_curves_tr3) <- c("time_point", rownames(sel_clin_tr2))
+    survCurves_tr_df3 <- as.data.frame(survival_curves_tr3)
 
-    # Predicted Median survival time
-    # training
-    medianSurv3_tr <- predict(Mod3, sel_clin_tr2, type = "median_time")
-    # test
-    medianSurv3 <- predict(Mod3, sel_clin_te2, type = "median_time")
-    # create dataframes of predicted mean and median sirvival time
-    meanSurv3_d <- as.data.frame(meanSurv3)
-    medianSurv3_d <- as.data.frame(medianSurv3)
-    # combine both mean and median sirvival time
-    # add rownames
-    names_3 <- as.data.frame(rownames(sel_clin_te2))
-    # combine both mean and median sirvival time
-    mean_median_surv3_d <- cbind(names_3, meanSurv3_d, medianSurv3_d)
 
-    # add row and column names
-    rownames(mean_median_surv3_d) <- c(rownames(sel_clin_te2))
-    colnames(mean_median_surv3_d) <- c("IDs", "Mean", "Median")
-
-    # Survival Probability at Event Time
-    # training
-    Survival_Probs_event3_tr <- predict(Mod3, sel_clin_tr2,
-      type = "prob_event"
+    survival_results_tr3 <- cbind(
+      Mean_Survival = mean_survival_tr3,
+      Median_Survival = median_survival_tr3,
+      Event_Probability = event_probabilities_tr3,
+      Actual_OS_Time = sel_clin_tr2$OS_month,
+      OS_Event = sel_clin_tr2$OS
     )
-    survivalProbs_p3_tr <- predict(Mod3, sel_clin_tr2,
-      type = "prob_times"
-    )
-    # test
-    Survival_Probs_event3 <- predict(Mod3, sel_clin_te2, type = "prob_event")
+    rownames(survival_results_tr3) <- rownames(sel_clin_tr2)
 
-    survivalProbs_p3 <- predict(Mod3, sel_clin_te2, type = "prob_times")
+    # Predictions on test data
+    survival_curves_te3 <- predict(Mod3, sel_clin_te2, type = "survivalcurve")
+    mean_survival_te3 <- predict(Mod3, sel_clin_te2, type = "mean_time")
+    median_survival_te3 <- predict(Mod3, sel_clin_te2, type = "median_time")
+    event_probabilities_te3 <- predict(Mod3, sel_clin_te2, type = "prob_event")
 
-    ## create a data frame combining predicted mean, median, survival
-    # probability and actual time and event
-    surv_res3 <- cbind(
-      meanSurv3, medianSurv3,
-      Survival_Probs_event3,
-      sel_clin_te2$OS_month, sel_clin_te2$OS
+    # Prepare survival curve data
+    colnames(survival_curves_te3) <- c("time_point", rownames(sel_clin_te2))
+    survCurves_te_df3 <- as.data.frame(survival_curves_te3)
+
+    survival_results_te3 <- cbind(
+      Mean_Survival = mean_survival_te3,
+      Median_Survival = median_survival_te3,
+      Event_Probability = event_probabilities_te3,
+      Actual_OS_Time = sel_clin_te2$OS_month,
+      OS_Event = sel_clin_te2$OS
     )
-    colnames(surv_res3) <- c(
-      "Mean", "Median_surv",
-      "Survival_Prob_event", "Actual_OS_time", "Event"
+    rownames(survival_results_te3) <- rownames(sel_clin_te2)
+
+
+    # Prepare mean/median survival summary
+    survival_summary_te3 <- cbind(
+      ID = rownames(sel_clin_te2),
+      Mean = mean_survival_te3,
+      Median = median_survival_te3,
+      OS_month = sel_clin_te2$OS_month
     )
 
-    # training data
-    # extract prob times at diff times points
-    survivalProbs_t_mat_3_tr <- as.matrix(survivalProbs_p3_tr)
-    survivalProbs_t_mat1_3_tr <- survivalProbs_t_mat_3_tr[, -1]
-    survivalProbs_t_mat1_t_3_tr <- t(survivalProbs_t_mat1_3_tr)
-    survivalProbs_t_mat1_t2_3_tr <- survivalProbs_t_mat1_t_3_tr[, -1]
 
-    # test
-    # extract prob times at diff times points
-    survivalProbs_t_mat_3 <- as.matrix(survivalProbs_p3)
-    survivalProbs_t_mat1_3 <- survivalProbs_t_mat_3[, -1]
-    survivalProbs_t_mat1_t_3 <- t(survivalProbs_t_mat1_3)
-    survivalProbs_t_mat1_t2_3 <- survivalProbs_t_mat1_t_3[, -1]
-
-
-
-    # Calcualte Evaluation parameters on training data
-    # create survival object
-    surv_obj_3_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
-
-    # Calculate the C-index
-    c_index_3_tr <- round(
-      survival::concordance(
-        surv_obj_3_tr ~ medianSurv3_tr
-      )$concordance,
-      2
+    # Prepare mean/median survival summary
+    survival_summary_tr3 <- cbind(
+      ID = rownames(sel_clin_tr2),
+      Mean = mean_survival_tr3,
+      Median = median_survival_tr3,
+      OS_month = sel_clin_tr2$OS_month
     )
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_3_tr <- c_index_3_tr
 
-    # Calcualte Evaluation parameters on test data
-    # create survival object
-    surv_obj_3 <- survival::Surv(
-      sel_clin_te2$OS_month,
-      sel_clin_te2$OS
-    )
+    # C-Index calculation
 
-    # Calculate the C-index
-     c_index_3 <- round(
-      survival::concordance(
-        surv_obj_3 ~ medianSurv3
-      )$concordance,
-      2
-    )
+    # Create survival object for training data
+    surv_obj1_tr3 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_3_te <- c_index_3
+    # Calculate C-index for training data
+    c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
 
-    Error_mat_3 <- rbind(Error_mat_3_tr, Error_mat_3_te)
+    # Create survival object for test data
+    surv_obj1_te3 <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
 
-    colnames(Error_mat_3) <- c("c_index")
-    rownames(Error_mat_3) <- c("Training_set", "Test_set")
+    # Calculate C-index for test data
+    c_index1_te3 <- round(concordance(surv_obj1_te3 ~ median_survival_te3)$concordance, 2)
+
+    # --- MAE Calculation ----
+    # Convert training survival summary to a data frame and ensure numeric values
+    survival_summary_tr3 <- as.data.frame(survival_summary_tr3)
+    survival_summary_tr3$OS_month <- as.numeric(survival_summary_tr3$OS_month)
+    survival_summary_tr3$Mean <- as.numeric(survival_summary_tr3$Mean)
+    survival_summary_tr3Median <- as.numeric(survival_summary_tr3$Median)
+
+    # Compute MAE for training data
+    mean_mae_tr3 <- round(mean(abs(survival_summary_tr3$OS_month - survival_summary_tr3$Mean), na.rm = TRUE), 2)
+    median_mae_tr3 <- round(median(abs(survival_summary_tr3$OS_month - survival_summary_tr3$Median), na.rm = TRUE), 2)
+
+    # Convert test survival summary to a data frame and ensure numeric values
+    survival_summary_te3 <- as.data.frame(survival_summary_te3)
+    survival_summary_te3$OS_month <- as.numeric(survival_summary_te3$OS_month)
+    survival_summary_te3$Mean <- as.numeric(survival_summary_te3$Mean)
+    survival_summary_te3$Median <- as.numeric(survival_summary_te3$Median)
+
+    # Compute MAE for test data
+    mean_mae_te3 <- round(mean(abs(survival_summary_te3$OS_month - survival_summary_te3$Mean), na.rm = TRUE), 2)
+    median_mae_te3 <- round(median(abs(survival_summary_te3$OS_month - survival_summary_te3$Median), na.rm = TRUE), 2)
+
+    Error_mat_tr3 <- cbind(c_index1_tr3,  mean_mae_tr3,  median_mae_tr3)
+    Error_mat_te3 <- cbind(c_index1_te3,  mean_mae_te3,  median_mae_te3)
+
+    Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
+    colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
+    rownames(Error_mat3) <- c("Training_set", "Test_set")
+
+
+
   } else if (Model_type == 4) {
     ## Univariate with Clin features ##
     # create data frame with selected features (user provided list)
@@ -472,128 +484,154 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Next, we just need the data argument which in our case is training.
     # We can finally make our first model!
     Mod5 <- mtlr(formula = formula5, data = sel_clin_tr2)
-    # Prediction on test data
-    # Survival curve of test data
-    survCurves5 <- predict(Mod5, sel_clin_te2, type = "survivalcurve")
-    # add column names
-    colnames(survCurves5) <- c("time_point", rownames(sel_clin_te2))
-    # make dataframe
-    survCurves5_df <- as.data.frame(survCurves5)
-    # Predicted Mean/Median Survival Time
-    # Predicted Mean
-    meanSurv5_tr <- predict(Mod5, sel_clin_tr2, type = "mean_time")
-    meanSurv5 <- predict(Mod5, sel_clin_te2, type = "mean_time")
-    # Median
-    medianSurv5_tr <- predict(Mod5, sel_clin_tr2, type = "median_time")
-    medianSurv5 <- predict(Mod5, sel_clin_te2, type = "median_time")
-    # make data frames of predicted  mean and median survival time
-    meanSurv5_d <- as.data.frame(meanSurv5)
-    medianSurv5_d <- as.data.frame(medianSurv5)
-    names_5 <- as.data.frame(rownames(sel_clin_te2))
-    # combine predicted mean and median time
-    mean_median_surv5_d <- cbind(names_5, meanSurv5_d, medianSurv5_d)
-    # add row names and column names
-    rownames(mean_median_surv5_d) <- c(rownames(sel_clin_te2))
-    colnames(mean_median_surv5_d) <- c("IDs", "Mean", "Median")
-    # Survival Probability at Event Time
-    # training data set
-    Survival_Probs_event5_tr <- predict(Mod5, sel_clin_tr2,
-      type = "prob_event"
-    )
-    survivalProbs_p5_tr <- predict(Mod5, sel_clin_tr2,
-      type = "prob_times"
-    )
-    # Test
-    Survival_Probs_event5 <- predict(Mod5, sel_clin_te2,
-      type = "prob_event"
-    )
-    survivalProbs_p5 <- predict(Mod5, sel_clin_te2,
-      type = "prob_times"
-    )
-    # create a data frame combining predicted mean, median, survival
-    # probability and actual time and event
-    surv_res5 <- cbind(
-      meanSurv5, medianSurv5, Survival_Probs_event5,
-      sel_clin_te2$OS_month, sel_clin_te2$OS
-    )
-    # add column and row names
-    colnames(surv_res5) <- c(
-      "Mean", "Median_surv",
-      "Survival_Prob_event",
-      "Actual_OS_time", "Event"
-    )
-    rownames(surv_res5) <- rownames(sel_clin_te2)
-    # extract prob times at diff times points on training data
-    survivalProbs_t_mat_5_tr <- as.matrix(survivalProbs_p5_tr)
-    survivalProbs_t_mat1_5_tr <- survivalProbs_t_mat_5_tr[, -1]
-    survivalProbs_t_mat1_t_5_tr <- t(survivalProbs_t_mat1_5_tr)
-    survivalProbs_t_mat1_t2_5_tr <- survivalProbs_t_mat1_t_5_tr[, -1]
-    # extract prob times at diff times points on test data
-    survivalProbs_t_mat_5 <- as.matrix(survivalProbs_p5)
-    survivalProbs_t_mat1_5 <- survivalProbs_t_mat_5[, -1]
-    survivalProbs_t_mat1_t_5 <- t(survivalProbs_t_mat1_5)
-    survivalProbs_t_mat1_t2_5 <- survivalProbs_t_mat1_t_5[, -1]
-    # Calcualte Evalulation parameters on Training data
-    # create survival object
-    surv_obj_5_tr <- survival::Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
 
-    # Calculate the C-index
-    c_index_5_tr <- round(
-      survival::concordance(
-        surv_obj_5_tr ~ medianSurv5_tr
-      )$concordance,
-      2
+    # Model Predictions
+    # Predictions on training data
+    survival_curves_tr5 <- predict(Mod5, sel_clin_tr2, type = "survivalcurve")
+    mean_survival_tr5 <- predict(Mod5, sel_clin_tr2, type = "mean_time")
+    median_survival_tr5 <- predict(Mod5, sel_clin_tr2, type = "median_time")
+    event_probabilities_tr5 <- predict(Mod5, sel_clin_tr2, type = "prob_event")
+
+    # Prepare survival curve data
+    colnames(survival_curves_tr5) <- c("time_point", rownames(sel_clin_tr2))
+    survCurves_tr_df5 <- as.data.frame(survival_curves_tr5)
+
+
+    survival_results_tr5 <- cbind(
+      Mean_Survival = mean_survival_tr5,
+      Median_Survival = median_survival_tr5,
+      Event_Probability = event_probabilities_tr5,
+      Actual_OS_Time = sel_clin_tr2$OS_month,
+      OS_Event = sel_clin_tr2$OS
     )
-    # Combine evaluation parameters to get Matrix
-    Error_mat_5_tr <- c_index_5_tr
+    rownames(survival_results_tr5) <- rownames(sel_clin_tr2)
 
-    # create survival object
-    surv_obj_5 <- survival::Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
+    # Predictions on test data
+    survival_curves_te5 <- predict(Mod5, sel_clin_te2, type = "survivalcurve")
+    mean_survival_te5 <- predict(Mod5, sel_clin_te2, type = "mean_time")
+    median_survival_te5 <- predict(Mod5, sel_clin_te2, type = "median_time")
+    event_probabilities_te5 <- predict(Mod5, sel_clin_te2, type = "prob_event")
 
-    # Calculate the C-index
-    c_index_5 <- round(
-      survival::concordance(
-        surv_obj_5 ~ medianSurv5
-      )$concordance,
-      2
+    # Prepare survival curve data
+    colnames(survival_curves_te5) <- c("time_point", rownames(sel_clin_te2))
+    survCurves_te_df5 <- as.data.frame(survival_curves_te5)
+
+    survival_results_te5 <- cbind(
+      Mean_Survival = mean_survival_te5,
+      Median_Survival = median_survival_te5,
+      Event_Probability = event_probabilities_te5,
+      Actual_OS_Time = sel_clin_te2$OS_month,
+      OS_Event = sel_clin_te2$OS
+    )
+    rownames(survival_results_te5) <- rownames(sel_clin_te2)
+
+
+    # Prepare mean/median survival summary
+    survival_summary_te5 <- cbind(
+      ID = rownames(sel_clin_te2),
+      Mean = mean_survival_te5,
+      Median = median_survival_te5,
+      OS_month = sel_clin_te2$OS_month
     )
 
-    # Combine evaluation parameters to get Matrix
-    Error_mat_5_te <- c_index_5
 
-    Error_mat_5 <- rbind(Error_mat_5_tr, Error_mat_5_te)
-    colnames(Error_mat_5) <- c("c_index")
-    rownames(Error_mat_5) <- c("Training_set", "Test_set")
+    # Prepare mean/median survival summary
+    survival_summary_tr5 <- cbind(
+      ID = rownames(sel_clin_tr2),
+      Mean = mean_survival_tr5,
+      Median = median_survival_tr5,
+      OS_month = sel_clin_tr2$OS_month
+    )
+
+
+    # C-Index calculation
+
+    # Create survival object for training data
+    surv_obj1_tr5 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+
+    # Calculate C-index for training data
+    c_index1_tr5 <- round(concordance(surv_obj1_tr5 ~ median_survival_tr5)$concordance, 2)
+
+    # Create survival object for test data
+    surv_obj1_te5 <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
+
+    # Calculate C-index for test data
+    c_index1_te5 <- round(concordance(surv_obj1_te5 ~ median_survival_te5)$concordance, 2)
+
+    # --- MAE Calculation ----
+    # Convert training survival summary to a data frame and ensure numeric values
+    survival_summary_tr5 <- as.data.frame(survival_summary_tr5)
+    survival_summary_tr5$OS_month <- as.numeric(survival_summary_tr5$OS_month)
+    survival_summary_tr5$Mean <- as.numeric(survival_summary_tr5$Mean)
+    survival_summary_tr5Median <- as.numeric(survival_summary_tr5$Median)
+
+    # Compute MAE for training data
+    mean_mae_tr5 <- round(mean(abs(survival_summary_tr5$OS_month - survival_summary_tr5$Mean), na.rm = TRUE), 2)
+    median_mae_tr5 <- round(mean(abs(survival_summary_tr5$OS_month -  as.numeric(survival_summary_tr5$Median)), na.rm = TRUE), 2)
+
+    # Convert test survival summary to a data frame and ensure numeric values
+    survival_summary_te5 <- as.data.frame(survival_summary_te5)
+    survival_summary_te5$OS_month <- as.numeric(survival_summary_te5$OS_month)
+    survival_summary_te5$Mean <- as.numeric(survival_summary_te5$Mean)
+    survival_summary_te5$Median <- as.numeric(survival_summary_te5$Median)
+
+    # Compute MAE for test data
+    mean_mae_te5 <- round(mean(abs(survival_summary_te5$OS_month - survival_summary_te5$Mean), na.rm = TRUE), 2)
+    median_mae_te5 <- round(median(abs(survival_summary_te5$OS_month - survival_summary_te5$Median), na.rm = TRUE), 2)
+
+    Error_mat_tr5 <- cbind(c_index1_tr5,  mean_mae_tr5,  median_mae_tr5)
+    Error_mat_te5 <- cbind(c_index1_te5,  mean_mae_te5,  median_mae_te5)
+
+    Error_mat5 <- rbind(Error_mat_tr5 , Error_mat_te5)
+    colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
+    rownames(Error_mat5) <- c("Training_set", "Test_set")
+
+
+
   }
   if (Model_type == 1) {
-    survCurves_df <- survCurves1_df
-    mean_median_surv_d <- mean_median_surv1_d
-    Error_mat <- Error_mat_1
-    surv_res <- surv_res1
+    survCurves_df <- survCurves_te_df
+    selected_train_data = as.data.frame(sel_clin_tr2)
+    selected_test_data = as.data.frame(sel_clin_te2)
+    mean_median_surv_d <- survival_summary_te
+    Error_mat <- Error_mat
+    surv_res <- survival_results_te
   }
   if (Model_type == 2) {
-    survCurves_df <- survCurves2_df
-    mean_median_surv_d <- mean_median_surv2_d
-    Error_mat <- Error_mat_2
-    surv_res <- surv_res2
+    survCurves_df <- survCurves_te_df2
+    selected_train_data = as.data.frame(sel_clin_tr2)
+    selected_test_data = as.data.frame(sel_clin_te2)
+    mean_median_surv_d <- survival_summary_te2
+    Error_mat <- Error_mat2
+    surv_res <- survival_results_te2
   }
   if (Model_type == 3) {
-    survCurves_df <- survCurves3_df
-    mean_median_surv_d <- mean_median_surv3_d
-    Error_mat <- Error_mat_3
-    surv_res <- surv_res3
+    survCurves_df <- survCurves_te_df3
+    selected_train_data = as.data.frame(sel_clin_tr2)
+    selected_test_data = as.data.frame(sel_clin_te2)
+    mean_median_surv_d <- survival_summary_te3
+    Error_mat <- Error_mat3
+    surv_res <- survival_results_te3
   }
   if (Model_type == 4) {
-    survCurves_df <- survCurves5_df
-    mean_median_surv_d <- mean_median_surv5_d
-    Error_mat <- Error_mat_5
-    surv_res <- surv_res5
+    survCurves_df <- survCurves_te_df5
+    selected_train_data = as.data.frame(sel_clin_tr2)
+    selected_test_data = as.data.frame(sel_clin_te2)
+    mean_median_surv_d <- survival_summary_te5
+    Error_mat <- Error_mat5
+    surv_res <- survival_results_te5
   }
+
   # Return a list containing data.
   return(list(
     survCurves_data = survCurves_df,
     mean_median_survival_time_data = mean_median_surv_d,
     survival_result_based_on_MTLR = surv_res,
-    Error_mat_for_Model = Error_mat
+    Error_mat_for_Model = Error_mat,
+    selected_train_data = selected_train_data,
+    selected_test_data = selected_test_data
+
   ))
 }
+
+

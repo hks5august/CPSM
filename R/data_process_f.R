@@ -18,8 +18,8 @@
 #' @return A data frame combining processed clinical and expression data.
 #' Includes a new column `OS_month` for survival time in months, and retains
 #' only rows with positive `OS_month`.
-#' @import MASS
-#' @import SummarizedExperiment
+#'
+#' @importFrom SummarizedExperiment colData assay
 #' @examples
 #' library(SummarizedExperiment)
 #' data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
