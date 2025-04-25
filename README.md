@@ -2,7 +2,6 @@
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability and Risk-group prediction of patients. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
 
-# Installation From Bioconductor 
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -289,6 +288,7 @@ Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
 ```
 
 ## Outputs
+After implementing the **`MTLR_pred_model_f`** function, the following outputs are generated:
 1. **Model_with_PI.RData**: This object contains the trained model based on the input data.
 2. **survCurves_data**: This object contains the predicted survival probabilities for each patient at various time points. This data can be used to plot survival curves for patients.
 3. **mean_median_survival_time_data**: Object containing the predicted mean and median survival times for each patient in the test data. This data can be used to generate bar plots illustrating the predicted survival times.
