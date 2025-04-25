@@ -1,21 +1,4 @@
-
----
-title: "CPSM: Cancer patient survival model"
-author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-date: 'August 12, 2024'
-output: BiocStyle::html_document
-vignette: >
-  %\VignetteIndexEntry{CPSM: Cancer patient survival model}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+# CPSM: Cancer patient survival model
 
 # Introduction
 CPSM is an R package that provides a computational pipeline for predicting the survival probability of cancer patients. It encompasses several key steps, including data processing, splitting data into training and test subsets, data normalization, selecting significant features based on univariate survival analysis, generating LASSO PI scores, and developing predictive models for survival probability. Additionally, CPSM visualizes results through survival curves based on predicted probabilities and bar plots depicting the predicted mean and median survival times of patients.
@@ -35,6 +18,26 @@ The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data f
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
+```
+
+```{r }
+#set seed
+set.seed(7)
+```
+
+
+## Input Data
+Example Input data: "Example_TCGA_LGG_FPKM_data" is a tab separated file.  It contains Samples (184 LGG Cancer Samples) in the rows and Features in the columns. Gene Expression is available in terms of FPKM values in the data.
+Features information: In the data there are 11 clinical + demographic, 4 types survival with time and event information  and 19,978 protein coding genes.
+Clinical and demographic features: Clinical demographic features that are present in this example data include Age,  subtype,  gender,  race,  ajcc_pathologic_tumor_stage,  histological_type, histological_grade,  treatment_outcome_first_course, radiation_treatment_adjuvant,  sample_type,  type.
+Types of Survival: 4 types of Survival include OS (overall survival), PFS (progression-free survival), DSS (disease-specific survival), DFS (Disease-free survival). In the data, column names OS, PFS, DSS and DFS represent event information, while  OS.time, PFS.time, DSS.time and DFS.time indicate survival time in days.
+
+## Step 1- Data Processing 
+This function converts OS time (in days) into months and then removes samples where OS/OS.time information is missing.
+Here, we need to provide input data in tsv or txt  format. Further, we needs to define col_num (column number at which clinical/demographic and survival information ends,e.g. 20,  surv_time (name of column which contain survival time (in days) information, e.g. OS.time ) and output  name, e.g.  “New_data”
+
+```{r }
+
 library(SummarizedExperiment)
 set.seed(7) # set seed
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
@@ -65,11 +68,10 @@ str(New_data[1:10])
 ## Outputs
 After data processing, the output object **`New_data`** is generated, which contains 176 samples. This indicates that the function has removed 8 samples where OS/OS.time information was missing. Moreover, a new 21st column, **`OS_month`**, is added to the data, containing OS time values in months.
 
-# Step 2 - Split Data into Training and Test Subset
-## Description 
-Before proceeding further, we need to split the data into training and test subsets for feature selection and model development. 
-## Required inputs
-The output from the previous step, **`New_data`**, serves as the input for this process. Next, you need to define the fraction (e.g., 0.9) by which to split the data into training and test sets. For example, setting `fraction = 0.9` will divide the data into 90% for training and 10% for testing. Additionally, you should specify names for the training and test outputs (e.g., `train_FPKM` and `test_FPKM`).
+
+## Step 2 - Split Data into Training and Test Subset
+Before proceeding further, we need to split our data into training and test subset for the purpose of feature selection and model development. Here, we need output from the previous step as an input ( which was “New_data”). Next we need to define the fraction (e.g. 0.9) by which we want to split data into training and test. Thus, fraction=0.9 will split data into 90% training and 10% as test set. Besides, we also need to provide training and set output names (e.g. train_FPKM,test_FPKM )
+
 
 ## Example Code
 ```{r}
@@ -88,6 +90,7 @@ After the train-test split, two new output objects are generated: **`train_FPKM`
 # Step 3 - Data Normalization
 ## Description 
 In order to select features and develop ML models, the data must be normalized. Since the expression data is available in terms of FPKM values, the **`train_test_normalization_f`** function will first convert the FPKM values into a log scale using the formula [log2(FPKM+1)], followed by quantile normalization. The training data will be used as the target matrix for the quantile normalization process. 
+
 ## Required inputs
 For this function, you need to provide the training and test datasets obtained from the previous step (Train/Test Split). Additionally, you must specify the column number where clinical information ends (e.g., 21) in the input datasets. Finally, you need to define output names for the resulting datasets: **`train_clin_data`** (which contains only clinical information from the training data), **`test_clin_data`** (which contains only clinical information from the test data), **`train_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the training samples), and **`test_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the test samples).
 
