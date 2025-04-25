@@ -422,7 +422,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # Create survival object for training data
     surv_obj1_tr3 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
-<<<<<<< HEAD
 
     # Calculate C-index for training data
     c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
@@ -460,48 +459,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
     colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat3) <- c("Training_set", "Test_set")
-
-
-#model4
-=======
-
-    # Calculate C-index for training data
-    c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
-
-    # Create survival object for test data
-    surv_obj1_te3 <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
-
-    # Calculate C-index for test data
-    c_index1_te3 <- round(concordance(surv_obj1_te3 ~ median_survival_te3)$concordance, 2)
-
-    # --- MAE Calculation ----
-    # Convert training survival summary to a data frame and ensure numeric values
-    survival_summary_tr3 <- as.data.frame(survival_summary_tr3)
-    survival_summary_tr3$OS_month <- as.numeric(survival_summary_tr3$OS_month)
-    survival_summary_tr3$Mean <- as.numeric(survival_summary_tr3$Mean)
-    survival_summary_tr3Median <- as.numeric(survival_summary_tr3$Median)
-
-    # Compute MAE for training data
-    mean_mae_tr3 <- round(mean(abs(survival_summary_tr3$OS_month - survival_summary_tr3$Mean), na.rm = TRUE), 2)
-    median_mae_tr3 <- round(median(abs(survival_summary_tr3$OS_month - survival_summary_tr3$Median), na.rm = TRUE), 2)
-
-    # Convert test survival summary to a data frame and ensure numeric values
-    survival_summary_te3 <- as.data.frame(survival_summary_te3)
-    survival_summary_te3$OS_month <- as.numeric(survival_summary_te3$OS_month)
-    survival_summary_te3$Mean <- as.numeric(survival_summary_te3$Mean)
-    survival_summary_te3$Median <- as.numeric(survival_summary_te3$Median)
-
-    # Compute MAE for test data
-    mean_mae_te3 <- round(mean(abs(survival_summary_te3$OS_month - survival_summary_te3$Mean), na.rm = TRUE), 2)
-    median_mae_te3 <- round(median(abs(survival_summary_te3$OS_month - survival_summary_te3$Median), na.rm = TRUE), 2)
-
-    Error_mat_tr3 <- cbind(c_index1_tr3,  mean_mae_tr3,  median_mae_tr3)
-    Error_mat_te3 <- cbind(c_index1_te3,  mean_mae_te3,  median_mae_te3)
-
-    Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
-    colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
-    rownames(Error_mat3) <- c("Training_set", "Test_set")
-
 
 
   } else if (Model_type == 4) {
