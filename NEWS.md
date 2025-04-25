@@ -24,7 +24,6 @@
 - corrected input in MTLR_pred_model_f.R file
 - updated .gitignore file
 - Bumped the version from 0.99.5 to 0.99.6 as per Bioconductor guidelines
-<<<<<<< HEAD
 
 # CPSM 0.99.7 (Unreleased)
 - Updated vigenette file "CPSM.Rmd", updated installation instruction as per Bioconductor guidelines
@@ -55,6 +54,7 @@
   - Introduced a new function to generate Kaplan-Meier survival plots overlayed with individual test sample survival curves.
   - Useful for visualizing predicted test sample risk in the context of population-level survival groups.
   - Includes annotated output with sample ID, predicted group, and probability.
+## Updated data files, added new files
 ## Improvement
 - Updated MTLR_pred_model_f function to compute MAE and improve the structure of function. 
 ## Documentation

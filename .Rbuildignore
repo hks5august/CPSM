@@ -1,2 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.Rhistory$
+^\.RData$
+^\.Rapp\.history$
+^\.Ruserdata$
+^\.DS_Store$
+^README\.md$   
+^.*\.log$
+^.*\.tmp$
+^\.Rcheck$
