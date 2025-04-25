@@ -41,6 +41,7 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 # Step 1- Data Processing 
+<<<<<<< HEAD
 ## Description 
 The **data_process_f** function converts OS time (in days) into months and removes samples where OS/OS.time information is missing. 
 ## Required inputs
@@ -180,7 +181,6 @@ The **`Univariate_sig_features_f`** function generates the following output obje
 1. **`Univariate_Surv_Sig_G_L`**: A table of univariate significant genes, along with their corresponding coefficient values, hazard ratio (HR) values, p-values, and C-Index values.
 2. **`Train_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the training samples.
 3. **`Test_Uni_sig_data`**: This dataset contains the expression values of the significant genes selected by univariate survival analysis for the test samples.
-
 
 
 # Step 5 - Prediction model development for survival probability of patients
@@ -365,7 +365,6 @@ print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
 ```
 
-## Outputs
 After running the function, two output bar plots are generated:
 1. **Bar plot for all patients** in the test data, where the red-colored bars represent the mean survival time, and the cyan/green-colored bars represent the median survival time.
 2. **Bar plot for all patients with a highlighted patient** (indicated by a dashed black outline). This plot shows that the highlighted patient has predicted mean and median survival times of 81.58 and 75.50 months, respectively.
