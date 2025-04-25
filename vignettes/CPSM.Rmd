@@ -230,6 +230,10 @@ survCurves_data <- Result_Model_Type1$survCurves_data
 mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
 survival_result_bas_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
 Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
+str(survCurves_data)
+str(mean_median_survival_tim_d)
+str(survival_result_bas_on_MTLR)
+str(Error_mat_for_Model)
 ```
 
 
@@ -255,6 +259,10 @@ survCurves_data <- Result_Model_Type2$survCurves_data
 mean_median_surviv_tim_da <- Result_Model_Type2$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
 Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
+str(survCurves_data)
+str(mean_median_survival_tim_d)
+str(survival_result_bas_on_MTLR)
+str(Error_mat_for_Model)
 ```
 
 
@@ -280,6 +288,10 @@ survCurves_data <- Result_Model_Type3$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type3$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
 Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
+str(survCurves_data)
+str(mean_median_survival_tim_d)
+str(survival_result_bas_on_MTLR)
+str(Error_mat_for_Model)
 ```
 
 
@@ -305,6 +317,10 @@ survCurves_data <- Result_Model_Type5$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type5$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
 Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
+str(survCurves_data)
+str(mean_median_survival_tim_d)
+str(survival_result_bas_on_MTLR)
+str(Error_mat_for_Model)
 ```
 
 ## Outputs

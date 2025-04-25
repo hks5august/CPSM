@@ -151,6 +151,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     )
     rownames(survival_results_te) <- rownames(sel_clin_te2)
 
+
     # Prepare mean/median survival summary
     survival_summary_te <- cbind(
       ID = rownames(sel_clin_te2),
@@ -158,6 +159,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       Median = median_survival_te,
       OS_month = sel_clin_te2$OS_month
     )
+
 
     # Prepare mean/median survival summary
     survival_summary_tr <- cbind(
@@ -244,6 +246,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(survival_curves_tr2) <- c("time_point", rownames(sel_clin_tr2))
     survCurves_tr_df2 <- as.data.frame(survival_curves_tr2)
 
+
     survival_results_tr2 <- cbind(
       Mean_Survival = mean_survival_tr2,
       Median_Survival = median_survival_tr2,
@@ -290,6 +293,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
       OS_month = sel_clin_tr2$OS_month
     )
 
+
     # C-Index calculation
 
     # Create survival object for training data
@@ -333,7 +337,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     rownames(Error_mat2) <- c("Training_set", "Test_set")
 
 
-#model3  
+#model3
 } else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
@@ -419,6 +423,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # Create survival object for training data
     surv_obj1_tr3 <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+
     # Calculate C-index for training data
     c_index1_tr3 <- round(concordance(surv_obj1_tr3 ~ median_survival_tr3)$concordance, 2)
 
@@ -457,7 +462,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     rownames(Error_mat3) <- c("Training_set", "Test_set")
 
 
-#model4
 
   } else if (Model_type == 4) {
     ## Univariate with Clin features ##
@@ -582,8 +586,9 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat5) <- c("Training_set", "Test_set")
 
-  }
 
+
+  }
   if (Model_type == 1) {
     survCurves_df <- survCurves_te_df
     selected_train_data = as.data.frame(sel_clin_tr2)
