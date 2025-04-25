@@ -6,12 +6,21 @@
 *.Rhistory
 *.RData
 
-# macOS system files
-.DS_Store
-
-# RStudio project files
-CPSM.Rproj
-
 # Cache and temporary files
-.Rapp.history
-.Ruserdata
+*.Rapp.history
+*.Ruserdata
+
+
+# macOS system files
+*.DS_Store
+
+# Cache or logs
+*.log
+*.out
+*.tmp
+
+# Compiled code
+*.o
+*.so
+*.dll
+.Rproj.user
