@@ -64,3 +64,10 @@
   - Enhanced step-by-step explanation of prediction and visualization workflows.
 ## Version update
 - Bumped version from **1.0.0** to **1.1.0**
+
+# CPSM 1.1.1
+##Improvement
+- Updated MTLR_pred_model_f function to make it simple
+## Version update
+- Bumped version from **1.1.0** to **1.1.1**.
+
