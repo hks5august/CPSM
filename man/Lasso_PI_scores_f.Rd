@@ -46,10 +46,7 @@ Cox model.
 }
 }
 \description{
-This function calculates the Prognostic Index (PI) for both training and
-test data using the Lasso method with Cox proportional hazards regression.
-It selects important features based on Lasso coefficients, generates the
-PI, and combines it with survival information.
+Lasso-Based Prognostic Index Calculation
 }
 \details{
 The function first checks the validity of input data. It renames

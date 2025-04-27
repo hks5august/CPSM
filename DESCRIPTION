@@ -1,7 +1,7 @@
 Package: CPSM
 Type: Package
 Title: CPSM: Cancer patient survival model 
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com", 
          role = c("aut", "cre"),
          comment = c(ORCID = "0000-0003-0421-8341")),
@@ -11,7 +11,7 @@ Authors@R: c(person("Harpreet", "Kaur", email = "hks04180@gmail.com",
          role = c("aut")),
          person("Uma", "Shankavaram" , email = "uma@mail.nih.gov",
          role = c("aut")))
-Description: TCPSM provides a comprehensive computational pipeline for predicting
+Description: CPSM provides a comprehensive computational pipeline for predicting
     survival probability and risk groups in cancer patients. The package includes
     steps for data preprocessing, training/test split, and normalization. It enables
     feature selection using univariate survival analysis and computes a LASSO-based
@@ -54,4 +54,4 @@ URL: https://github.com/hks5august/CPSM/
 BugReports: https://github.com/hks5august/CPSM/issues
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-biocViews: GeneExpression, Normalization, Survival
+biocViews: GeneExpression, Normalization, Survival, Preprocessing, Prediction, Visualization

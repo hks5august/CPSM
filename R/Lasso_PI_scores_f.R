@@ -1,10 +1,13 @@
-#' Lasso-Based Prognostic Index Calculation
+#' @title Lasso-Based Prognostic Index Calculation
+#' @name Lasso_PI_scores_f
 #'
-#' This function calculates the Prognostic Index (PI) for both training and
-#' test data using the Lasso method with Cox proportional hazards regression.
-#' It selects important features based on Lasso coefficients, generates the
-#' PI, and combines it with survival information.
-#'
+#' @details The function first checks the validity of input data. It renames
+#' the survival time and event columns in the training and test datasets,
+#' then fits a Cox proportional hazards model using Lasso regularization
+#' via cross-validation. Based on the Lasso model, the function calculates
+#' the prognostic index (PI) for both the training and test datasets,
+#' appending the PI values to the original data frames.
+#' 
 #' @param train_data A data frame containing the training data, including
 #' survival time, event status, and features.
 #' @param test_data A data frame containing the test data, including survival
@@ -28,12 +31,6 @@
 #'   \item \code{cvfit}: A `cv.glmnet` object representing the fitted LASSO
 #'   Cox model.
 #' }
-#' @details The function first checks the validity of input data. It renames
-#' the survival time and event columns in the training and test datasets,
-#' then fits a Cox proportional hazards model using Lasso regularization
-#' via cross-validation. Based on the Lasso model, the function calculates
-#' the prognostic index (PI) for both the training and test datasets,
-#' appending the PI values to the original data frames.
 #'
 #' @import survival
 #' @import survminer

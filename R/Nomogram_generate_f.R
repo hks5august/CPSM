@@ -1,9 +1,13 @@
-#' Nomogram Generation Function
+#' @title Nomogram Generation Function
 #'
-#' This function generates a Cox proportional hazards nomogram for survival
-#' prediction based on user-defined features and survival information. It also
-#' computes bias-corrected and original C-index values for model validation.
+#' @name Nomogram_generate_f
 #'
+#' @details The function dynamically creates a Cox proportional hazards model
+#' based on the selected features and survival data. It computes survival
+#' probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
+#' nomogram. The function uses internal validation with bootstrapping
+#' (B = 1000) to calculate the bias-corrected C-index.
+
 #' @param data A data frame containing survival information and predictor
 #' variables. Must include columns for survival time, event status, and
 #' selected features.
@@ -20,11 +24,6 @@
 #'   original C-index values.
 #' }
 #'
-#' @details The function dynamically creates a Cox proportional hazards model
-#' based on the selected features and survival data. It computes survival
-#' probabilities for 1, 3, 5, and 10 years (if applicable) and plots the
-#' nomogram. The function uses internal validation with bootstrapping
-#' (B = 1000) to calculate the bias-corrected C-index.
 #'
 #' The following steps are performed:
 #' \itemize{
