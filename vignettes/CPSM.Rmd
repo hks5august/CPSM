@@ -1,8 +1,14 @@
+---
+output:
+  BiocStyle::html_document: default
+  html_document: default
+---
+yaml
 
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-`r format(Sys.Date(), "%B %d, %Y")`
+date: 'April 29, 2025'
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{CPSM: Cancer patient survival model}
