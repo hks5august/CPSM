@@ -3,7 +3,7 @@ yaml
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-date: 'August 12, 2024'
+date: 'April 29, 2025'
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{CPSM: Cancer patient survival model}
