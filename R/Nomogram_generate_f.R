@@ -41,7 +41,6 @@
 #' @importFrom rms cph datadist nomogram validate Survival
 #' @importFrom survival Surv
 #' @import Matrix
-#' @import svglite
 #'
 #' @examples
 #' data(Train_Data_Nomogram_input, package = "CPSM")

@@ -24,7 +24,6 @@
 #' @import MASS
 #' @import reshape2
 #' @import ggplot2
-#' @import svglite
 #' @examples
 #' data(mean_median_survival_time_data, package = "CPSM")
 #' mean_median_surv_barplot_f(
