@@ -36,7 +36,6 @@
 #' @import survminer
 #' @import ggplot2
 #' @import glmnet
-#' @import svglite
 #' @importFrom grDevices gray
 #' @importFrom stats as.formula coef na.omit predict
 #'

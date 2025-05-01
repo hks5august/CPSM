@@ -25,7 +25,6 @@
 #' curve plots.
 #'
 #' @import Hmisc
-#' @import ROCR
 #' @import ggfortify
 #'
 #' @name surv_curve_plots_f

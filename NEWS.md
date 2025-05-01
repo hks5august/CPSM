@@ -54,6 +54,7 @@
   - Introduced a new function to generate Kaplan-Meier survival plots overlayed with individual test sample survival curves.
   - Useful for visualizing predicted test sample risk in the context of population-level survival groups.
   - Includes annotated output with sample ID, predicted group, and probability.
+## Updated data files, added new files
 ## Improvement
 - Updated MTLR_pred_model_f function to compute MAE and improve the structure of function. 
 ## Documentation
@@ -64,3 +65,15 @@
 ## Version update
 - Bumped version from **1.0.0** to **1.1.0**
 
+# CPSM 1.1.1
+##Improvement
+- Updated MTLR_pred_model_f function to make it simple
+## Version update
+- Bumped version from **1.1.0** to **1.1.1**.
+
+# CPSM 1.1.2
+##Improvement
+- Updated MTLR_pred_model_f.R, Lasso_PI_scores_f.R, mean_median_surv_barplot_f.R, Nomogram_generate_f.R,surv_curve_plots_f.R script to remove undesired package
+- Updated DESCRIPTION file include required biocview terms
+## Version update
+- Bumped version from **1.1.1** to **1.1.2**.
