@@ -3,6 +3,21 @@
 CPSM is an R package that provides a comprehensive computational pipeline for predicting survival probabilities and risk groups in cancer patients. It includes dedicated modules to perform key steps such as data preprocessing, training/test splitting, and normalization. CPSM enables feature selection through univariate cox-regression survival analysis, feature selection though LASSO method,  and calculates a LASSO-based Prognostic Index (PI) score. It supports the development of predictive models using different feature sets and offers a suite of visualization tools, including survival curves based on predicted probabilities, barplots of predicted mean and median survival times, Kaplan-Meier (KM) plots overlaid with individual survival predictions, and nomograms for estimating 1-, 3-, 5-, and 10-year survival probabilities. Together, these functionalities make CPSM a powerful and versatile tool for survival analysis in cancer research.
 
 # Installation from the Bioconductor
+## Install devvelopment version from the Bioconductor
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+BiocManager::install("CPSM")
+
+```
+
+## Install last releeased version from the Bioconductor
+
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
