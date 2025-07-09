@@ -49,6 +49,7 @@
 #' @importFrom survminer ggsurvplot
 #' @importFrom ggplot2 geom_step annotate
 #' @importFrom reshape2 melt
+#' @importFrom stats approx
 #'
 #' @examples
 #' # Example usage of the km_overlay_plot_f function
