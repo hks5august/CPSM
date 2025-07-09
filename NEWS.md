@@ -80,3 +80,4 @@
 
 # CPSM 1.1.3
 - Improved the output of the `km_overlay_plot_f.R` function to enhance the figure for better clarity.
+- Bumped version from **1.1.2** to **1.1.3**.
