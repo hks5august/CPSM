@@ -180,32 +180,32 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
     time = test_sample$time_point,
     surv = test_sample$Survival_Probability
   )
-  
-  # Median survival time only if survival probability is close to 0.5
+
+
+# Estimate median survival time only if survival never drops below 0.5
   median_test_surv_time <- tryCatch({
-    approx_y50 <- which.min(abs(test_curve$surv - 0.5))
-    closest_prob <- test_curve$surv[approx_y50]
-    if (abs(closest_prob - 0.5) <= 0.05) {  # Tolerance of ±0.05
-      test_curve$time[approx_y50]
-    } else {
-      NA
-    }
-  }, error = function(e) { NA })
+  if (any(test_curve$surv >= 0.49)) {
+    # Interpolate to estimate when surv would become 0.5
+    approx(x = test_curve$surv, y = test_curve$time, xout = 0.5, ties = mean)$y
+  } else {
+    NA  # Drop below 50% => we don't estimate
+  }
+}, error = function(e) { NA })
 
 
-  # Add test sample curve and median line to KM plot
+  # Build the plot
   km_Train_results_plot2 <- km_Train_results_plot$plot +
     geom_step(
       data = test_curve,
       aes(x = time, y = surv),
-      color = "black",
+      color = "darkgreen",
       size = 0.6,
       linetype = "dashed"
     ) +
     annotate(
       "text",
       x = max(Train_results$OS_month) * 0.7,
-      y = 0.75,
+      y = 0.85,
       label = paste("Sample:", selected_sample,
                     "\nPredicted Risk:", selected_test_pred_risk,
                     "\nPrediction Probability of ", selected_test_pred_risk , ":",  round(selected_test_pred_Prob, 2)),
@@ -213,16 +213,17 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
       fontface = "bold",
       hjust = 0
     )
-  
+
   # Add median line only if valid
   if (!is.na(median_test_surv_time)) {
     km_Train_results_plot2 <- km_Train_results_plot2 +
       geom_vline(
         xintercept = median_test_surv_time,
-        color = "darkgreen",
+        color = "lightgreen",
         linetype = "dotdash"
       )
   }
+  
 
 
   return(km_Train_results_plot2)
