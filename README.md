@@ -1,25 +1,8 @@
-# CPSM: Cancer Patient Survival model
+# CPSM: Cancer patient survival model
 # Introduction
 CPSM is an R package that provides a comprehensive computational pipeline for predicting survival probabilities and risk groups in cancer patients. It includes dedicated modules to perform key steps such as data preprocessing, training/test splitting, and normalization. CPSM enables feature selection through univariate cox-regression survival analysis, feature selection though LASSO method,  and calculates a LASSO-based Prognostic Index (PI) score. It supports the development of predictive models using different feature sets and offers a suite of visualization tools, including survival curves based on predicted probabilities, barplots of predicted mean and median survival times, Kaplan-Meier (KM) plots overlaid with individual survival predictions, and nomograms for estimating 1-, 3-, 5-, and 10-year survival probabilities. Together, these functionalities make CPSM a powerful and versatile tool for survival analysis in cancer research.
 
-# Installation from the Bioconductor
-
-## Install development version (with latest updates) from the Bioconductor
-
-To install this package, start R (version "4.5") and enter:
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-
-BiocManager::install("CPSM")
-
-```
-
-## Install last released version from the Bioconductor
-
+# Installation From Bioconductor 
 To install this package, start R (version "4.4") and enter the code provided:
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -28,22 +11,14 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 BiocManager::install("CPSM")
 ```
 
-
-# Installation from Github:
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
-#Step1: First Install remote package
-install.packages("remotes")
-#load remotes package
-library("remotes")
-#Step2: install CPSM package
-remotes::install_github("hks5august/CPSM", local = TRUE, , dependencies=TRUE)
-```
-
 # Input Data
 The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
 
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
+```
+
+```{r }
 library(SummarizedExperiment)
 set.seed(7) # set seed
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
@@ -74,11 +49,10 @@ str(New_data[1:10])
 ## Outputs
 After data processing, the output object **`New_data`** is generated, which contains 176 samples. This indicates that the function has removed 8 samples where OS/OS.time information was missing. Moreover, a new 21st column, **`OS_month`**, is added to the data, containing OS time values in months.
 
-# Step 2 - Split Data into Training and Test Subset
-## Description 
-Before proceeding further, we need to split the data into training and test subsets for feature selection and model development. 
-## Required inputs
-The output from the previous step, **`New_data`**, serves as the input for this process. Next, you need to define the fraction (e.g., 0.9) by which to split the data into training and test sets. For example, setting `fraction = 0.9` will divide the data into 90% for training and 10% for testing. Additionally, you should specify names for the training and test outputs (e.g., `train_FPKM` and `test_FPKM`).
+
+## Step 2 - Split Data into Training and Test Subset
+Before proceeding further, we need to split our data into training and test subset for the purpose of feature selection and model development. Here, we need output from the previous step as an input ( which was “New_data”). Next we need to define the fraction (e.g. 0.9) by which we want to split data into training and test. Thus, fraction=0.9 will split data into 90% training and 10% as test set. Besides, we also need to provide training and set output names (e.g. train_FPKM,test_FPKM )
+
 
 ## Example Code
 ```{r}
@@ -97,6 +71,7 @@ After the train-test split, two new output objects are generated: **`train_FPKM`
 # Step 3 - Data Normalization
 ## Description 
 In order to select features and develop ML models, the data must be normalized. Since the expression data is available in terms of FPKM values, the **`train_test_normalization_f`** function will first convert the FPKM values into a log scale using the formula [log2(FPKM+1)], followed by quantile normalization. The training data will be used as the target matrix for the quantile normalization process. 
+
 ## Required inputs
 For this function, you need to provide the training and test datasets obtained from the previous step (Train/Test Split). Additionally, you must specify the column number where clinical information ends (e.g., 21) in the input datasets. Finally, you need to define output names for the resulting datasets: **`train_clin_data`** (which contains only clinical information from the training data), **`test_clin_data`** (which contains only clinical information from the test data), **`train_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the training samples), and **`test_Normalized_data_clin_data`** (which contains both clinical information and normalized gene expression values for the test samples).
 
@@ -122,11 +97,9 @@ str(Train_Norm_data[1:10])
 ## Outputs
 After running the function, four outputs objects are generated: **`Train_Clin`** (which contains only clinical features from the training data), **`Test_Clin`** (which contains only clinical features from the test data), **`Train_Norm_data`** (which includes clinical features and normalized gene expression values for the training samples), and **`Test_Norm_data`** (which includes clinical features and normalized gene expression values for the test samples).
 
-
 # Step 4a - Prognostic Index (PI)  Score Calculation
 ## Description 
 To create a survival model, the next step is to calculate the Prognostic Index (PI) score. The PI score is based on the expression levels of features selected by the LASSO regression model and their corresponding beta coefficients. For example, suppose five features (**G1**, **G2**, **G3**, **G4**, **G5**) are selected by the LASSO method, and their associated coefficients are **B1**, **B2**, **B3**, **B4**, and **B5**, respectively. The PI score is then computed using the following formula:
-
 
 **PI score = G1 * B1 + G2 * B2 + G3 * B3 + G4 * B4 + G5 * B5**
 
@@ -202,7 +175,6 @@ After selecting significant features using LASSO or univariate survival analysis
 - **Model_type = 3**: Model based on PI score + clinical features
 - **Model_type = 4**: Model based on significant univariate features
 - **Model_type = 5**: Model based on significant univariate features + clinical features
-
 
 For this analysis, we are interested in developing a model based on the PI score (i.e., **Model_type = 2**). 
 ## Required inputs
@@ -317,8 +289,6 @@ Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
 
 ## Outputs
 After implementing the **`MTLR_pred_model_f`** function, the following outputs are generated:
-
-
 1. **Model_with_PI.RData**: This object contains the trained model based on the input data.
 2. **survCurves_data**: This object contains the predicted survival probabilities for each patient at various time points. This data can be used to plot survival curves for patients.
 3. **mean_median_survival_time_data**: Object containing the predicted mean and median survival times for each patient in the test data. This data can be used to generate bar plots illustrating the predicted survival times.
@@ -352,7 +322,6 @@ print(plots$highlighted_patient_plot)
 After running the function, two output plots are generated:
 1. **Survival curves for all patients** in the test data, displayed with different colors for each patient.
 2. **Survival curves for all patients (in black)** with the selected patient highlighted in **red**.
-
 These plots allow for easy visualization of individual patient survival in the context of the overall test data.
 
 
@@ -376,6 +345,7 @@ plots_2 <- mean_median_surv_barplot_f(
 # Print the plots
 print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
+<<<<<<< HEAD
 ```
 
 ## Outputs
@@ -440,7 +410,6 @@ The output is a list that includes:
 User can use these results for further validation and visualization, such as overlaying test sample survival curves on the training KM plot (see next step).
 
 # Step 9 – Visual Overlay of Predicted Test Sample on Kaplan-Meier Curve
-
 ## Description
 To visually evaluate how a specific test sample compares to survival risk groups defined in the training dataset, we use the `km_overlay_plot_f()` function.
 This function overlays the predicted **survival curve of a selected test sample** onto the Kaplan-Meier (KM) survival plot derived from the training data. This visual comparison helps determine how closely the test sample aligns with population-level survival trends.

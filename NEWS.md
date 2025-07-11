@@ -74,10 +74,7 @@
 # CPSM 1.1.2
 ##Improvement
 - Updated MTLR_pred_model_f.R, Lasso_PI_scores_f.R, mean_median_surv_barplot_f.R, Nomogram_generate_f.R,surv_curve_plots_f.R script to remove undesired package
+- Updated km_overlay_plot_f.R to improve figure 
 - Updated DESCRIPTION file include required biocview terms
 ## Version update
 - Bumped version from **1.1.1** to **1.1.2**.
-
-# CPSM 1.1.3
-- Improved the output of the `km_overlay_plot_f.R` function to enhance the figure for better clarity.
-- Bumped version from **1.1.2** to **1.1.3**.

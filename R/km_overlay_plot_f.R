@@ -49,7 +49,6 @@
 #' @importFrom survminer ggsurvplot
 #' @importFrom ggplot2 geom_step annotate
 #' @importFrom reshape2 melt
-#' @importFrom stats approx
 #'
 #' @examples
 #' # Example usage of the km_overlay_plot_f function
@@ -125,14 +124,6 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
     return(NULL)
   }
 
-
-  # Confirm selected sample exists in the first column of Test_results
-  first_colname <- colnames(Test_results)[1]
-  if (!(selected_sample %in% Test_results[[first_colname]])) {
-    stop(paste0("Selected sample '", selected_sample, "' not found in Test_results."))
-  }
-  
-
   # Check if selected_sample exists in Test_results
   if (!(selected_sample %in% rownames(Test_results))) {
     message("Error: selected_sample '", selected_sample, "' is NOT present in the Test_results data.")
@@ -168,33 +159,21 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
     value.name = "Survival_Probability"
   )
 
-  # Extract the selected test sample's curve
+  # Extract the selected test sample data
   test_sample <- Test_results_long[Test_results_long$Patient == selected_sample, ]
-  
-  # Extract predicted risk and probability
-  selected_row_index <- which(Test_results[[first_colname]] == selected_sample)
-  selected_test_pred_risk <- Test_results$Predicted_Risk_Group[selected_row_index]
-  selected_test_pred_Prob <- Test_results$Prediction_Prob[selected_row_index]
-  
-  # Create test sample survival curve
+
+  # Get predicted risk group and probability
+  selected_test_pred_risk <- Test_results$Predicted_Risk_Group[rownames(Test_results) == selected_sample]
+  selected_test_pred_Prob <- Test_results$Prediction_Prob[rownames(Test_results) == selected_sample]
+
+  # Create survival object for the test sample
+ # Create test sample survival curve
   test_curve <- data.frame(
     time = test_sample$time_point,
     surv = test_sample$Survival_Probability
   )
 
-
-# Estimate median survival time only if survival never drops below 0.5
-  median_test_surv_time <- tryCatch({
-  if (any(test_curve$surv >= 0.49)) {
-    # Interpolate to estimate when surv would become 0.5
-    approx(x = test_curve$surv, y = test_curve$time, xout = 0.5, ties = mean)$y
-  } else {
-    NA  # Drop below 50% => we don't estimate
-  }
-}, error = function(e) { NA })
-
-
-  # Build the plot
+  # Add test sample curve and median line to KM plot
   km_Train_results_plot2 <- km_Train_results_plot$plot +
     geom_step(
       data = test_curve,
@@ -203,28 +182,18 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
       size = 0.6,
       linetype = "dashed"
     ) +
+
     annotate(
       "text",
       x = max(Train_results$OS_month) * 0.7,
       y = 0.85,
       label = paste("Sample:", selected_sample,
                     "\nPredicted Risk:", selected_test_pred_risk,
-                    "\nPrediction Probability of ", selected_test_pred_risk , ":",  round(selected_test_pred_Prob, 2)),
+                    "\nPrediction Probability:", round(selected_test_pred_Prob, 3)),
       color = "darkgreen",
       fontface = "bold",
       hjust = 0
     )
-
-  # Add median line only if valid
-  if (!is.na(median_test_surv_time)) {
-    km_Train_results_plot2 <- km_Train_results_plot2 +
-      geom_vline(
-        xintercept = median_test_surv_time,
-        color = "lightgreen",
-        linetype = "dotdash"
-      )
-  }
-  
 
 
   return(km_Train_results_plot2)
