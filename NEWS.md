@@ -78,3 +78,11 @@
 - Updated DESCRIPTION file include required biocview terms
 ## Version update
 - Bumped version from **1.1.1** to **1.1.2**.
+
+# CPSM 1.1.3
+## Updates
+- Added CC0 license for processed data in the `/data` folder to comply with data-sharing requirements.
+- Updated km_overlay_plot_f.R to improve figure
+- Updated `DESCRIPTION` file:
+  - Added contributors (`ctb`) to `Authors@R`.
+  - Bumped version from 1.1.2 to 1.1.3.
