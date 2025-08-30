@@ -267,7 +267,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     survival_results_te2 <- cbind(
       Mean_Survival = mean_survival_te2,
       Median_Survival = median_survival_te2,
-      Event_Probability = event_probabilities_te,
+      Event_Probability = event_probabilities_te2,
       Actual_OS_Time = sel_clin_te2$OS_month,
       OS_Event = sel_clin_te2$OS
     )
