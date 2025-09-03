@@ -37,6 +37,7 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
+#' @import pec
 #' @importFrom stats median complete.cases
 #'
 #' @examples
@@ -209,7 +210,19 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat <- rbind(Error_mat_tr , Error_mat_te)
     colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat) <- c("Training_set", "Test_set")
-    
+   
+   # IBS calculation
+   # Ensure that survival curves are predicted for the test set with proper Surv object
+   surv_obj_tr <- Surv(sel_clin_tr2$OS_month, sel_clin_tr2$OS)
+   surv_obj_te <- Surv(sel_clin_te2$OS_month, sel_clin_te2$OS)
+  
+   IBS_tr <- pec::crps(object = Mod1, formula = Surv(OS_month, OS) ~ ., 
+                      data = sel_clin_tr2, times = seq(0, max(sel_clin_tr2$OS_month), length.out = 100))$AppErr
+   IBS_te <- pec::crps(object = Mod1, formula = Surv(OS_month, OS) ~ ., 
+                      data = sel_clin_te2, times = seq(0, max(sel_clin_te2$OS_month), length.out = 100))$AppErr
+  
+   # Append IBS to Error_mat
+   Error_mat <- cbind(Error_mat, IBS = c(IBS_tr, IBS_te)) 
  }
 
 # Model2 -  Model with only PI score
@@ -334,6 +347,12 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat2) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat2) <- c("Training_set", "Test_set")
     
+    #IBS calculation
+    IBS_tr2 <- pec::crps(object = Mod2, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_tr2, times = seq(0, max(sel_clin_tr2$OS_month), length.out = 100))$AppErr
+    IBS_te2 <- pec::crps(object = Mod2, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_te2, times = seq(0, max(sel_clin_te2$OS_month), length.out = 100))$AppErr
+    Error_mat2 <- cbind(Error_mat2, IBS = c(IBS_tr2, IBS_te2)) 
     
 #model3  
 } else if (Model_type == 3) { # Model3- Model with PI & Clin features
@@ -459,6 +478,12 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat3) <- c("Training_set", "Test_set")
     
+    # IBS calculation
+    IBS_tr3 <- pec::crps(object = Mod3, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_tr2, times = seq(0, max(sel_clin_tr2$OS_month), length.out = 100))$AppErr
+    IBS_te3 <- pec::crps(object = Mod3, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_te2, times = seq(0, max(sel_clin_te2$OS_month), length.out = 100))$AppErr
+    Error_mat3 <- cbind(Error_mat3, IBS = c(IBS_tr3, IBS_te3))
     
     
   } else if (Model_type == 4) {
@@ -583,8 +608,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat5 <- rbind(Error_mat_tr5 , Error_mat_te5)
     colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat5) <- c("Training_set", "Test_set")
-    
-    
+   
+    #IBS calculation 
+    IBS_tr5 <- pec::crps(object = Mod5, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_tr2, times = seq(0, max(sel_clin_tr2$OS_month), length.out = 100))$AppErr
+    IBS_te5 <- pec::crps(object = Mod5, formula = Surv(OS_month, OS) ~ ., 
+                       data = sel_clin_te2, times = seq(0, max(sel_clin_te2$OS_month), length.out = 100))$AppErr
+    Error_mat5 <- cbind(Error_mat5, IBS = c(IBS_tr5, IBS_te5))
     
   }
   if (Model_type == 1) {
