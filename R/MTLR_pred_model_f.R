@@ -37,7 +37,7 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @importFrom SurvMetrics IBS
+#' @import SurvMetrics
 #' @importFrom stats median complete.cases
 #'
 #' @examples
@@ -223,7 +223,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     time_points_tr <- surv_probs_tr$time[-1]
 
     #Integrated Brier Score with survmetrics
-    ibs_tr <- IBS(
+    ibs_tr <- SurvMetrics::IBS(
     object   = surv_obj1_tr,
     sp_matrix = sp_matrix_tr,
     IBSrange  = time_points_tr)
@@ -242,7 +242,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     time_points_te <- surv_probs_te$time[-1]
 
     #Integrated Brier Score with survmetrics
-    ibs_te <- IBS(
+    ibs_te <- SurvMetrics::IBS(
     object   = surv_obj1_te,
     sp_matrix = sp_matrix_te,
     IBSrange  = time_points_te)
