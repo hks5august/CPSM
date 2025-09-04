@@ -216,45 +216,38 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Survival probabilities at event times
     surv_probs_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
 
-   # Convert to matrix and remove first column if it's time
-   prob_matrix_tr <- as.matrix(surv_probs_tr[, -1])
+    # Matrix of survival probabilities (drop time column)
+    sp_matrix_tr <- as.matrix(surv_probs_tr[ , -1])
 
-   # Transpose if IBS expects time × patients
-   sp_matrix_tr <- t(prob_matrix_tr)
+    #Extract the time grid for IBSrange
+    time_points_tr <- surv_probs_tr$time[-1]
 
-   # Extract time points
-   time_points_tr <- surv_probs_tr$time[-1]
-
-   # Calculate Integrated Brier Score (IBS) for test data
-   ibs_tr <- SurvMetrics::IBS(
-   surv_obj1_tr,        # Surv(time, event)
-   sp_matrix = sp_matrix_tr,  # predicted survival probabilities
-   times = time_points_tr     # evaluation times
-   )
+    #Integrated Brier Score with survmetrics
+    ibs_tr <- IBS(
+    object   = surv_obj1_tr,
+    sp_matrix = sp_matrix_tr,
+    IBSrange  = time_points_tr)
 
    # Round up value
     ibs_tr <- round(ibs_tr, 3)
+
     #IBS calculation for Test data
     # Predicted survival probabilities at event times
     surv_probs_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
 
-    # Convert to matrix and remove first column if it's time
-    prob_matrix_te <- as.matrix(surv_probs_te[, -1])
+    # Matrix of survival probabilities (drop time column)
+    sp_matrix_te <- as.matrix(surv_probs_te[ , -1])
 
-    # Transpose if IBS expects time × patients
-    sp_matrix_te <- t(prob_matrix_te)
-
-    # Extract time points
+    #Extract the time grid for IBSrange
     time_points_te <- surv_probs_te$time[-1]
 
-    # Calculate Integrated Brier Score (IBS) for test data
-    ibs_te <- SurvMetrics::IBS(
-   surv_obj1_te,        # Surv(time, event)
-   sp_matrix = sp_matrix_te,  # predicted survival probabilities
-   times = time_points_te     # evaluation times
-   )
+    #Integrated Brier Score with survmetrics
+    ibs_te <- IBS(
+    object   = surv_obj1_te,
+    sp_matrix = sp_matrix_te,
+    IBSrange  = time_points_te)
 
-  # Round for reporting
+  # Round up value
   ibs_te <- round(ibs_te, 3) 
 
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
