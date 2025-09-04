@@ -244,7 +244,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
    # Integrated Brier Score (IBS)
    ibs_te <- round(pec::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2,
-                       survivalProbs_p1$time[-1]),3))   
+                       survivalProbs_p1$time[-1]),3)   
 
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
     Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
