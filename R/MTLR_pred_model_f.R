@@ -59,6 +59,25 @@
 #'
 #' @export
 
+# IBS function for survival probabilities
+IBS_custom <- function(surv_obj, sp_matrix, times) {
+  n <- length(surv_obj[,1])
+  brier <- numeric(length(times))
+  
+  for (i in seq_along(times)) {
+    t <- times[i]
+    # 1 if event has occurred before time t, 0 otherwise
+    y <- as.numeric(surv_obj[,1] <= t & surv_obj[,2] == 1)
+    # Predicted survival probability at time t
+    p <- sp_matrix[i, ]
+    brier[i] <- mean((y - (1 - p))^2)
+  }
+  
+  # Trapezoidal integration over times
+  dt <- diff(times)
+  ibs <- sum((brier[-length(brier)] + brier[-1]) / 2 * dt) / (max(times) - min(times))
+  return(ibs)
+}
 
 MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
                               train_features_data, test_features_data,
@@ -214,13 +233,54 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # IBS calculation
     # Training data
     # Survival probabilities at event times
-    
+    surv_probs_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
 
-    #Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
-    #Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
+   # Convert to matrix and remove first column if it's time
+   prob_matrix_tr <- as.matrix(surv_probs_tr[, -1])
 
-    #colnames(Error_mat_tr) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
-    #rownames(Error_mat) <- c("Training_set", "Test_set")
+   # Transpose if IBS expects time × patients
+   sp_matrix_tr <- t(prob_matrix_tr)
+
+   # Extract time points
+   time_points_tr <- surv_probs_tr$time[-1]
+
+   # Calculate Integrated Brier Score (IBS) for test data
+   ibs_tr <- IBS_custom(
+   surv_obj1_tr,        # Surv(time, event)
+   sp_matrix = sp_matrix_tr,  # predicted survival probabilities
+   times = time_points_tr     # evaluation times
+   )
+
+   # Round up value
+    ibs_tr <- round(ibs_tr, 3)
+    #IBS calculation for Test data
+    # Predicted survival probabilities at event times
+    surv_probs_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+
+    # Convert to matrix and remove first column if it's time
+    prob_matrix_te <- as.matrix(surv_probs_te[, -1])
+
+    # Transpose if IBS expects time × patients
+    sp_matrix_te <- t(prob_matrix_te)
+
+    # Extract time points
+    time_points_te <- surv_probs_te$time[-1]
+
+    # Calculate Integrated Brier Score (IBS) for test data
+    ibs_te <- IBS_custom(
+   surv_obj1_te,        # Surv(time, event)
+   sp_matrix = sp_matrix_te,  # predicted survival probabilities
+   times = time_points_te     # evaluation times
+   )
+
+  # Round for reporting
+  ibs_te <- round(ibs_te, 3) 
+
+    Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
+    Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
+
+    colnames(Error_mat_tr) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    rownames(Error_mat) <- c("Training_set", "Test_set")
 
  }
 
