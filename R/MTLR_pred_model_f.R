@@ -212,17 +212,28 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #rownames(Error_mat) <- c("Training_set", "Test_set")
    
     # IBS calculation
-    pec_tr <- pec::pec(list(MTLR=Mod1), Surv(OS_month, OS)~1, sel_clin_tr2,
-                   times=time_points, cens.model="km")
-    pec_te <- pec::pec(list(MTLR=Mod1), Surv(OS_month, OS)~1, sel_clin_te2,
-                   times=time_points, cens.model="km")
+    # Training data
+    # Survival probabilities at event times
+    survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
 
-    brier_tr <- pec_tr$AppErr$MTLR
-    brier_te <- pec_te$AppErr$MTLR
+   # Matrix of survival probabilities (remove time column, then transpose if needed)
+   sp_matrix_tr <- t(as.matrix(survivalProbs_p1_tr[ , -1]))[ , -1]
 
-    ibs_tr <- crps(pec_tr)$AppErr["MTLR"]
-    ibs_te <- crps(pec_te)$AppErr["MTLR"]
-   
+   # Integrated Brier Score (IBS)
+   ibs_tr <- round(IBS(surv_obj1_tr, sp_matrix = sp_matrix_tr,
+      times = survivalProbs_p1_tr$time[-1]),3)
+    
+   # Test data
+    # Survival probabilities at event times
+    survivalProbs_p1_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+
+   # Matrix of survival probabilities (remove time column, then transpose if needed)
+   sp_matrix_te <- t(as.matrix(survivalProbs_p1_te[ , -1]))[ , -1]
+
+   # Integrated Brier Score (IBS)
+   ibs_te <- round(IBS(surv_obj1_te, sp_matrix = sp_matrix_te,
+      times = survivalProbs_p1_te$time[-1]),3)   
+
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
     Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
 
