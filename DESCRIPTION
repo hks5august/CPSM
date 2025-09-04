@@ -43,7 +43,7 @@ Imports:
         randomForestSRC,
         caret,
         pec,
-	MASS
+	MASS,
 Suggests:
     knitr,
     rmarkdown,
