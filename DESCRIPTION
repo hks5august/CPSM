@@ -42,7 +42,7 @@ Imports:
 	ggfortify,
         randomForestSRC,
         caret,
-        pec,
+        SurvMetrics,
 	MASS,
 Suggests:
     knitr,

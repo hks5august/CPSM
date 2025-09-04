@@ -37,7 +37,7 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @import pec
+#' @importFrom SurvMetrics IBS
 #' @importFrom stats median complete.cases
 #'
 #' @examples
@@ -59,25 +59,6 @@
 #'
 #' @export
 
-# IBS function for survival probabilities
-IBS_custom <- function(surv_obj, sp_matrix, times) {
-  n <- length(surv_obj[,1])
-  brier <- numeric(length(times))
-  
-  for (i in seq_along(times)) {
-    t <- times[i]
-    # 1 if event has occurred before time t, 0 otherwise
-    y <- as.numeric(surv_obj[,1] <= t & surv_obj[,2] == 1)
-    # Predicted survival probability at time t
-    p <- sp_matrix[i, ]
-    brier[i] <- mean((y - (1 - p))^2)
-  }
-  
-  # Trapezoidal integration over times
-  dt <- diff(times)
-  ibs <- sum((brier[-length(brier)] + brier[-1]) / 2 * dt) / (max(times) - min(times))
-  return(ibs)
-}
 
 MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
                               train_features_data, test_features_data,
@@ -245,7 +226,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
    time_points_tr <- surv_probs_tr$time[-1]
 
    # Calculate Integrated Brier Score (IBS) for test data
-   ibs_tr <- IBS_custom(
+   ibs_tr <- SurvMetrics::IBS(
    surv_obj1_tr,        # Surv(time, event)
    sp_matrix = sp_matrix_tr,  # predicted survival probabilities
    times = time_points_tr     # evaluation times
@@ -267,7 +248,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     time_points_te <- surv_probs_te$time[-1]
 
     # Calculate Integrated Brier Score (IBS) for test data
-    ibs_te <- IBS_custom(
+    ibs_te <- SurvMetrics::IBS(
    surv_obj1_te,        # Surv(time, event)
    sp_matrix = sp_matrix_te,  # predicted survival probabilities
    times = time_points_te     # evaluation times
