@@ -220,7 +220,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
    sp_matrix_tr <- t(as.matrix(survivalProbs_p1_tr[ , -1]))[ , -1]
 
    # Integrated Brier Score (IBS)
-   ibs_tr <- round(IBS(surv_obj1_tr, sp_matrix = sp_matrix_tr,
+   ibs_tr <- round(pec::IBS(surv_obj1_tr, sp_matrix = sp_matrix_tr,
       times = survivalProbs_p1_tr$time[-1]),3)
     
    # Test data
@@ -231,7 +231,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
    sp_matrix_te <- t(as.matrix(survivalProbs_p1_te[ , -1]))[ , -1]
 
    # Integrated Brier Score (IBS)
-   ibs_te <- round(IBS(surv_obj1_te, sp_matrix = sp_matrix_te,
+   ibs_te <- round(pec::IBS(surv_obj1_te, sp_matrix = sp_matrix_te,
       times = survivalProbs_p1_te$time[-1]),3)   
 
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
