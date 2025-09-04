@@ -1,7 +1,7 @@
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-date: 'July 12, 2025'
+date: 'September 4, 2025'
 output: 
   BiocStyle::html_document: default
 vignette: >
@@ -233,6 +233,7 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+print(Error_mat_for_Model)
 ```
 
 
