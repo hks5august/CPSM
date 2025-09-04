@@ -255,7 +255,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     survivalProbs_t_mat1_t <- t(survivalProbs_t_mat1 )
     survivalProbs_t_mat1_t2 <- survivalProbs_t_mat1_t[,-1]
 
-   ibs_te <- SurvMetrics::IBS(surv_obj1, sp_matrix = survivalProbs_t_mat1_t2,
+   ibs_te <- SurvMetrics::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2,
                        survivalProbs_p1$time[-1])
   # Round up value
   ibs_te <- round(ibs_te, 3) 
