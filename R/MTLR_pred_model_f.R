@@ -204,49 +204,59 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te <- round(mean(abs(survival_summary_te$OS_month - survival_summary_te$Mean), na.rm = TRUE), 2)
     median_mae_te <- round(median(abs(survival_summary_te$OS_month - survival_summary_te$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
-    Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
+    #Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
+    #Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
     
-    Error_mat <- rbind(Error_mat_tr , Error_mat_te)
-    colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
-    rownames(Error_mat) <- c("Training_set", "Test_set")
+    #Error_mat <- rbind(Error_mat_tr , Error_mat_te)
+    #colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat) <- c("Training_set", "Test_set")
    
     # IBS calculation
     # Training data
     # Survival probabilities at event times
-    surv_probs_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
+    survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
 
-    # Matrix of survival probabilities (drop time column)
-    sp_matrix_tr <- as.matrix(surv_probs_tr[ , -1])
-
-    #Extract the time grid for IBSrange
-    time_points_tr <- surv_probs_tr$time[-1]
+    #extract prob times at diff times points
+    survivalProbs_t_mat_tr <-as.matrix(survivalProbs_p1_tr )
+    survivalProbs_t_mat1_tr <- survivalProbs_t_mat_tr[,-1]
+    survivalProbs_t_mat1_t_tr <- t(survivalProbs_t_mat1_tr )
+    survivalProbs_t_mat1_t2_tr <- survivalProbs_t_mat1_t_tr[,-1]    
 
     #Integrated Brier Score with survmetrics
-    ibs_tr <- SurvMetrics::IBS(
-    object   = surv_obj1_tr,
-    sp_matrix = sp_matrix_tr,
-    IBSrange  = time_points_tr)
-
+    #ibs_tr <- SurvMetrics::IBS(
+    #object   = surv_obj1_tr,
+    #sp_matrix = sp_matrix_tr,
+    #IBSrange  = time_points_tr)
+    ibs_tr <- SurvMetrics::IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
+                       survivalProbs_p1_tr$time[-1])
    # Round up value
     ibs_tr <- round(ibs_tr, 3)
 
     #IBS calculation for Test data
     # Predicted survival probabilities at event times
-    surv_probs_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    #surv_probs_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
 
     # Matrix of survival probabilities (drop time column)
-    sp_matrix_te <- as.matrix(surv_probs_te[ , -1])
+    #sp_matrix_te <- as.matrix(surv_probs_te[ , -1])
 
     #Extract the time grid for IBSrange
-    time_points_te <- surv_probs_te$time[-1]
+    #time_points_te <- surv_probs_te$time[-1]
 
     #Integrated Brier Score with survmetrics
-    ibs_te <- SurvMetrics::IBS(
-    object   = surv_obj1_te,
-    sp_matrix = sp_matrix_te,
-    IBSrange  = time_points_te)
+    #ibs_te <- SurvMetrics::IBS(
+    #object   = surv_obj1_te,
+    #sp_matrix = sp_matrix_te,
+    #IBSrange  = time_points_te)
 
+   survivalProbs_p1 <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    #extract prob times at diff times points
+    survivalProbs_t_mat <-as.matrix(survivalProbs_p1 )
+    survivalProbs_t_mat1 <- survivalProbs_t_mat[,-1]
+    survivalProbs_t_mat1_t <- t(survivalProbs_t_mat1 )
+    survivalProbs_t_mat1_t2 <- survivalProbs_t_mat1_t[,-1]
+
+   ibs_te <- SurvMetrics::IBS(surv_obj1, sp_matrix = survivalProbs_t_mat1_t2,
+                       survivalProbs_p1$time[-1])
   # Round up value
   ibs_te <- round(ibs_te, 3) 
 
