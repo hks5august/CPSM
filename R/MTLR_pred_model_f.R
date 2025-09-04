@@ -263,8 +263,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
     Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
 
-    colnames(Error_mat_tr) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_tr) <- colnames(Error_mat_tr) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_te) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")    
+    
+    Error_mat <- rbind(Error_mat_tr , Error_mat_te) 
     rownames(Error_mat) <- c("Training_set", "Test_set")
+
+
 
  }
 
