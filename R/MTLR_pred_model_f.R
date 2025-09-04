@@ -214,25 +214,37 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # IBS calculation
     # Training data
     # Survival probabilities at event times
+    
     survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
-
+   
+    #extract prob times at diff times points
+    survivalProbs_t_mat_tr <-as.matrix(survivalProbs_p1_tr )
+    survivalProbs_t_mat1_tr <- survivalProbs_t_mat_tr[,-1]
+    survivalProbs_t_mat1_t_tr <- t(survivalProbs_t_mat1_tr )
+    survivalProbs_t_mat1_t2_tr <- survivalProbs_t_mat1_t_tr[,-1]
+   
    # Matrix of survival probabilities (remove time column, then transpose if needed)
-   sp_matrix_tr <- t(as.matrix(survivalProbs_p1_tr[ , -1]))[ , -1]
+   #sp_matrix_tr <- t(as.matrix(survivalProbs_p1_tr[ , -1]))[ , -1]
 
    # Integrated Brier Score (IBS)
-   ibs_tr <- round(pec::IBS(surv_obj1_tr, sp_matrix = sp_matrix_tr,
+   ibs_tr <- round(pec::IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
       times = survivalProbs_p1_tr$time[-1]),3)
-    
+
    # Test data
     # Survival probabilities at event times
-    survivalProbs_p1_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
-
+     #Test data
+    survivalProbs_p1 <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    #extract prob times at diff times points
+    survivalProbs_t_mat <-as.matrix(survivalProbs_p1 )
+    survivalProbs_t_mat1 <- survivalProbs_t_mat[,-1]
+    survivalProbs_t_mat1_t <- t(survivalProbs_t_mat1 )
+    survivalProbs_t_mat1_t2 <- survivalProbs_t_mat1_t[,-1]
    # Matrix of survival probabilities (remove time column, then transpose if needed)
-   sp_matrix_te <- t(as.matrix(survivalProbs_p1_te[ , -1]))[ , -1]
+   #sp_matrix_te <- t(as.matrix(survivalProbs_p1_te[ , -1]))[ , -1]
 
    # Integrated Brier Score (IBS)
-   ibs_te <- round(pec::IBS(surv_obj1_te, sp_matrix = sp_matrix_te,
-      times = survivalProbs_p1_te$time[-1]),3)   
+   ibs_te <- round(pec::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2,
+                       survivalProbs_p1$time[-1]),3))   
 
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
     Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
