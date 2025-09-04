@@ -204,14 +204,31 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te <- round(mean(abs(survival_summary_te$OS_month - survival_summary_te$Mean), na.rm = TRUE), 2)
     median_mae_te <- round(median(abs(survival_summary_te$OS_month - survival_summary_te$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
-    Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
+    #Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
+    #Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
     
-    Error_mat <- rbind(Error_mat_tr , Error_mat_te)
-    colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
-    rownames(Error_mat) <- c("Training_set", "Test_set")
+    #Error_mat <- rbind(Error_mat_tr , Error_mat_te)
+    #colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat) <- c("Training_set", "Test_set")
    
-   # IBS calculation
+    # IBS calculation
+    pec_tr <- pec::pec(list(MTLR=Mod1), Surv(OS_month, OS)~1, sel_clin_tr2,
+                   times=time_points, cens.model="km")
+    pec_te <- pec::pec(list(MTLR=Mod1), Surv(OS_month, OS)~1, sel_clin_te2,
+                   times=time_points, cens.model="km")
+
+    brier_tr <- pec_tr$AppErr$MTLR
+    brier_te <- pec_te$AppErr$MTLR
+
+    ibs_tr <- crps(pec_tr)$AppErr["MTLR"]
+    ibs_te <- crps(pec_te)$AppErr["MTLR"]
+   
+    Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
+    Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
+
+    colnames(Error_mat_tr) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    rownames(Error_mat) <- c("Training_set", "Test_set")
+
  }
 
 # Model2 -  Model with only PI score
