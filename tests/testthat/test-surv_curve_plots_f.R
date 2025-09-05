@@ -1,12 +1,15 @@
 test_that("multiplication works", {
   data(survCurves_data, package = "CPSM")
-  p <- surv_curve_plots_f(Surv_curve_data = survCurves_data,
-                          selected_sample = "TCGA-TQ-A8XE-01", font_size = 12, line_size = 0.5,
-                          all_line_col = "black", highlight_col = "red")
-surv_curve_plots_f <- function(Surv_curve_data = survCurves_data,
-                          selected_sample = "TCGA-TQ-A8XE-01",
-                          font_size = 12, line_size = 0.5,
-                          all_line_col = "black", highlight_col = "red")
+
+# Call the function
+  p <- surv_curve_plots_f(
+    Surv_curve_data = Surv_curve_data,
+    selected_sample = "TCGA_TQ_A8XE_01",
+    font_size = 12,
+    line_size = 0.5,
+    all_line_col = "black",
+    highlight_col = "red"
+  )
 
   # Check that the output is a list
   expect_type(p, "list")
