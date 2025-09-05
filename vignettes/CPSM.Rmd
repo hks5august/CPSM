@@ -138,6 +138,7 @@ Result_PI <- Lasso_PI_scores_f(
   surv_event = "OS"
 )
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
+print(head(Train_Lasso_key_variables))
 Train_PI_data <- Result_PI$Train_PI_data
 Test_PI_data <- Result_PI$Test_PI_data
 str(Train_PI_data[1:10])
@@ -177,6 +178,7 @@ Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
 Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
 Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
 str(Univariate_Suv_Sig_G_L[1:10])
+print(head(Univariate_Suv_Sig_G_L))
 ```
 ## Outputs
 The **`Univariate_sig_features_f`** function generates the following output objects:
@@ -263,6 +265,7 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+print(Error_mat_for_Model)
 ```
 
 
@@ -292,6 +295,7 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+print(Error_mat_for_Model)
 ```
 
 
@@ -321,6 +325,7 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+print(Error_mat_for_Model)
 ```
 
 ## Outputs
