@@ -38,8 +38,7 @@
 #' )
 #'
 #' # Generate plots with Patient1 highlighted
-#' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1", font_size = 12, line_size = 0.5,
-                               all_line_col = "black", highlight_col = "red")
+#' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1", font_size = 12, line_size = 0.5, all_line_col = "black", highlight_col = "red")
 #'
 #' # View the plots
 #' print(plots$all_patients_plot)
