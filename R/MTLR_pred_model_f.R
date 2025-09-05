@@ -215,54 +215,37 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Training data
     # Survival probabilities at event times
     survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
-
-    #extract prob times at diff times points
+    #Prepare matrix
     survivalProbs_t_mat_tr <-as.matrix(survivalProbs_p1_tr )
     survivalProbs_t_mat1_tr <- survivalProbs_t_mat_tr[,-1]
+    #Transpose
     survivalProbs_t_mat1_t_tr <- t(survivalProbs_t_mat1_tr )
     survivalProbs_t_mat1_t2_tr <- survivalProbs_t_mat1_t_tr[,-1]    
 
-    #Integrated Brier Score with survmetrics
-    #ibs_tr <- SurvMetrics::IBS(
-    #object   = surv_obj1_tr,
-    #sp_matrix = sp_matrix_tr,
-    #IBSrange  = time_points_tr)
-    ibs_tr <- SurvMetrics::IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
-                       survivalProbs_p1_tr$time[-1])
-   # Round up value
+    #Round up value
     ibs_tr <- round(ibs_tr, 3)
 
     #IBS calculation for Test data
     # Predicted survival probabilities at event times
-    #surv_probs_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    survivalProbs_p1_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    
+    #Prepare matrix
+    survivalProbs_t_mat_te <-as.matrix(survivalProbs_p1_te )
+    survivalProbs_t_mat1_te <- survivalProbs_t_mat_te[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_te <- t(survivalProbs_t_mat1_te )
+    survivalProbs_t_mat1_t2_te <- survivalProbs_t_mat1_t_te[,-1]
 
-    # Matrix of survival probabilities (drop time column)
-    #sp_matrix_te <- as.matrix(surv_probs_te[ , -1])
-
-    #Extract the time grid for IBSrange
-    #time_points_te <- surv_probs_te$time[-1]
-
-    #Integrated Brier Score with survmetrics
-    #ibs_te <- SurvMetrics::IBS(
-    #object   = surv_obj1_te,
-    #sp_matrix = sp_matrix_te,
-    #IBSrange  = time_points_te)
-
-   survivalProbs_p1 <- predict(Mod1, sel_clin_te2, type = "prob_times")
-    #extract prob times at diff times points
-    survivalProbs_t_mat <-as.matrix(survivalProbs_p1 )
-    survivalProbs_t_mat1 <- survivalProbs_t_mat[,-1]
-    survivalProbs_t_mat1_t <- t(survivalProbs_t_mat1 )
-    survivalProbs_t_mat1_t2 <- survivalProbs_t_mat1_t[,-1]
-
-   ibs_te <- SurvMetrics::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2,
-                       survivalProbs_p1$time[-1])
-  # Round up value
-  ibs_te <- round(ibs_te, 3) 
-
+    ibs_te <- SurvMetrics::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2_te,
+                       survivalProbs_p1_te$time[-1])
+    # Round up value
+    ibs_te <- round(ibs_te, 3) 
+    
+    #Prepare matrix combining all performance parameters
     Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
     Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
 
+    #add column names
     colnames(Error_mat_tr) <- colnames(Error_mat_tr) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
     colnames(Error_mat_te) <- colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")    
     
