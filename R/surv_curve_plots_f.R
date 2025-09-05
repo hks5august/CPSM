@@ -112,14 +112,14 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size = 12,
       "solid",
       length(unique(survCurves_m$Patient))
     )) +
-    scale_color_manual(values = c("black", "red")) +
-    geom_line(aes(colour = highlight_col),
-      size = line_size,
-      data = ~ subset(
-        survCurves_m,
-        Patient == Selected_patient
-      )
-    ) +
+   # All other patients in black
+   geom_line(aes(color = all_line_col), size = line_size) +
+   # Highlight selected patient in red
+   geom_line(aes(color = highlight_col),
+          size = line_size,
+          data = ~ subset(survCurves_m, Patient == Selected_patient)) +
+   scale_color_identity()  # ensures exact colors are used    
+   +
     labs(x = "Time in Months", y = "Survival Probability") +
     theme(
       legend.position = "bottom",
