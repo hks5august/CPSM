@@ -38,7 +38,8 @@
 #' )
 #'
 #' # Generate plots with Patient1 highlighted
-#' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1")
+#' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1", font_size = 12, line_size = 0.5,
+                               all_line_col = "black", highlight_col = "red")
 #'
 #' # View the plots
 #' print(plots$all_patients_plot)
@@ -53,7 +54,8 @@
 utils::globalVariables(c("Time", "Value", "Patient"))
 
 
-surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
+surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size = 12, line_size = 0.5,
+                               all_line_col = "black", highlight_col = "red") {
   # load data
   survCurves_data <- Surv_curve_data
 
@@ -69,15 +71,15 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
     group = Patient,
     color = Patient
   )) +
-    geom_line() +
+    geom_line(size = line_size) +
     labs(x = "Time in Months", y = "Survival Probability") +
     ggtitle("Survival Curves for Patients") +
     geom_hline(yintercept = 0.5, color = "black", linetype = "dashed") +
     # add dashed line corresonds to 0.5 probability
     theme(
       legend.position = "bottom", legend.box = "vertical",
-      legend.title = element_text(), legend.key = element_blank(),
-      legend.key.size = unit(3, "mm"), legend.text = element_text(size = 4)
+      legend.title = element_text(size = font_size), legend.key = element_blank(),
+      legend.key.size = unit(3, "mm"), legend.text = element_text(size = font_size)
     ) +
     guides(color = guide_legend(title = "Patients"))
 
@@ -105,15 +107,15 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
     ggtitle("Survival Curves for Patients with Highlightited Patient") +
     geom_hline(yintercept = 0.5, color = "red", linetype = "dashed") +
     # Set linetype for all lines based on Patient
-    geom_line(size = 0.5) +
+    geom_line(size = line_size) +
     # Highlight one patient with a specific color
     scale_linetype_manual(values = rep(
       "solid",
       length(unique(survCurves_m$Patient))
     )) +
     scale_color_manual(values = c("black", "red")) +
-    geom_line(aes(colour = "yellow"),
-      size = 0.5,
+    geom_line(aes(colour = highlight_col),
+      size = line_size,
       data = ~ subset(
         survCurves_m,
         Patient == Selected_patient
@@ -122,10 +124,10 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample) {
     labs(x = "Time in Months", y = "Survival Probability") +
     theme(
       legend.position = "bottom",
-      legend.title = element_text(),
+      legend.title = element_text(size = font_size),
       legend.key = element_blank(),
       legend.key.size = unit(3, "mm"),
-      legend.text = element_text(size = 4)
+      legend.text = element_text(size = font_size)
     ) +
     guides(
       linetype = guide_legend(title = "Patients"),
