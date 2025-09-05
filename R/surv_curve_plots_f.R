@@ -53,8 +53,9 @@
 utils::globalVariables(c("Time", "Value", "Patient"))
 
 
-surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size = 12, line_size = 0.5,
-                               all_line_col = "black", highlight_col = "red") {
+
+surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size,  
+				line_size , all_line_col, highlight_col){
   # load data
   survCurves_data <- Surv_curve_data
 
@@ -113,7 +114,7 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size = 12,
       length(unique(survCurves_m$Patient))
     )) +
    # All other patients in black
-   geom_line(aes(color = all_line_col), size = line_size) +
+   geom_line(color = all_line_col, size = line_size) +
    # Highlight selected patient in red
    geom_line(aes(color = highlight_col),
           size = line_size,
