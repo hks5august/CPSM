@@ -37,6 +37,11 @@
 #'   Patient2 = c(1, 0.85, 0.75, 0.65, 0.55)
 #' )
 #'
+#' font_size = 12
+#' line_size = 0.5
+#' all_line_col = "black"
+#' highlight_col = "red"
+#'
 #' # Generate plots with Patient1 highlighted
 #' plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1", font_size = 12, line_size = 0.5, all_line_col = "black", highlight_col = "red")
 #'
@@ -99,16 +104,13 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size,
   # create survival curve plot for selected patient
   Surv_curv_plot_all_pats_with_highlighting_one_pat <- ggplot(
     survCurves_m, aes(
-      x = Time, y = Value, linetype = Patient,
-      color = Selected_patient
+      x = Time, y = Value, linetype = Patient
     )
   ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.1)) +
-    ggtitle("Survival Curves for Patients with Highlightited Patient") +
+  scale_y_continuous(breaks = seq(0, 1, 0.1)) +
+    ggtitle("Survival Curves for Patients with Highlighted Patient") +  
     geom_hline(yintercept = 0.5, color = "red", linetype = "dashed") +
     # Set linetype for all lines based on Patient
-    geom_line(size = line_size) +
-    # Highlight one patient with a specific color
     scale_linetype_manual(values = rep(
       "solid",
       length(unique(survCurves_m$Patient))
@@ -116,11 +118,10 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size,
    # All other patients in black
    geom_line(color = all_line_col, size = line_size) +
    # Highlight selected patient in red
-   geom_line(aes(color = highlight_col),
+   geom_line(color = highlight_col,           
           size = line_size,
           data = ~ subset(survCurves_m, Patient == Selected_patient)) +
-   scale_color_identity()  # ensures exact colors are used    
-   +
+   # scale_color_identity()  # <<< REMOVE this line, no longer needed
     labs(x = "Time in Months", y = "Survival Probability") +
     theme(
       legend.position = "bottom",
@@ -133,6 +134,7 @@ surv_curve_plots_f <- function(Surv_curve_data, selected_sample, font_size,
       linetype = guide_legend(title = "Patients"),
       color = guide_legend(title = "Selected Patient")
     )
+   
 
   # Return the plots as a list
   return(list(
