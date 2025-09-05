@@ -353,7 +353,10 @@ The function requires two inputs:
 data(survCurves_data, package = "CPSM")
 plots <- surv_curve_plots_f(
   Surv_curve_data = survCurves_data,
-  selected_sample = "TCGA-TQ-A7RQ-01"
+  selected_sample = "TCGA-TQ-A7RQ-01",
+  font_size = 12, line_size = 0.5, 
+  all_line_col = "black", 
+  highlight_col = "red"
 )
 # Print the plots
 print(plots$all_patients_plot)
