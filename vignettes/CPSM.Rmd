@@ -356,7 +356,7 @@ plots <- surv_curve_plots_f(
   selected_sample = "TCGA-TQ-A7RQ-01",
   font_size = 12, 
   line_size = 0.5, 
-  all_line_col = "black", 
+  all_line_col = "grey70", 
   highlight_col = "red"
 )
 # Print the plots
