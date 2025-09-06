@@ -47,17 +47,16 @@
 #' @import Matrix
 #'
 #' @examples
-#' # Generate nomogram with customized font size, axis labels, tick length, and grid color
 #' Nomogram_generate_f(
 #'   data = Train_Data_Nomogram_input,
 #'   Feature_List = feature_list_for_Nomogram,
 #'   surv_time = "OS_month",
 #'   surv_event = "OS",
-#'   font_size = 0.8,
-#'   axis_cex = 0.8,
-#'   tcl_len = 0.5,
-#'   label_margin = 0.5,
-#'   col_grid = gray(c(0.85, 0.95))
+#'   font_size = 0.8,       # base font size for labels
+#'   axis_cex = 0.8,        # axis text size scaling
+#'   tcl_len = 0.5,         # tick length
+#'   label_margin = 0.5,    # variable label margin
+#'   col_grid = gray(c(0.85, 0.95)) # grid line color
 #' )
 #'
 #' @export
