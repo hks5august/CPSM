@@ -126,6 +126,7 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
   				annotation_col = "darkgreen"       # annotation text color
 			) {
 
+
   # Check Train_results
   if (missing(Train_results) || is.null(Train_results) || !is.data.frame(Train_results)) {
     message("Error: 'Train_results' must be a non-null data frame.")

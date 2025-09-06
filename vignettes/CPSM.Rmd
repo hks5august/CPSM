@@ -486,18 +486,18 @@ data(survCurves_data, package = "CPSM")
 # Select a test sample to visualize
 sample_id <- "TCGA-TQ-A7RQ-01"  
 
-# Generate KM overlay plot
-KM_plot <- km_overlay_plot_f(
-	 Train_results = Train_results, 
-	Test_results = Test_results,
-	survcurve_te_data = survCurves_data,
-   	selected_sample = "TCGA-TQ-A7RQ-04",
-   	font_size = 14,
-   	line_size = 1,
-   	train_palette = c("purple", "orange"),
-   	test_line_col = "black",
-   	test_line_type = "solid" ) 
-
+# Generate KM overlay plot 
+KM_plot <- km_overlay_plot_f( Train_results = Train_results, 
+	Test_results = Test_results, 
+	survcurve_te_data = survCurves_data, 
+	selected_sample = sample_id,
+	font_size         = 14,                 #font size 
+  	train_palette     = c("steelblue", "firebrick"), # custom risk group colors
+  	test_curve_col    = "darkgreen",           # highlight test sample in darkgreen
+  	test_curve_size   = 1.2,                 # thicker test sample curve
+  	test_curve_lty    = "dotdash",           # dashed-dot test curve
+  	annotation_col    = "green"            # annotation text in green 
+)
 
 # Display plot
 KM_plot
