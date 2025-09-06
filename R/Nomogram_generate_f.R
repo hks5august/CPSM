@@ -18,8 +18,8 @@
 #' @param surv_event A character string specifying the column name for survival
 #' event status in the input data (1 for event, 0 for censored).
 #' @param font_size Numeric. Base font size for the nomogram plot. Default is 0.8.
-#' @param axis_cex Numeric. Scaling factor for axis text size. Default is 0.8.
-#' @param tcl_len Numeric. Length of tick marks on axes. Default is 0.5.
+#' @param axis_cex Numeric. Scaling factor for axis text size (cex.axis). Default is 0.8.
+#' @param tcl_len Numeric. Tick length on axes (tcl). Default is 0.5.
 #' @param label_margin Numeric. Margin for variable labels (lmgp). Default is 0.5.
 #' @param col_grid Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95)).
 #' @return A list with the following components:
@@ -55,9 +55,9 @@
 #'   surv_event = "OS",
 #'   font_size = 0.8,
 #'   axis_cex = 0.8,
-#'   tcl_len = 0.7,
-#'   label_margin = 0.8,
-#'   col_grid = gray(c(0.9, 0.98))
+#'   tcl_len = 0.5,
+#'   label_margin = 0.5,
+#'   col_grid = gray(c(0.85, 0.95))
 #' )
 #'
 #' @export
