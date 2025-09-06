@@ -84,15 +84,19 @@ surv_curve_plots_f <- function(
     group = Patient,
     color = Patient
   )) +
-    geom_line() +
+    geom_line(size = line_size) +
     labs(x = "Time in Months", y = "Survival Probability") +
     ggtitle("Survival Curves for Patients") +
     geom_hline(yintercept = 0.5, color = "black", linetype = "dashed") +
     # add dashed line corresonds to 0.5 probability
-    theme(
+    theme_minimal(base_size = font_size) +   # base font size
+      theme(
       legend.position = "bottom", legend.box = "vertical",
-      legend.title = element_text(), legend.key = element_blank(),
-      legend.key.size = unit(3, "mm"), legend.text = element_text(size = 4)
+      legend.title = element_text(size = font_size), legend.key = element_blank(),
+      legend.key.size = unit(3, "mm"), legend.text = element_text(size = font_size),# << dynamic font size
+      plot.title = element_text(size = font_size + 2, face = "bold"),
+      axis.title = element_text(size = font_size),
+      axis.text = element_text(size = font_size)
     ) +
     guides(color = guide_legend(title = "Patients"))
 

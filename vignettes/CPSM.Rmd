@@ -491,8 +491,14 @@ KM_plot <- km_overlay_plot_f(
   Train_results = Train_results,
   Test_results = Test_results,
   survcurve_te_data = survCurves_data,
-  selected_sample = sample_id
+  selected_sample = sample_id,
+  font_size = 12,                       # increase font size
+  line_size = 1.2,                      # thicker lines
+  train_palette = c("steelblue", "firebrick"), # custom colors for risk groups
+  test_line_col = "darkgreen",          # test sample color
+  test_line_type = "dashed"             # dashed test sample curve
 )
+
 
 # Display plot
 KM_plot
