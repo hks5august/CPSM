@@ -22,7 +22,7 @@
 #' @param tcl_len Numeric. Tick length on axes (tcl). Default is 0.5.
 #' @param label_margin Numeric. Margin for variable labels (lmgp). Default is 0.5.
 #' @param col_grid Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95)).
-#' @return A list with the following components:
+
 #' \itemize{
 #'   \item \code{C_index_mat}: A matrix containing the bias-corrected and
 #'   original C-index values.
@@ -47,16 +47,18 @@
 #' @import Matrix
 #'
 #' @examples
+#' data(Train_Data_Nomogram_input, package = "CPSM")
+#' data(feature_list_for_Nomogram, package = "CPSM")
 #' Nomogram_generate_f(
 #'   data = Train_Data_Nomogram_input,
 #'   Feature_List = feature_list_for_Nomogram,
 #'   surv_time = "OS_month",
 #'   surv_event = "OS",
-#'   font_size = 0.8,       # base font size for labels
-#'   axis_cex = 0.8,        # axis text size scaling
-#'   tcl_len = 0.5,         # tick length
-#'   label_margin = 0.5,    # variable label margin
-#'   col_grid = gray(c(0.85, 0.95)) # grid line color
+#'   font_size = 0.8,
+#'   axis_cex = 0.8,
+#'   tcl_len = 0.5,
+#'   label_margin = 0.5,
+#'   col_grid = gray(c(0.85, 0.95))
 #' )
 #'
 #' @export
