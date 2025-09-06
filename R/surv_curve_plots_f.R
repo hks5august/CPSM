@@ -109,19 +109,22 @@ surv_curve_plots_f <- function(
     message("The sample", selected_sample, "is present in the Test dataset.\n")
   }
 
+# Plot 2: highlight selected patient #
 Surv_curv_plot_all_pats_with_highlighting_one_pat <- ggplot(
     survCurves_m, aes(x = Time, y = Value, group = Patient)
   ) +
     geom_line(color = all_line_col, size = line_size, alpha = 0.5) +
     geom_line(
       data = subset(survCurves_m, Patient == selected_sample),
-      aes(color = "Selected"), size = line_size + 0.3
+      aes(color = Selected_patient),  # << use patient ID, not "Selected"
+      size = line_size + 0.3
     ) +
-    scale_color_manual(values = c("Selected" = highlight_col)) +
+    scale_color_manual(values = setNames(highlight_col, Selected_patient)) + # << map ID to color
     geom_hline(yintercept = 0.5, color = "red", linetype = "dashed") +
     labs(
-      x = "Time in Months", y = "Survival Probability",
-      color = "Highlighted"
+      x = "Time in Months",
+      y = "Survival Probability",
+      color = "Highlighted Patient"
     ) +
     ggtitle("Survival Curves with Highlighted Patient") +
     theme_minimal(base_size = font_size) +
@@ -129,6 +132,7 @@ Surv_curv_plot_all_pats_with_highlighting_one_pat <- ggplot(
       legend.position = "bottom",
       plot.title = element_text(size = font_size + 2, face = "bold")
     )
+
 
   # Return the plots as a list
   return(list(
