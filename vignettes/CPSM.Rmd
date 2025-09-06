@@ -492,11 +492,11 @@ KM_plot <- km_overlay_plot_f( Train_results = Train_results,
 	survcurve_te_data = survCurves_data, 
 	selected_sample = sample_id,
 	font_size         = 14,                 #font size 
-  	train_palette     = c("steelblue", "firebrick"), # custom risk group colors
+  	train_palette     = c("firebrick", "steelblue"), # custom risk group colors
   	test_curve_col    = "darkgreen",           # highlight test sample in darkgreen
   	test_curve_size   = 1.2,                 # thicker test sample curve
   	test_curve_lty    = "dotdash",           # dashed-dot test curve
-  	annotation_col    = "green"            # annotation text in green 
+  	annotation_col    = "black"            # annotation text in black 
 )
 
 # Display plot

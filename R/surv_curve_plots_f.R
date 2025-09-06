@@ -34,6 +34,7 @@
 #'
 #' @import Hmisc
 #' @import ggfortify
+#' @importFrom stats setNames
 #'
 #' @name surv_curve_plots_f
 #'
