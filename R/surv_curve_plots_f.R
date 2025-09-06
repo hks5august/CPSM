@@ -32,9 +32,6 @@
 #' - The function uses the `ggplot2` package for generating survival
 #' curve plots.
 #'
-#' @import Hmisc
-#' @import ggfortify
-#' @importFrom stats setNames
 #'
 #' @name surv_curve_plots_f
 #'
@@ -52,8 +49,11 @@
 #' print(plots$all_patients_plot)
 #' print(plots$highlighted_patient_plot)
 #'
+#' @import Hmisc
+#' @import ggfortify
 #' @import ggplot2
 #' @import reshape2
+#' @importFrom stats setNames
 #'
 #' @export
 
