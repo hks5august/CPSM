@@ -58,7 +58,7 @@
 #' @export
 
 
-utils::globalVariables(c("Time", "Value", "Patient"))
+utils::globalVariables(c("Time", "Value", "Patient", "setNames"))
 
 
 surv_curve_plots_f <- function(

@@ -37,7 +37,7 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @import SurvMetrics
+#' @importFrom SurvMetrics IBS
 #' @importFrom stats median complete.cases
 #'
 #' @examples
