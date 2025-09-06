@@ -17,8 +17,8 @@ test_that("Assess Nomogram_generate_f", {
     Feature_List = feature_list_for_Nomogram,
     surv_time = "OS_month",
     surv_event = "OS",
-    font_size = 1.2,
-    axis_cex = 1,
+    font_size = 0.8,
+    axis_cex = 0.8,
     tcl_len = 0.7,
     label_margin = 0.8,
     col_grid = gray(c(0.9, 0.98))

@@ -17,13 +17,11 @@
 #'  time in the input data.
 #' @param surv_event A character string specifying the column name for survival
 #' event status in the input data (1 for event, 0 for censored).
-#' @param font_size Numeric. Base font size for the nomogram plot (default = 1).
-#' @param axis_cex Numeric. Font size for axis labels (default = 0.8).
-#' @param tcl_len Numeric. Tick mark length (default = 0.5).
-#' @param label_margin Numeric. Margin between variable names and axis (default = 0.5).
-#' @param col_grid Color vector for grid lines in the nomogram plot
-#'  (default = gray(c(0.85, 0.95))).
-#'
+#' @param font_size Numeric. Base font size for the nomogram plot. Default is 1.
+#' @param axis_cex Numeric. Scaling factor for axis text size. Default is 0.8.
+#' @param tcl_len Numeric. Length of tick marks on axes. Default is 0.5.
+#' @param label_margin Numeric. Margin for variable labels (lmgp). Default is 0.5.
+#' @param col_grid Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95)).
 #' @return A list with the following components:
 #' \itemize{
 #'   \item \code{C_index_mat}: A matrix containing the bias-corrected and
@@ -55,8 +53,8 @@
 #'   Feature_List = feature_list_for_Nomogram,
 #'   surv_time = "OS_month",
 #'   surv_event = "OS",
-#'   font_size = 1.2,
-#'   axis_cex = 1,
+#'   font_size = 0.8,
+#'   axis_cex = 0.8,
 #'   tcl_len = 0.7,
 #'   label_margin = 0.8,
 #'   col_grid = gray(c(0.9, 0.98))
