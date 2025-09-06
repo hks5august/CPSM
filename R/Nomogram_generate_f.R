@@ -17,6 +17,12 @@
 #'  time in the input data.
 #' @param surv_event A character string specifying the column name for survival
 #' event status in the input data (1 for event, 0 for censored).
+#' @param font_size Numeric. Base font size for the nomogram plot (default = 1).
+#' @param axis_cex Numeric. Font size for axis labels (default = 0.8).
+#' @param tcl_len Numeric. Tick mark length (default = 0.5).
+#' @param label_margin Numeric. Margin between variable names and axis (default = 0.5).
+#' @param col_grid Color vector for grid lines in the nomogram plot
+#'  (default = gray(c(0.85, 0.95))).
 #'
 #' @return A list with the following components:
 #' \itemize{
@@ -43,17 +49,31 @@
 #' @import Matrix
 #'
 #' @examples
-#' data(Train_Data_Nomogram_input, package = "CPSM")
-#' data(feature_list_for_Nomogram, package = "CPSM")
+#' # Generate nomogram with customized font size, axis labels, tick length, and grid color
 #' Nomogram_generate_f(
-#'   data = Train_Data_Nomogram_input, Feature_List =
-#'     feature_list_for_Nomogram, surv_time = "OS_month", surv_event = "OS"
+#'   data = Train_Data_Nomogram_input,
+#'   Feature_List = feature_list_for_Nomogram,
+#'   surv_time = "OS_month",
+#'   surv_event = "OS",
+#'   font_size = 1.2,
+#'   axis_cex = 1,
+#'   tcl_len = 0.7,
+#'   label_margin = 0.8,
+#'   col_grid = gray(c(0.9, 0.98))
 #' )
 #'
 #' @export
 
 
-Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
+Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event,
+                                font_size = 1,       # base font size for nomogram
+                                axis_cex = 0.8,     # cex.axis
+                                tcl_len = 0.5,      # tick length
+                                label_margin = 0.5, # lmgp
+                                col_grid = gray(c(0.85, 0.95)) # grid color
+) {
+
+
   # Check if any input variable is empty
   if (length(data) == 0 || length(Feature_List) == 0 || length(surv_time)
   == 0 || length(surv_event) == 0) {
@@ -100,7 +120,7 @@ Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
     time.inc = 3
   )
 
-  ##### #################
+  #-----------------------------------------------------------------#
   surv <- Survival(cox1)
   risk <- function(x) 1 / (1 + exp(-x))
   surv_1 <- function(x) surv(1 * 12, lp = x) # defined time.inc,1 year OS
@@ -169,16 +189,17 @@ Nomogram_generate_f <- function(data, Feature_List, surv_time, surv_event) {
     )
   }
 
-  plot(nom_cox1,
-    xfrac = .2,
-    font.size = 0.5,
-    cex.axis = 0.5,
-    force.label = TRUE,
-    tcl = 0.5,
-    lmgp = 0.5,
-    vnames = "labels",
-    col.grid = gray(c(0.85, 0.95))
-  )
+
+plot(nom_cox1,
+     xfrac = 0.2,
+     font.size = font_size,
+     cex.axis = axis_cex,
+     force.label = TRUE,
+     tcl = tcl_len,
+     lmgp = label_margin,
+     vnames = "labels",
+     col.grid = col_grid
+)
 
   # Redirect console output to a temporary file
   sink(tempfile())

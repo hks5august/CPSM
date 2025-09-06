@@ -11,6 +11,20 @@ test_that("Assess Nomogram_generate_f", {
     surv_event = "OS"
   )
 
+# Run function with custom styling
+  Result_Nomogram_custom <- Nomogram_generate_f(
+    data = Train_Data_Nomogram_input,
+    Feature_List = feature_list_for_Nomogram,
+    surv_time = "OS_month",
+    surv_event = "OS",
+    font_size = 1.2,
+    axis_cex = 1,
+    tcl_len = 0.7,
+    label_margin = 0.8,
+    col_grid = gray(c(0.9, 0.98))
+  )
+
+
   # Check that the result is a list
   expect_type(Result_Nomogram, "list")
 

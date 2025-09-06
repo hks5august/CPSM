@@ -532,7 +532,12 @@ Result_Nomogram <- Nomogram_generate_f(
   data = Train_Data_Nomogram_input,
   Feature_List = feature_list_for_Nomogram,
   surv_time = "OS_month",
-  surv_event = "OS"
+  surv_event = "OS",
+  font_size = 1.2,
+  axis_cex = 1,
+  tcl_len = 0.7,
+  label_margin = 0.8,
+  col_grid = gray(c(0.9, 0.98))
 )
 C_index_mat <- Result_Nomogram$C_index_mat
 ```
