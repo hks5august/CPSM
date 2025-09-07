@@ -45,9 +45,6 @@ The \code{Sample_ID} should be present in the \code{Test_results} data frame.}
 \item{font_size}{Numeric. Base font size for the plot text (axis labels, legend, and title).
 Default is 12.}
 
-\item{line_size}{Numeric. Line thickness for Kaplan-Meier curves.
-Default is 0.8.}
-
 \item{train_palette}{Character vector of colors for training group curves (e.g., c("red", "blue")).
 Default is c("red", "blue").}
 
@@ -87,7 +84,6 @@ KM_plot_results <- km_overlay_plot_f(
   survcurve_te_data = survCurves_data,
   selected_sample = "TCGA-TQ-A7RQ-04",
   font_size = 14,
-  line_size = 1,
   train_palette = c("purple", "orange"),
   test_curve_col = "black",
   test_curve_lty = "solid"
