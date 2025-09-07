@@ -41,6 +41,21 @@ The \code{Sample_ID} of the \code{selected_sample} must be present in this data 
 
 \item{selected_sample}{The \code{Sample_ID} of the selected test sample for which the user wants to plot the overlayed Kaplan-Meier plot.
 The \code{Sample_ID} should be present in the \code{Test_results} data frame.}
+
+\item{font_size}{Numeric. Base font size for the plot text (axis labels, legend, and title).
+Default is 12.}
+
+\item{line_size}{Numeric. Line thickness for Kaplan-Meier curves.
+Default is 0.8.}
+
+\item{train_palette}{Character vector of colors for training group curves (e.g., c("red", "blue")).
+Default is c("red", "blue").}
+
+\item{test_line_col}{Character. Color of the overlaid test sample curve.
+Default is "darkgreen".}
+
+\item{test_line_type}{Character. Line type of the overlaid test sample curve (e.g., "dashed", "solid").
+Default is "dashed".}
 }
 \value{
 A \code{ggplot} object (from \code{ggsurvplot}) showing:
@@ -95,7 +110,12 @@ KM_plot_results <- km_overlay_plot_f(
   Train_results = Train_results,
   Test_results = Test_results,
   survcurve_te_data = survCurves_data,
-  selected_sample = "TCGA-TQ-A7RQ-04"
+  selected_sample = "TCGA-TQ-A7RQ-04",
+  font_size = 14,
+  line_size = 1,
+  train_palette = c("purple", "orange"),
+  test_line_col = "black",
+  test_line_type = "solid"
 )
 
 
