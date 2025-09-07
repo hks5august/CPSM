@@ -42,9 +42,6 @@
 #' @param font_size Numeric. Base font size for the plot text (axis labels, legend, and title).
 #'   Default is 12.
 #'
-#' @param line_size Numeric. Line thickness for Kaplan-Meier curves.
-#'   Default is 0.8.
-#'
 #' @param train_palette Character vector of colors for training group curves (e.g., c("red", "blue")).
 #'   Default is c("red", "blue").
 #'
@@ -80,7 +77,6 @@
 #'   survcurve_te_data = survCurves_data,
 #'   selected_sample = "TCGA-TQ-A7RQ-04",
 #'   font_size = 14,
-#'   line_size = 1,
 #'   train_palette = c("purple", "orange"),
 #'   test_curve_col = "black",
 #'   test_curve_lty = "solid"
