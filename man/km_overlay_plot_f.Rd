@@ -75,35 +75,10 @@ survival aligns with the survival profiles of the training groups.
 # Example usage of the km_overlay_plot_f function
 
 # Example Train_results data frame
-Train_results <- data.frame(
-  Sample_ID = c("TCGA-TQ-A7RQ-01", "TCGA-TQ-A7RQ-02", "TCGA-TQ-A7RQ-03"),
-  Actual = c("TCGA-TQ-A7RQ-01", "TCGA-TQ-A7RQ-02", "TCGA-TQ-A7RQ-03"),
-  Predicted_Risk_Group = c("High_Risk", "Low_Risk", "High_Risk"),
-  High_Risk_Prob = c(0.8, 0.3, 0.85),
-  Low_Risk_Prob = c(0.2, 0.7, 0.15),
-  Prediction_Prob = c(0.8, 0.7, 0.85),
-  OS_month = c(12, 24, 6),
-  OS_event = c(1, 0, 1)
-)
-
-# Example Test_results data frame
-Test_results <- data.frame(
-  Sample_ID = c("TCGA-TQ-A7RQ-04", "TCGA-TQ-A7RQ-05"),
-  Actual = c("TCGA-TQ-A7RQ-04", "TCGA-TQ-A7RQ-05"),
-  Predicted_Risk_Group = c("Low_Risk", "High_Risk"),
-  High_Risk_Prob = c(0.25, 0.9),
-  Low_Risk_Prob = c(0.75, 0.1),
-  Prediction_Prob = c(0.75, 0.9),
-  OS_month = c(18, 30),
-  OS_event = c(0, 1)
-)
-
-# Example survival probability data frame for test samples
-survCurves_data <- data.frame(
-  time_point = c(0, 6, 12, 18, 24, 30),
-  TCGA_TQ_A7RQ_04 = c(1, 0.85, 0.7, 0.5, 0.3, 0.1),
-  TCGA_TQ_A7RQ_05 = c(1, 0.95, 0.85, 0.65, 0.45, 0.25)
-)
+# Load example data included in the package
+data(Train_results, package = "CPSM")
+data(Test_results, package = "CPSM")
+data(survCurves_data, package = "CPSM")
 
 # Generate Kaplan-Meier plot with overlay
 KM_plot_results <- km_overlay_plot_f(
@@ -114,9 +89,8 @@ KM_plot_results <- km_overlay_plot_f(
   font_size = 14,
   line_size = 1,
   train_palette = c("purple", "orange"),
-  test_line_col = "black",
-  test_line_type = "solid"
+  test_curve_col = "black",
+  test_curve_lty = "solid"
 )
-
 
 }
