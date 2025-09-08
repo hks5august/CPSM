@@ -33,6 +33,8 @@ BiocManager::install("CPSM")
 # Input Data
 The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data for **184 LGG cancer samples** as rows and various features as columns. Gene expression data is represented in **FPKM values**. The dataset includes **11 clinical and demographic features**, **4 types of survival data** (with both time and event information), and **19,978 protein-coding genes**. The clinical and demographic features in the dataset include `Age`, `subtype`, `gender`, `race`, `ajcc_pathologic_tumor_stage`, `histological_type`, `histological_grade`, `treatment_outcome_first_course`, `radiation_treatment_adjuvant`, `sample_type`, and `type`. The four types of survival data included are **Overall Survival (OS)**, **Progression-Free Survival (PFS)**, **Disease-Specific Survival (DSS)**, and **Disease-Free Survival (DFS)**. In the dataset, the columns labeled **OS**, **PFS**, **DSS**, and **DFS** represent event occurrences, while the columns **OS.time**, **PFS.time**, **DSS.time**, and **DFS.time** provide survival times (in days).
 
+## Example Data from the package
+
 ```{r , warning=FALSE, message=FALSE}
 library(CPSM)
 library(SummarizedExperiment)
@@ -42,8 +44,7 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 ## Using Your Own Data
-The example above illustrates how to analyze data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format, you can upload it as follows:
-
+The example above demonstrates how to analyze data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format—for instance, a file named TCGA-LGG_FPKM_data_with_clin_data.txt where samples are in rows and features in columns—you can upload it as follows:
 
 ```{r , warning=FALSE, message=FALSE}
 # Step1 - Specify the file path to your data
