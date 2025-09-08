@@ -46,20 +46,14 @@ The example above illustrates how to analyze data using the CPSM package with pr
 
 
 ```{r , warning=FALSE, message=FALSE}
-# Specify the file path to your data
-file_path <- "path/to/your/TCGA-LGG_FPKM_data_with_clin_data.txt"
+# Step1 - Specify the file path to your data
+#file_path <- "path/to/your/TCGA-LGG_FPKM_data_with_clin_data.txt"
 
-# Read the data
-data <- read.table(
-  file = file_path,
-  header = TRUE,
-  sep = "\t",            # use "," for CSV files
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
+# Step2 -  Read the data
+#data <- read.table(file = file_path, header = TRUE, sep = "\t",stringsAsFactors = FALSE, check.names = FALSE)
 
-# Inspect the first few rows
-head(data)
+# Step3 -  Inspect the first few rows
+#head(data[1:30)
 
 ```
 # Notes for Users
