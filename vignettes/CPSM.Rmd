@@ -41,6 +41,35 @@ data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 Example_TCGA_LGG_FPKM_data
 ```
 
+# Using Your Own Data
+The example above illustrates how to analyze data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format, you can upload it as follows:
+
+
+```{r , warning=FALSE, message=FALSE}
+# Specify the file path to your data
+file_path <- "path/to/your/TCGA-LGG_FPKM_data_with_clin_data.txt"
+
+# Read the data
+data <- read.table(
+  file = file_path,
+  header = TRUE,
+  sep = "\t",            # use "," for CSV files
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+# Inspect the first few rows
+head(data)
+
+```
+# Notes for Users
+
+Make sure your clinical columns and survival columns are named consistently, e.g., OS, OS.time,  etc.
+
+Gene expression features should start after the clinical and survival columns. You can adjust the column indices in CPSM functions accordingly.
+
+For CSV files, change sep = "\t" to sep = ",".
+
 # Step 1- Data Processing 
 
 ## Description 
