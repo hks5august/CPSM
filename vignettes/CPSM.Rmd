@@ -44,7 +44,7 @@ Example_TCGA_LGG_FPKM_data
 ```
 
 ## Using Your Own Data
-The example above demonstrates how to analyze data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format—for instance, a file named TCGA-LGG_FPKM_data_with_clin_data.txt where samples are in rows and features in columns—you can upload it as follows:
+The example above demonstrates how to load data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format—for instance, a file named TCGA-LGG_FPKM_data_with_clin_data.txt where samples are in rows and features in columns—you can upload it as follows:
 
 ```{r , warning=FALSE, message=FALSE}
 # Step1 - Specify the file path to your data
