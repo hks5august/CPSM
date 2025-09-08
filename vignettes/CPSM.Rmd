@@ -65,7 +65,7 @@ Gene expression features should start after the clinical and survival columns. Y
 
 For CSV files, change sep = "\t" to sep = ",".
 
-Above code only demonstrates how user can loading their data; actual analysis steps (in examples) are performed using data of CPSM package here.
+Above code only demonstrates how user can load their data; actual analysis steps (in examples) are performed using data of CPSM package here.
 
 # Step 1- Data Processing 
 
@@ -263,6 +263,8 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+# view Evaluation parameters of the model
+head(Error_mat_for_Model)
 ```
 
 
@@ -292,6 +294,8 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+# view Evaluation parameters of the model
+head(Error_mat_for_Model)
 ```
 
 
@@ -321,6 +325,8 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+# view Evaluation parameters of the model
+head(Error_mat_for_Model)
 ```
 
 
@@ -350,6 +356,8 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+# view Evaluation parameters of the model
+head(Error_mat_for_Model)
 ```
 
 ## Outputs
