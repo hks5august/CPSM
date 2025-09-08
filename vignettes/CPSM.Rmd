@@ -41,7 +41,7 @@ data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 Example_TCGA_LGG_FPKM_data
 ```
 
-# Using Your Own Data
+## Using Your Own Data
 The example above illustrates how to analyze data using the CPSM package with preloaded example data. If you have your own dataset in tab-separated (.txt, .tsv) or comma-separated (.csv) format, you can upload it as follows:
 
 
@@ -56,13 +56,15 @@ The example above illustrates how to analyze data using the CPSM package with pr
 #head(data[1:30)
 
 ```
-# Notes for Users
+### Notes for Users
 
 Make sure your clinical columns and survival columns are named consistently, e.g., OS, OS.time,  etc.
 
 Gene expression features should start after the clinical and survival columns. You can adjust the column indices in CPSM functions accordingly.
 
 For CSV files, change sep = "\t" to sep = ",".
+
+Above code only demonstrates how user can loading their data; actual analysis steps (in examples) are performed using data of CPSM package here.
 
 # Step 1- Data Processing 
 
