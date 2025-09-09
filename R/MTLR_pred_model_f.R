@@ -113,10 +113,11 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     cv_result <- MTLR::mtlr_cv(
     formula = formula1,          # survival formula
     data = sel_clin_tr2,         # training data
-    nintervals = 10,
     #C1_vec = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), # candidate C1 values
     C1_vec = c(0.01, 0.1, 1),
-    seed_weights = NULL,   # avoid mismatch
+    #seed_weights = NULL,   # avoid mismatch
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
     nfolds = 5,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
