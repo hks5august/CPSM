@@ -108,13 +108,73 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     sel_clin_te2 <- na.omit(sel_clin_te1)
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
 
+
+   # Identify categorical columns in training
+cat_vars <- sapply(sel_clin_tr2, is.factor)
+cat_vars <- names(cat_vars[cat_vars])
+
+if(length(cat_vars) > 0){
+  for(var in cat_vars){
+    # Remove single-level factors from training
+    if(length(unique(sel_clin_tr2[[var]])) < 2){
+      sel_clin_tr2[[var]] <- NULL
+      sel_clin_te2[[var]] <- NULL
+    } else {
+      # Convert to factor and align levels in train/test
+      all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
+      sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
+      sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
+    }
+  }
+}
+
+# Convert categorical predictors to dummy variables (exclude survival)
+predictors_tr <- sel_clin_tr2[, !(colnames(sel_clin_tr2) %in% c("OS", "OS_month"))]
+predictors_te <- sel_clin_te2[, !(colnames(sel_clin_te2) %in% c("OS", "OS_month"))]
+
+predictors_tr <- as.data.frame(model.matrix(~ . -1, data = predictors_tr))
+predictors_te <- as.data.frame(model.matrix(~ . -1, data = predictors_te))
+
+# Combine with survival columns
+sel_clin_tr2 <- cbind(OS = sel_clin_tr2$OS, OS_month = sel_clin_tr2$OS_month, predictors_tr)
+sel_clin_te2 <- cbind(OS = sel_clin_te2$OS, OS_month = sel_clin_te2$OS_month, predictors_te)
+
+# Ensure survival columns are numeric
+sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
+sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
+sel_clin_te2$OS <- as.numeric(sel_clin_te2$OS)
+sel_clin_te2$OS_month <- as.numeric(sel_clin_te2$OS_month)
+
+# Define MTLR formula
+formula1 <- survival::Surv(OS_month, OS) ~ .
+
+# Cross-validation to select best C1
+cv_result <- MTLR::mtlr_cv(
+  formula = formula1,
+  data = sel_clin_tr2,
+  C1_vec = c(0.01, 0.1, 1),
+  nintervals = 15,
+  previous_weights = FALSE,
+  nfolds = 5,
+  foldtype = "fullstrat",
+  loss = "ll",
+  verbose = FALSE
+)
+
+# Best C1
+best_C1 <- cv_result$best_C1
+
+# Fit final MTLR model
+Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
+
+
     # create MTLR  model
-    formula1 <- survival::Surv(OS_month, OS) ~ . 
+   # formula1 <- survival::Surv(OS_month, OS) ~ . 
    
       
     # Fit final MTLR model
     #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
-     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
+    # Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
     mean_survival_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
