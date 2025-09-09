@@ -113,11 +113,14 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     cv_result <- MTLR::mtlr_cv(
     formula = formula1,          # survival formula
     data = sel_clin_tr2,         # training data
-    C1_vec = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), # candidate C1 values
+    nintervals = 10,
+    #C1_vec = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), # candidate C1 values
+    C1_vec = c(0.01, 0.1, 1)
+    seed_weights = NULL,   # avoid mismatch
     nfolds = 5,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = TRUE)
+    verbose = F)
 
     # Best C1
     best_C1 <- cv_result$best_C1
@@ -127,6 +130,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     
     # Fit final MTLR model using selected C1
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1) 
+    
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
     mean_survival_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
