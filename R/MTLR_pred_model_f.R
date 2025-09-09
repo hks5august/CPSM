@@ -109,28 +109,27 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create MTLR  model
     formula1 <- survival::Surv(OS_month, OS) ~ .
      
+    # make  model
+    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
+    
     # Cross-validation to select best C1
-    #cv_result <- MTLR::mtlr_cv(
-    #formula = formula1,          # survival formula
-    #data = sel_clin_tr2,         # training data
-    #C1_vec = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), # candidate C1 values
-    #C1_vec = c(0.01, 0.1, 1),
-    #nintervals = 15,
-    #previous_weights = FALSE,   # avoids seed_weights mismatch
-    #nfolds = 5,                  # number of CV folds
-    #foldtype = "fullstrat",      # can also use "censorstrat" or "random"
-    #loss = "ll",                 # can also use "concordance"
-    #verbose = F)
+    cv_result <- MTLR::mtlr_cv( 
+    formula = formula1,          # survival formula 
+    data = sel_clin_tr2,         # training data
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15, 
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = 5,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = F)
 
     # Best C1
-    #best_C1 <- cv_result$best_C1
-    
-    # make  model
-    Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
-    
+    best_C1 <- cv_result$best_C1
+  
     # Fit final MTLR model using selected C1
-    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1) 
-    
+    Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
+       
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
     mean_survival_tr <- predict(Mod1, sel_clin_tr2, type = "mean_time")
