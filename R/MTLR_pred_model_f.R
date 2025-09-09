@@ -123,7 +123,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     #verbose = F)
 
     # Best C1
-    best_C1 <- cv_result$best_C1
+    #best_C1 <- cv_result$best_C1
     
     # make  model
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
