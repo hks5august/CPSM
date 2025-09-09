@@ -38,7 +38,7 @@
 #' @import survminer
 #' @import MTLR
 #' @importFrom SurvMetrics IBS
-#' @importFrom stats median complete.cases
+#' @importFrom stats median complete.cases model.matrix
 #'
 #' @examples
 #' # Example usage of the MTLR_pred_model_f function
@@ -100,56 +100,65 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     sel_clin_te <- as.data.frame(te_clin1[, colnames(te_clin1) %in%
         c(ftr_list$ID), ])
-    # add survival information
-    sel_clin_tr1 <- cbind(tr_clin1["OS"], tr_clin1["OS_month"], sel_clin_tr)
-    sel_clin_te1 <- cbind(te_clin1["OS"], te_clin1["OS_month"], sel_clin_te)
-    # create training and test data after removing NA values
-    sel_clin_te2 <- na.omit(sel_clin_te1)
-    sel_clin_tr2 <- na.omit(sel_clin_tr1)
- 
-    # Convert categorical variables to numeric
+    # Add survival columns
+    sel_clin_tr$OS <- tr_clin1$OS
+    sel_clin_tr$OS_month <- tr_clin1$OS_month
+    sel_clin_te$OS <- te_clin1$OS
+    sel_clin_te$OS_month <- te_clin1$OS_month
+
+    # Remove rows with missing survival or features
+    sel_clin_tr2 <- na.omit(sel_clin_tr)
+    sel_clin_te2 <- na.omit(sel_clin_te)
+
+    # Identify categorical columns
     cat_vars <- sapply(sel_clin_tr2, is.factor)
     cat_vars <- names(cat_vars[cat_vars])
 
-    if(length(cat_vars) > 0){
-    for(var in cat_vars){
-        # Combine train/test levels
-        all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
-        # Re-factor using all levels
-        sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
-        sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
+    if (length(cat_vars) > 0) {
+	for (var in cat_vars) {
+      # Combine train/test levels
+    all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
+    # Re-factor using all levels
+    sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
+    sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
     }
-    # Convert factors to dummy variables
-    sel_clin_tr2 <- as.data.frame(model.matrix(~ . -1, data = sel_clin_tr2))
-    sel_clin_te2 <- as.data.frame(model.matrix(~ . -1, data = sel_clin_te2))
     }
 
-   # Ensure survival columns are numeric
-   sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
-   sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
-      
-    # create MTLR  model
+    # Convert categorical predictors to dummy variables, but exclude survival columns
+    predictors_tr <- sel_clin_tr2[, !(colnames(sel_clin_tr2) %in% c("OS", "OS_month"))]
+    predictors_te <- sel_clin_te2[, !(colnames(sel_clin_te2) %in% c("OS", "OS_month"))]
+
+    predictors_tr <- as.data.frame(model.matrix(~ . -1, data = predictors_tr))
+    predictors_te <- as.data.frame(model.matrix(~ . -1, data = predictors_te))
+
+    # Combine with survival columns
+    sel_clin_tr2 <- cbind(OS = sel_clin_tr2$OS, OS_month = sel_clin_tr2$OS_month, predictors_tr)
+    sel_clin_te2 <- cbind(OS = sel_clin_te2$OS, OS_month = sel_clin_te2$OS_month, predictors_te)
+
+    # Ensure survival columns are numeric
+    sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
+    sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
+
+    # Define formula
     formula1 <- survival::Surv(OS_month, OS) ~ .
-     
-    # make  model
-    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
-    
+
     # Cross-validation to select best C1
-    cv_result <- MTLR::mtlr_cv( 
-    formula = formula1,          # survival formula 
-    data = sel_clin_tr2,         # training data
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula1,
+    data = sel_clin_tr2,
     C1_vec = c(0.01, 0.1, 1),
-    nintervals = 15, 
-    previous_weights = FALSE,   # avoids seed_weights mismatch
-    nfolds = 5,                  # number of CV folds
-    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
-    loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    nintervals = 15,
+    previous_weights = FALSE,
+    nfolds = 5,
+    foldtype = "fullstrat",
+    loss = "ll",
+    verbose = FALSE
+    )
 
     # Best C1
     best_C1 <- cv_result$best_C1
-  
-    # Fit final MTLR model using selected C1
+
+    # Fit final MTLR model
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
        
     # Predictions on training data
