@@ -108,22 +108,21 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     sel_clin_te2 <- na.omit(sel_clin_te1)
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
 
-
-   # Identify categorical columns in training
+# Identify categorical columns
 cat_vars <- sapply(sel_clin_tr2, is.factor)
 cat_vars <- names(cat_vars[cat_vars])
 
 if(length(cat_vars) > 0){
   for(var in cat_vars){
-    # Remove single-level factors from training
-    if(length(unique(sel_clin_tr2[[var]])) < 2){
+    # Combine train/test levels
+    all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
+    sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
+    sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
+    
+    # Remove single-level factors from both train/test
+    if(length(all_levels) < 2){
       sel_clin_tr2[[var]] <- NULL
       sel_clin_te2[[var]] <- NULL
-    } else {
-      # Convert to factor and align levels in train/test
-      all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
-      sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
-      sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
     }
   }
 }
