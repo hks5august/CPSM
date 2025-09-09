@@ -109,17 +109,16 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
 
 # Identify categorical columns
-cat_vars <- sapply(sel_clin_tr2, is.factor)
-cat_vars <- names(cat_vars[cat_vars])
+# ---- Step 2: Identify categorical variables ----
+cat_vars <- names(sel_clin_tr2)[sapply(sel_clin_tr2, is.factor)]
 
+# ---- Step 3: Convert categorical columns in final datasets (optional global alignment) ----
 if(length(cat_vars) > 0){
   for(var in cat_vars){
-    # Combine train/test levels
     all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
     sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
     sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
-    
-    # Remove single-level factors from both train/test
+
     if(length(all_levels) < 2){
       sel_clin_tr2[[var]] <- NULL
       sel_clin_te2[[var]] <- NULL
@@ -127,40 +126,56 @@ if(length(cat_vars) > 0){
   }
 }
 
-# Convert categorical predictors to dummy variables (exclude survival)
-predictors_tr <- sel_clin_tr2[, !(colnames(sel_clin_tr2) %in% c("OS", "OS_month"))]
-predictors_te <- sel_clin_te2[, !(colnames(sel_clin_te2) %in% c("OS", "OS_month"))]
-
-predictors_tr <- as.data.frame(model.matrix(~ . -1, data = predictors_tr))
-predictors_te <- as.data.frame(model.matrix(~ . -1, data = predictors_te))
-
-# Combine with survival columns
-sel_clin_tr2 <- cbind(OS = sel_clin_tr2$OS, OS_month = sel_clin_tr2$OS_month, predictors_tr)
-sel_clin_te2 <- cbind(OS = sel_clin_te2$OS, OS_month = sel_clin_te2$OS_month, predictors_te)
-
-# Ensure survival columns are numeric
-sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
-sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
-sel_clin_te2$OS <- as.numeric(sel_clin_te2$OS)
-sel_clin_te2$OS_month <- as.numeric(sel_clin_te2$OS_month)
-
-# Define MTLR formula
+# ---- Step 4: Define MTLR formula ----
 formula1 <- survival::Surv(OS_month, OS) ~ .
 
-# Cross-validation to select best C1
+# ---- Step 5: Cross-validation with per-fold factor alignment ----
+nfolds <- 5
+set.seed(123)
+fold_ids <- sample(rep(1:nfolds, length.out = nrow(sel_clin_tr2)))
+
+cv_results <- list()
+
+for(fold in 1:nfolds){
+  train_idx <- which(fold_ids != fold)
+  test_idx  <- which(fold_ids == fold)
+  
+  train_fold <- sel_clin_tr2[train_idx, ]
+  test_fold  <- sel_clin_tr2[test_idx, ]
+  
+  # Align factor levels per fold (drop test rows with unseen levels)
+  if(length(cat_vars) > 0){
+    for(var in cat_vars){
+      levels_train <- unique(train_fold[[var]])
+      test_fold <- test_fold[test_fold[[var]] %in% levels_train, ]
+      train_fold[[var]] <- factor(train_fold[[var]], levels = levels_train)
+      test_fold[[var]] <- factor(test_fold[[var]], levels = levels_train)
+    }
+  }
+  
+  # Convert to dummy variables
+  pred_tr <- as.data.frame(model.matrix(~ . -1, data = train_fold[, -c(1,2)]))
+  pred_te <- as.data.frame(model.matrix(~ . -1, data = test_fold[, -c(1,2)]))
+  
+  train_fold <- cbind(train_fold[, 1:2], pred_tr)
+  test_fold <- cbind(test_fold[, 1:2], pred_te)
+  
+  cv_results[[fold]] <- list(train = train_fold, test = test_fold)
+}
+
+# ---- Step 6: Fit MTLR on full training data (sel_clin_tr2) ----
 cv_result <- MTLR::mtlr_cv(
   formula = formula1,
   data = sel_clin_tr2,
   C1_vec = c(0.01, 0.1, 1),
   nintervals = 15,
   previous_weights = FALSE,
-  nfolds = 2,
+  nfolds = nfolds,
   foldtype = "fullstrat",
   loss = "ll",
   verbose = FALSE
 )
 
-# Best C1
 best_C1 <- cv_result$best_C1
 
 # Fit final MTLR model
