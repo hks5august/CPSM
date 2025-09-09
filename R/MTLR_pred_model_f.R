@@ -106,19 +106,28 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create training and test data after removing NA values
     sel_clin_te2 <- na.omit(sel_clin_te1)
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
-
-    # Fix Factor Level issue
-    # identify factor columns
+ 
+    # Convert categorical variables to numeric
     cat_vars <- sapply(sel_clin_tr2, is.factor)
-    # names of factor variables
     cat_vars <- names(cat_vars[cat_vars])
 
-    for (var in cat_vars) {
+    if(length(cat_vars) > 0){
+    for(var in cat_vars){
+        # Combine train/test levels
         all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
+        # Re-factor using all levels
         sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
         sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
     }
-   
+    # Convert factors to dummy variables
+    sel_clin_tr2 <- as.data.frame(model.matrix(~ . -1, data = sel_clin_tr2))
+    sel_clin_te2 <- as.data.frame(model.matrix(~ . -1, data = sel_clin_te2))
+    }
+
+   # Ensure survival columns are numeric
+   sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
+   sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
+      
     # create MTLR  model
     formula1 <- survival::Surv(OS_month, OS) ~ .
      
