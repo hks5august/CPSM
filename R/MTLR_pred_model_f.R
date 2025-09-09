@@ -100,64 +100,18 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     sel_clin_te <- as.data.frame(te_clin1[, colnames(te_clin1) %in%
         c(ftr_list$ID), ])
-    # Add survival columns
-    sel_clin_tr$OS <- tr_clin1$OS
-    sel_clin_tr$OS_month <- tr_clin1$OS_month
-    sel_clin_te$OS <- te_clin1$OS
-    sel_clin_te$OS_month <- te_clin1$OS_month
+   
+     # add survival information
+    sel_clin_tr1 <- cbind(tr_clin1["OS"], tr_clin1["OS_month"], sel_clin_tr)
+    sel_clin_te1 <- cbind(te_clin1["OS"], te_clin1["OS_month"], sel_clin_te)
+    # create training and test data after removing NA values
+    sel_clin_te2 <- na.omit(sel_clin_te1)
+    sel_clin_tr2 <- na.omit(sel_clin_tr1)
 
-    # Remove rows with missing survival or features
-    sel_clin_tr2 <- na.omit(sel_clin_tr)
-    sel_clin_te2 <- na.omit(sel_clin_te)
-
-    # Identify categorical columns
-    cat_vars <- sapply(sel_clin_tr2, is.factor)
-    cat_vars <- names(cat_vars[cat_vars])
-
-    if (length(cat_vars) > 0) {
-	for (var in cat_vars) {
-      # Combine train/test levels
-    all_levels <- unique(c(sel_clin_tr2[[var]], sel_clin_te2[[var]]))
-    # Re-factor using all levels
-    sel_clin_tr2[[var]] <- factor(sel_clin_tr2[[var]], levels = all_levels)
-    sel_clin_te2[[var]] <- factor(sel_clin_te2[[var]], levels = all_levels)
-    }
-    }
-
-    # Convert categorical predictors to dummy variables, but exclude survival columns
-    predictors_tr <- sel_clin_tr2[, !(colnames(sel_clin_tr2) %in% c("OS", "OS_month"))]
-    predictors_te <- sel_clin_te2[, !(colnames(sel_clin_te2) %in% c("OS", "OS_month"))]
-
-    predictors_tr <- as.data.frame(model.matrix(~ . -1, data = predictors_tr))
-    predictors_te <- as.data.frame(model.matrix(~ . -1, data = predictors_te))
-
-    # Combine with survival columns
-    sel_clin_tr2 <- cbind(OS = sel_clin_tr2$OS, OS_month = sel_clin_tr2$OS_month, predictors_tr)
-    sel_clin_te2 <- cbind(OS = sel_clin_te2$OS, OS_month = sel_clin_te2$OS_month, predictors_te)
-
-    # Ensure survival columns are numeric
-    sel_clin_tr2$OS <- as.numeric(sel_clin_tr2$OS)
-    sel_clin_tr2$OS_month <- as.numeric(sel_clin_tr2$OS_month)
-
-    # Define formula
-    formula1 <- survival::Surv(OS_month, OS) ~ .
-
-    # Cross-validation to select best C1
-    #cv_result <- MTLR::mtlr_cv(
-    #formula = formula1,
-    #data = sel_clin_tr2,
-    #C1_vec = c(0.01, 0.1, 1),
-    #nintervals = 15,
-    #previous_weights = FALSE,
-    #nfolds = 5,
-    #foldtype = "fullstrat",
-    #loss = "ll",
-    #verbose = FALSE
-    #)
-
-    # Best C1
-    #best_C1 <- cv_result$best_C1
-
+    # create MTLR  model
+    formula1 <- survival::Surv(OS_month, OS) ~ . 
+   
+      
     # Fit final MTLR model
     #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
      Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
