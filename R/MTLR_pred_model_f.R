@@ -117,13 +117,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     nfolds = 5,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    verbose = TRUE)
 
     # Best C1
     best_C1 <- cv_result$best_C1
     
     # make  model
-    Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
+    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
     
     # Fit final MTLR model using selected C1
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1) 
