@@ -154,7 +154,7 @@ cv_result <- MTLR::mtlr_cv(
   C1_vec = c(0.01, 0.1, 1),
   nintervals = 15,
   previous_weights = FALSE,
-  nfolds = 5,
+  nfolds = 3,
   foldtype = "fullstrat",
   loss = "ll",
   verbose = FALSE
