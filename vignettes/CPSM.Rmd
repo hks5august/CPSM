@@ -86,7 +86,7 @@ combined_df <- cbind(
   )))
 )
 
-#------------------------  OUTPUTS ---------------------#
+#------------------------ OUTPUTS ---------------------#
 # view output file
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
@@ -153,6 +153,11 @@ str(Train_Clin[1:10])
 # view output - Train normalized data
 str(Train_Norm_data[1:10])
 
+# view output - test clinincal data
+str(Test_Clin[1:10])
+
+# view output - Train normalized data
+str(Test_Norm_data[1:10])
 
 ```
 ## Outputs
@@ -192,6 +197,7 @@ Test_PI_data <- Result_PI$Test_PI_data
 str(Train_PI_data[1:10])
 str(Test_PI_data[1:10])
 plot(Result_PI$cvfit)
+
 ```
 ## Outputs
 The **`Lasso_PI_scores_f`** function generates the following outputs objects:
@@ -230,6 +236,7 @@ Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
 str(Univariate_Suv_Sig_G_L[1:10])
 # view top features (from selected set) using Univariate Cox regression
 print(head(Univariate_Suv_Sig_G_L))
+
 ```
 ## Outputs
 The **`Univariate_sig_features_f`** function generates the following output objects:
@@ -289,8 +296,10 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+
 # view Evaluation parameters of the model
 head(Error_mat_for_Model)
+
 ```
 
 
@@ -355,8 +364,10 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+
 # view Evaluation parameters of the model
 head(Error_mat_for_Model)
+
 ```
 
 
@@ -388,8 +399,10 @@ str(survCurves_data)
 str(mean_median_survival_tim_d)
 str(survival_result_bas_on_MTLR)
 str(Error_mat_for_Model)
+
 # view Evaluation parameters of the model
 head(Error_mat_for_Model)
+
 ```
 
 ## Outputs
@@ -430,6 +443,7 @@ plots <- surv_curve_plots_f(
 # Print the plots
 print(plots$all_patients_plot)
 print(plots$highlighted_patient_plot)
+
 ```
 ## Outputs
 After running the function, two output plots are generated:
@@ -461,6 +475,7 @@ plots_2 <- mean_median_surv_barplot_f(
 # Print the plots
 print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
+
 ```
 
 ## Outputs
@@ -574,6 +589,7 @@ KM_plot <- km_overlay_plot_f( Train_results = Train_results,
 
 # Display plot
 KM_plot
+
 ```
 
 ## Outputs
