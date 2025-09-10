@@ -39,8 +39,12 @@ The example input data object, **`Example_TCGA_LGG_FPKM_data`**, contains data f
 library(CPSM)
 library(SummarizedExperiment)
 set.seed(7) # set seed
+
+#load data (from the package)
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
-Example_TCGA_LGG_FPKM_data
+
+# view data
+str(Example_TCGA_LGG_FPKM_data[1:10)
 ```
 
 ## Using Your Own Data
@@ -50,10 +54,10 @@ The example above demonstrates how to load data using the CPSM package with prel
 # Step1 - Specify the file path to your data
 #file_path <- "path/to/your/TCGA-LGG_FPKM_data_with_clin_data.txt"
 
-# Step2 -  Read the data
+# Step2 -  load/read data
 #data <- read.table(file = file_path, header = TRUE, sep = "\t",stringsAsFactors = FALSE, check.names = FALSE)
 
-# Step3 -  Inspect the first few rows
+# Step3 -  View/Inspect the first few rows
 #head(data[1:30)
 
 ```
@@ -87,8 +91,10 @@ combined_df <- cbind(
 )
 
 #------------------------ OUTPUTS ---------------------#
-# view output file
+# Access the output of function
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
+
+# View/Inspect the first few rows of output data after data pre-processing
 str(New_data[1:10])
 ```
 ## Outputs
@@ -103,7 +109,8 @@ The output from the previous step, **`New_data`**, serves as the input for this 
 ## Example Code
 ```{r}
 data(New_data, package = "CPSM")
-# Call the function
+
+# Call/Run the function  for "New_data"
 result <- tr_test_f(data = New_data, fraction = 0.9)
 
 #------------------------  OUTPUTS ---------------------#
@@ -130,10 +137,13 @@ For this function, you need to provide the training and test datasets obtained f
 
 ## Example Code
 ```{r }
-# Step 3 - Data Normalization
-# Normalize the training and test data sets
+# Step 3 - Data Normalization 
+
+#load train and test data from package
 data(train_FPKM, package = "CPSM")
 data(test_FPKM, package = "CPSM")
+
+# Call function to Normalize the training and test data sets
 Result_N_data <- train_test_normalization_f(
   train_data = train_FPKM,
   test_data = test_FPKM,
@@ -177,8 +187,12 @@ For this function, you need to provide the normalized training data object  (**T
 ## Example Code
 ```{r, warning=FALSE, message=FALSE, fig.width=7, fig.height=4 }
 # Step 4 - Lasso PI Score
+
+#load data - Normalized train and test data
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
+
+# Call/Run function to select features and generate PI score using LASSO-Regression
 Result_PI <- Lasso_PI_scores_f(
   train_data = Train_Norm_data,
   test_data = Test_Norm_data,
@@ -230,8 +244,12 @@ To use this function, you need to provide the normalized training (**Train_Norm_
 ## Example Code
 ```{r, warning=FALSE, message=FALSE }
 # Step 4b - Univariate  Survival Significant Feature Selection.
+
+# load normalized train and test data
 data(Train_Norm_data, package = "CPSM")
 data(Test_Norm_data, package = "CPSM")
+
+# Call/Run function to select features using Univariate COX method
 Result_Uni <- Univariate_sig_features_f(
   train_data = Train_Norm_data,
   test_data = Test_Norm_data,
@@ -252,13 +270,13 @@ print(head(Univariate_Suv_Sig_G_L))
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
 
 # view Train data with only sig features
-print(head(Train_Uni_sig_data))
+str(Train_Uni_sig_data[1:10])
 
 # Access output - Test data with only sig features
 Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
 
 # view Test data with only sig features
-print(head(Test_Uni_sig_data))
+str(Test_Uni_sig_data[1:10])
 
 # Access output - 
 Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
@@ -302,9 +320,19 @@ These inputs will allow the **`MTLR_pred_model_f`** function to generate a predi
 ## Model for only Clinical features
 ## Example  Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE }
+
+# load data for model building/development
+
+# Load Training data
 data(Train_Clin, package = "CPSM")
+
+# Load Test data
 data(Test_Clin, package = "CPSM")
+
+# Load a list of selected features
 data(Key_Clin_feature_list, package = "CPSM")
+
+# Call/Run function to develop MTLR model
 Result_Model_Type1 <- MTLR_pred_model_f(
   train_clin_data = Train_Clin,
   test_clin_data = Test_Clin,
@@ -346,11 +374,23 @@ head(Error_mat_for_Model)
 ## Model for PI
 ## Example  Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
+
+# Load training data with clinical features
 data(Train_Clin, package = "CPSM")
+
+# Load test data with clinical features
 data(Test_Clin, package = "CPSM")
+
+# load training data with PI score
 data(Train_PI_data, package = "CPSM")
+
+# Load test data with PI score
 data(Test_PI_data, package = "CPSM")
+
+# Load a list of feature (PI )
 data(Key_PI_list, package = "CPSM")
+
+# Call/Run function to develop MTLR prediction model based on PI score
 Result_Model_Type2 <- MTLR_pred_model_f(
   train_clin_data = Train_Clin,
   test_clin_data = Test_Clin,
@@ -393,11 +433,23 @@ head(Error_mat_for_Model)
 ## Model for Clinical features + PI
 ## Example  Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
+
+# Load training data with clinical feature
 data(Train_Clin, package = "CPSM")
+
+# Load test data with clinical feature
 data(Test_Clin, package = "CPSM")
+
+# Load training data with PI score value
 data(Train_PI_data, package = "CPSM")
+
+# Load test data with PI score value
 data(Test_PI_data, package = "CPSM")
+
+# Load a list of feature containing Clinical feature along with PI
 data(Key_Clin_features_with_PI_list, package = "CPSM")
+
+# Call/Run function to develop MTLR prediction model based on PI score with Clinical features
 Result_Model_Type3 <- MTLR_pred_model_f(
   train_clin_data = Train_Clin,
   test_clin_data = Test_Clin,
@@ -440,11 +492,23 @@ head(Error_mat_for_Model)
 ## Model for Univariate + Clinical features
 ## Example  Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE}
+
+# Load training data with clinical features
 data(Train_Clin, package = "CPSM")
+
+# Load test data with clinical features
 data(Test_Clin, package = "CPSM")
+
+# Load normalized training data 
 data(Train_Uni_sig_data, package = "CPSM")
+
+# Load normalized test data
 data(Test_Uni_sig_data, package = "CPSM")
+
+# Load a list of clinical feature along with top feature from univariate survival analysis
 data(Key_univariate_features_with_Clin_list, package = "CPSM")
+
+# Call/Run function to develop MTLR model based on Clinical and selected univariate features 
 Result_Model_Type5 <- MTLR_pred_model_f(
   train_clin_data = Train_Clin,
   test_clin_data = Test_Clin,
@@ -508,7 +572,11 @@ The function requires two inputs:
 ## Example Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
 # Create Survival curves/plots for individual patients
+
+# Load predicted survival probability (at different time points ) data of test samples to plot survival curve plot
 data(survCurves_data, package = "CPSM")
+
+# Call/Run functions to plot survival curve plot
 plots <- surv_curve_plots_f(
   Surv_curve_data = survCurves_data,
   selected_sample = "TCGA-TQ-A7RQ-01",
@@ -545,7 +613,11 @@ This function requires two inputs:
 
 ## Example Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
+
+# Load data of predicted mean/median survival time for test samples
 data(mean_median_survival_time_data, package = "CPSM")
+
+# Call/Run functions to plot barplot 
 plots_2 <- mean_median_surv_barplot_f(
   surv_mean_med_data =
     mean_median_survival_time_data,
@@ -591,11 +663,17 @@ The model with the best performance (e.g., highest accuracy) is selected automat
 
 ```{r, warning=FALSE, message=FALSE, error=TRUE}
 # Load example data from CPSM package
+
+# Load training data with selected features (e.g. PI values)
 data(Train_PI_data, package = "CPSM")
+
+# Load test data with selected features (e.g. PI values)
 data(Test_PI_data, package = "CPSM")
+
+# Load feature list
 data(Key_PI_list, package = "CPSM")
 
-# Predict survival-based risk groups for test samples
+# Call/Run function to Predict survival-based risk groups for test samples
 Results_Risk_group_Prediction <- predict_survival_risk_group_f(
   selected_train_data = Train_PI_data,
   selected_test_data = Test_PI_data,
@@ -651,9 +729,15 @@ It requres requires following inputs
 ## Example Code
 
 ```{r, fig.height=6, fig.width=8, warning=FALSE, message=FALSE}
-# Load example results
+# Load example data
+
+# Load predicted risk-group results for training samples
 data(Train_results, package = "CPSM")
+
+# Load predicted risk-group results for test samples
 data(Test_results, package = "CPSM")
+
+# Load predicted survival probabiliy data (at multiple time points) for test samples
 data(survCurves_data, package = "CPSM")
 
 # Select a test sample to visualize
@@ -702,8 +786,14 @@ To create the nomogram, we need to provide the following inputs:
 
 ## Example Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE, fig.width=7, fig.height=6 }
+
+# Load Normalozed Training data with  along with Survival info selected features (based on which user want to develop nomogram) and survival info
 data(Train_Data_Nomogram_input, package = "CPSM")
+
+# Load a list of selected features (based on which user want to develop nomogram)
 data(feature_list_for_Nomogram, package = "CPSM")
+
+# Call/run function to generate nomogram
 Result_Nomogram <- Nomogram_generate_f(
   data = Train_Data_Nomogram_input,
   Feature_List = feature_list_for_Nomogram,
@@ -715,6 +805,7 @@ Result_Nomogram <- Nomogram_generate_f(
   label_margin = 0.5,
   col_grid = gray(c(0.85, 0.95))
 )
+
 #------------------------  OUTPUTS ---------------------#
 
 # Access output - C-index value and Nomogram plot
