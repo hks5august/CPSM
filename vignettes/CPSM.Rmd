@@ -156,7 +156,7 @@ str(Train_Norm_data[1:10])
 # view output - test clinincal data
 str(Test_Clin[1:10])
 
-# view output - Train normalized data
+# view output - Test normalized data
 str(Test_Norm_data[1:10])
 
 ```
@@ -189,13 +189,27 @@ Result_PI <- Lasso_PI_scores_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
+
+# Access output - selected features (with beta coefficient value)) by LASSO
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
+
 #view top features (from selected set) with beta coeff values
 print(head(Train_Lasso_key_variables))
+
+
+# Access output - Train set with PI values
 Train_PI_data <- Result_PI$Train_PI_data
-Test_PI_data <- Result_PI$Test_PI_data
+
+# view Train set with PI values
 str(Train_PI_data[1:10])
+
+# Access output - Test set with PI values
+Test_PI_data <- Result_PI$Test_PI_data
+
+# view Test set with PI values
 str(Test_PI_data[1:10])
+
+# view plot from LASSO-Lasso regression lambda plot
 plot(Result_PI$cvfit)
 
 ```
@@ -227,15 +241,31 @@ Result_Uni <- Univariate_sig_features_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
+
+# Access output - A table of univariate significant genes 
 Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
-Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
-Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
-Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
-Train_Uni_sig_clin_data <- Result_Uni$Train_Uni_sig_clin_data
-Test_Uni_sig_clin_data <- Result_Uni$Test_Uni_sig_clin_data
-str(Univariate_Suv_Sig_G_L[1:10])
+
 # view top features (from selected set) using Univariate Cox regression
 print(head(Univariate_Suv_Sig_G_L))
+
+# Access output - Train data with only sig features
+Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
+
+# view Train data with only sig features
+print(head(Train_Uni_sig_data))
+
+# Access output - Test data with only sig features
+Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
+
+# view Test data with only sig features
+print(head(Test_Uni_sig_data))
+
+# Access output - 
+Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
+
+# view A table of univariate significant clinical feature
+print(head(Uni_Sur_Sig_clin_List))
+
 
 ```
 ## Outputs
@@ -288,13 +318,23 @@ Result_Model_Type1 <- MTLR_pred_model_f(
 
 #------------------------  OUTPUTS ---------------------#
 
+# Access output - Predicted Survival probabilty across different time points
 survCurves_data <- Result_Model_Type1$survCurves_data
-mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
-survival_result_bas_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
-Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
+
+# View Predicted Survival probabilty for test samples 
 str(survCurves_data)
+
+# Access output - Predicted mean and median survival of test data
+mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
+
+# View Predicted mean and median survival time
 str(mean_median_survival_tim_d)
-str(survival_result_bas_on_MTLR)
+
+# Access output -
+survival_result_based_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
+
+# Access output - Final Evaluation parameters of results
+Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
 str(Error_mat_for_Model)
 
 # view Evaluation parameters of the model
@@ -323,14 +363,28 @@ Result_Model_Type2 <- MTLR_pred_model_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
+
+# Access output - Predicted Survival probabilty across different time points
 survCurves_data <- Result_Model_Type2$survCurves_data
-mean_median_surviv_tim_da <- Result_Model_Type2$mean_median_survival_time_data
-survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
-Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
+
+# View Predicted Survival probabilty for test samples 
 str(survCurves_data)
-str(mean_median_survival_tim_d)
-str(survival_result_bas_on_MTLR)
+
+# Access output - Predicted mean and median survival of test data
+mean_median_surviv_tim_da <- Result_Model_Type2$mean_median_survival_time_data
+
+# View Predicted mean and median survival of test data
+str(mean_median_surviv_tim_da)
+
+# Access output - all results for test data
+survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
+
+# Access output - Final Evaluation parameters of results
+Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
+
+# view Evaluation parameters of the model
 str(Error_mat_for_Model)
+
 # view Evaluation parameters of the model
 head(Error_mat_for_Model)
 ```
@@ -356,20 +410,32 @@ Result_Model_Type3 <- MTLR_pred_model_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
+
+# Access output - Predicted Survival probabilty across different time points
 survCurves_data <- Result_Model_Type3$survCurves_data
-mean_median_surv_tim_da <- Result_Model_Type3$mean_median_survival_time_data
-survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
-Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
+
+# View Predicted Survival probabilty for test samples
 str(survCurves_data)
-str(mean_median_survival_tim_d)
-str(survival_result_bas_on_MTLR)
+
+# Access output - Predicted mean and median survival of test data
+mean_median_surv_tim_da <- Result_Model_Type3$mean_median_survival_time_data
+
+# View Predicted mean and median survival of test data
+str(mean_median_surv_tim_da) 
+
+# Access output - all results for test data
+survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
+
+# Access output - Final Evaluation parameters of results
+Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
+
+# view Evaluation parameters of the model
 str(Error_mat_for_Model)
 
 # view Evaluation parameters of the model
 head(Error_mat_for_Model)
 
 ```
-
 
 ## Model for Univariate + Clinical features
 ## Example  Code
@@ -391,13 +457,26 @@ Result_Model_Type5 <- MTLR_pred_model_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
+
+# Access output - Predicted Survival probabilty across different time points
 survCurves_data <- Result_Model_Type5$survCurves_data
-mean_median_surv_tim_da <- Result_Model_Type5$mean_median_survival_time_data
-survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
-Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
+
+# View Predicted Survival probabilty for test samples
 str(survCurves_data)
-str(mean_median_survival_tim_d)
-str(survival_result_bas_on_MTLR)
+
+# Access output - Predicted mean and median survival of test data
+mean_median_surv_tim_da <- Result_Model_Type5$mean_median_survival_time_data
+
+# View Predicted mean and median survival of test data
+str(mean_median_surv_tim_da)
+
+# Access output - all results for test data
+survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
+
+# Access output - Final Evaluation parameters of results
+Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
+
+# view Evaluation parameters of the model
 str(Error_mat_for_Model)
 
 # view Evaluation parameters of the model
@@ -440,8 +519,10 @@ plots <- surv_curve_plots_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
-# Print the plots
+# Access output - print survival plot with all patients in test data
 print(plots$all_patients_plot)
+
+# Access output - print survival plot with highlighting the survival curve of selected patient
 print(plots$highlighted_patient_plot)
 
 ```
@@ -472,8 +553,10 @@ plots_2 <- mean_median_surv_barplot_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
-# Print the plots
+# Access output - Print barplots representing predicted mean/median survival time of patients
 print(plots_2$mean_med_all_pat)
+
+# Access output - Print barplots representing predicted mean/median survival time of patients with highlighting selected patient
 print(plots_2$highlighted_selected_pat)
 
 ```
@@ -520,13 +603,17 @@ Results_Risk_group_Prediction <- predict_survival_risk_group_f(
 )
 
 #------------------------  OUTPUTS ---------------------#
-#Performance of the best model on Training and Test data
+
+# Access output - Performance of the best model on Training and Test data
 Best_model_Prediction_results<- Results_Risk_group_Prediction$misclassification_results 
+
+# View Performance of the best model on Training and Test data
 print(head(Best_model_Prediction_results))
 
-#Prediction results of the best model on Training set
+# View Prediction results of the best model on Test set
 Test_results <-  Results_Risk_group_Prediction$Test_results #Prediction resulst on Test data
 print(head(Test_results))
+
 
 ```
 
@@ -587,7 +674,7 @@ KM_plot <- km_overlay_plot_f( Train_results = Train_results,
 
 #------------------------  OUTPUTS ---------------------#
 
-# Display plot
+# View KM plot representing the comparison of survival curve of selected test sample vs survival curves of risk-groups of training data 
 KM_plot
 
 ```
@@ -630,9 +717,12 @@ Result_Nomogram <- Nomogram_generate_f(
 )
 #------------------------  OUTPUTS ---------------------#
 
+# Access output - C-index value and Nomogram plot
 C_index_mat <- Result_Nomogram$C_index_mat
+
 #display C-index
 print(C_index_mat)
+
 
 ```
 ## Outputs 
