@@ -110,17 +110,17 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
   colnames(te_data1)[colnames(te_data1) == surv_time] <- "OS_month"
   colnames(te_data1)[colnames(te_data1) == surv_event] <- "OS"
 
-  ###################### Create Survival Object #####################
+  # Create Survival Object
   surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
   # create a file to store results
 
   n <- col_num - 1
-  ### Significant results
-  #---------------------------------------------------------------------------
+  #--------- Significant results ------------#
   # Initialize a list to store results
   results_list <- list()
+  # Initialize lists to store zph test results
+  zph_results_genes <- list()
   # Perform uni variate survival analysis for each feature based on median
-  # expression
   for (i in seq(from = col_num, to = length(tr_data1), by = 1)) {
     # Create survival object
     surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
@@ -132,6 +132,9 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     # fitcoxph model
     fit1.coxph <- coxph(surv_object ~ (tr_data1[, i]) >
         (median(tr_data1[1, i])), data = tr_data1)
+    
+     # Perform zph test and store results
+    zph_results_genes[[colnames(tr_data1[i])]] <- cox.zph(fit1.coxph)
     # coeff
     first <- coef(summary(fit1.coxph))
 
@@ -177,7 +180,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
   sel_univ_test_1 <- as.data.frame(sel_univ_test)
 
 
-  ### Significant results for clinical features
+  #---- Significant results for clinical features -------#
   #---------------------------------------------------------------------------
   # Initialize a list to store results
   results_list2 <- list()
@@ -259,6 +262,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     Test_Uni_sig_data = sel_univ_test_1,
     Univariate_Survival_Significant_clin_List = results_df2,
     Train_Uni_sig_clin_data = sel_univ_train_2,
-    Test_Uni_sig_clin_data = sel_univ_test_2
+    Test_Uni_sig_clin_data = sel_univ_test_2 ,
+    ZPH_Genes = zph_results_genes
   ))
 }

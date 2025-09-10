@@ -44,7 +44,7 @@ set.seed(7) # set seed
 data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
 
 # view data
-str(Example_TCGA_LGG_FPKM_data[1:10)
+str(Example_TCGA_LGG_FPKM_data[1:10])
 ```
 
 ## Using Your Own Data
@@ -243,10 +243,12 @@ To use this function, you need to provide the normalized training (**Train_Norm_
 
 ## Example Code
 ```{r, warning=FALSE, message=FALSE }
-# Step 4b - Univariate  Survival Significant Feature Selection.
+# Step 4b Univariate  Survival Significant Feature Selection.
 
-# load normalized train and test data
+# load normalized train  data
 data(Train_Norm_data, package = "CPSM")
+
+# load normalized test  data
 data(Test_Norm_data, package = "CPSM")
 
 # Call/Run function to select features using Univariate COX method
@@ -265,6 +267,10 @@ Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
 
 # view top features (from selected set) using Univariate Cox regression
 print(head(Univariate_Suv_Sig_G_L))
+
+# Access output - ZPH test results
+ZPH_test <- Result_Uni$ZPH_Genes
+str(ZPH_test)
 
 # Access output - Train data with only sig features
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
