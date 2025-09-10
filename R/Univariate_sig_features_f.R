@@ -134,7 +134,13 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
         (median(tr_data1[1, i])), data = tr_data1)
     
      # Perform zph test and store results
-    zph_results_genes[[colnames(tr_data1[i])]] <- cox.zph(fit1.coxph)
+   zph_results_genes[[colnames(tr_data1[i])]] <- tryCatch(
+   cox.zph(fit1.coxph),
+   error = function(e) {
+    message("ZPH test failed for ", colnames(tr_data1[i]), ": ", e$message)
+    return(NA)
+  }
+)
     # coeff
     first <- coef(summary(fit1.coxph))
 
