@@ -85,6 +85,9 @@ combined_df <- cbind(
     "expression"
   )))
 )
+
+#------------------------  OUTPUTS ---------------------#
+# view output file
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
 str(New_data[1:10])
 ```
@@ -102,10 +105,18 @@ The output from the previous step, **`New_data`**, serves as the input for this 
 data(New_data, package = "CPSM")
 # Call the function
 result <- tr_test_f(data = New_data, fraction = 0.9)
-# Access the train and test data
+
+#------------------------  OUTPUTS ---------------------#
+# Access  output from the function :train and test data
 train_FPKM <- result$train_data
+
+# view output : train data
 str(train_FPKM[1:10])
+
+# Access output - test data
 test_FPKM <- result$test_data
+
+#view output : test data
 str(test_FPKM[1:10])
 ```
 ## Outputs
@@ -128,13 +139,21 @@ Result_N_data <- train_test_normalization_f(
   test_data = test_FPKM,
   col_num = 21
 )
+
+#------------------------  OUTPUTS ---------------------#
 # Access the Normalized train and test data
 Train_Clin <- Result_N_data$Train_Clin
 Test_Clin <- Result_N_data$Test_Clin
 Train_Norm_data <- Result_N_data$Train_Norm_data
 Test_Norm_data <- Result_N_data$Test_Norm_data
+
+# view output - train clinincal data 
 str(Train_Clin[1:10])
+
+# view output - Train normalized data
 str(Train_Norm_data[1:10])
+
+
 ```
 ## Outputs
 After running the function, four outputs objects are generated: **`Train_Clin`** (which contains only clinical features from the training data), **`Test_Clin`** (which contains only clinical features from the test data), **`Train_Norm_data`** (which includes clinical features and normalized gene expression values for the training samples), and **`Test_Norm_data`** (which includes clinical features and normalized gene expression values for the test samples).
@@ -163,6 +182,8 @@ Result_PI <- Lasso_PI_scores_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
 #view top features (from selected set) with beta coeff values
 print(head(Train_Lasso_key_variables))
@@ -198,6 +219,8 @@ Result_Uni <- Univariate_sig_features_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
 Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
 Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
@@ -255,6 +278,9 @@ Result_Model_Type1 <- MTLR_pred_model_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
+
 survCurves_data <- Result_Model_Type1$survCurves_data
 mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
 survival_result_bas_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
@@ -286,6 +312,8 @@ Result_Model_Type2 <- MTLR_pred_model_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
 survCurves_data <- Result_Model_Type2$survCurves_data
 mean_median_surviv_tim_da <- Result_Model_Type2$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
@@ -317,6 +345,8 @@ Result_Model_Type3 <- MTLR_pred_model_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
 survCurves_data <- Result_Model_Type3$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type3$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
@@ -348,6 +378,8 @@ Result_Model_Type5 <- MTLR_pred_model_f(
   surv_time = "OS_month",
   surv_event = "OS"
 )
+
+#------------------------  OUTPUTS ---------------------#
 survCurves_data <- Result_Model_Type5$survCurves_data
 mean_median_surv_tim_da <- Result_Model_Type5$mean_median_survival_time_data
 survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
@@ -393,6 +425,8 @@ plots <- surv_curve_plots_f(
   all_line_col = "grey70", 
   highlight_col = "red"
 )
+
+#------------------------  OUTPUTS ---------------------#
 # Print the plots
 print(plots$all_patients_plot)
 print(plots$highlighted_patient_plot)
@@ -422,6 +456,8 @@ plots_2 <- mean_median_surv_barplot_f(
     mean_median_survival_time_data,
   selected_sample = "TCGA-TQ-A7RQ-01"
 )
+
+#------------------------  OUTPUTS ---------------------#
 # Print the plots
 print(plots_2$mean_med_all_pat)
 print(plots_2$highlighted_selected_pat)
@@ -468,6 +504,7 @@ Results_Risk_group_Prediction <- predict_survival_risk_group_f(
   Feature_List = Key_PI_list
 )
 
+#------------------------  OUTPUTS ---------------------#
 #Performance of the best model on Training and Test data
 Best_model_Prediction_results<- Results_Risk_group_Prediction$misclassification_results 
 print(head(Best_model_Prediction_results))
@@ -533,6 +570,8 @@ KM_plot <- km_overlay_plot_f( Train_results = Train_results,
   	annotation_col    = "black"            # annotation text in black 
 )
 
+#------------------------  OUTPUTS ---------------------#
+
 # Display plot
 KM_plot
 ```
@@ -573,6 +612,8 @@ Result_Nomogram <- Nomogram_generate_f(
   label_margin = 0.5,
   col_grid = gray(c(0.85, 0.95))
 )
+#------------------------  OUTPUTS ---------------------#
+
 C_index_mat <- Result_Nomogram$C_index_mat
 #display C-index
 print(C_index_mat)

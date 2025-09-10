@@ -134,7 +134,18 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
         (median(tr_data1[1, i])), data = tr_data1)
     # coeff
     first <- coef(summary(fit1.coxph))
+    
+    # proportional hazards assumption test
+    zph_test <- tryCatch({
+    cox.zph(fit1.coxph)
+    }, error = function(e) NULL)
 
+   # extract global test p-value (if available)
+   zph_p <- if (!is.null(zph_test)) {
+   zph_test$table[nrow(zph_test$table), "p"]
+   } else {
+   NA
+   }
     # Check whether the p-value is significant (< 0.05) or not
     if ((first[5] <= 0.05) && (!is.na(first[5])) && (!is.na(first[2]))) {
       # Store results in the list
@@ -147,7 +158,8 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
         GP2 = fit1$n[2],
         `Hr-Inv-lst` = 1 / first[2],
         Concordance = fit1.coxph$concordance[6],
-        Std_Error = fit1.coxph$concordance[7]
+        Std_Error = fit1.coxph$concordance[7],
+        PH_test_p = zph_p
       )
     }
   }
@@ -204,7 +216,16 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
         fit2.coxph <- coxph(surv_object ~ tr_data2[, i], data = tr_data2)
         # Coeff
         first2 <- coef(summary(fit2.coxph))
+        # proportional hazards assumption
+        zph_test2 <- tryCatch({
+        cox.zph(fit2.coxph)
+        }, error = function(e) NULL)
 
+       zph_p2 <- if (!is.null(zph_test2)) {
+       zph_test2$table[nrow(zph_test2$table), "p"]
+       } else {
+       NA
+       }
         # Check whether the p-value is significant (< 0.05) or not
         if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))) {
           # Store results in the list
@@ -217,7 +238,8 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
             GP2 = fit2$n[2],
             `Hr-Inv-lst` = 1 / first2[2],
             Concordance = fit2.coxph$concordance[6],
-            Std_Error = fit2.coxph$concordance[7]
+            Std_Error = fit2.coxph$concordance[7],
+            PH_test_p = zph_p2
           )
         }
       },
