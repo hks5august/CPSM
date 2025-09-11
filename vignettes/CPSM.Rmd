@@ -90,6 +90,9 @@ combined_df <- cbind(
   )))
 )
 
+# View top rows and first 50 columns of data
+print(head(Example_TCGA_LGG_FPKM_data[1:50]),5)
+
 #------------------------ OUTPUTS ---------------------#
 # Access the output of function
 New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
@@ -141,7 +144,14 @@ For this function, you need to provide the training and test datasets obtained f
 
 #load train and test data from package
 data(train_FPKM, package = "CPSM")
+
+# View top rows and first 50 columns of data
+print(head(train_FPKM[1:50]),5)
+
 data(test_FPKM, package = "CPSM")
+
+# View top rows and first 50 columns of data
+print(head(test_FPKM[1:50]),5)
 
 # Call function to Normalize the training and test data sets
 Result_N_data <- train_test_normalization_f(
