@@ -90,8 +90,8 @@ combined_df <- cbind(
   )))
 )
 
-# View top rows and first 50 columns of data
-print(head(Example_TCGA_LGG_FPKM_data[1:50]),5)
+# View top rows and first 30 columns of data
+print(head(Example_TCGA_LGG_FPKM_data[1:30]),2)
 
 #------------------------ OUTPUTS ---------------------#
 # Access the output of function
@@ -469,6 +469,9 @@ data(Test_PI_data, package = "CPSM")
 
 # Load a list of feature containing Clinical feature along with PI
 data(Key_Clin_features_with_PI_list, package = "CPSM")
+
+# View top rows of feature list
+print(head(Key_Clin_features_with_PI_list))
 
 # Call/Run function to develop MTLR prediction model based on PI score with Clinical features
 Result_Model_Type3 <- MTLR_pred_model_f(
