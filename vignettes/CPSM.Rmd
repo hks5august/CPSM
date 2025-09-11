@@ -268,10 +268,6 @@ Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
 # view top features (from selected set) using Univariate Cox regression
 print(head(Univariate_Suv_Sig_G_L))
 
-# Access output - ZPH test results
-ZPH_test <- Result_Uni$ZPH_Genes
-str(ZPH_test)
-
 # Access output - Train data with only sig features
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
 
@@ -290,6 +286,13 @@ Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
 # view A table of univariate significant clinical feature
 print(head(Uni_Sur_Sig_clin_List))
 
+
+# Access output - ZPH test results
+ZPH_test <- Result_Uni$ZPH_Genes
+
+# View ZPH (diagnostics test) results - 
+#str(ZPH_test[1:10])
+head(ZPH_test[1:10])
 
 ```
 ## Outputs
@@ -337,6 +340,8 @@ data(Test_Clin, package = "CPSM")
 
 # Load a list of selected features
 data(Key_Clin_feature_list, package = "CPSM")
+
+print(Key_Clin_feature_list)
 
 # Call/Run function to develop MTLR model
 Result_Model_Type1 <- MTLR_pred_model_f(
