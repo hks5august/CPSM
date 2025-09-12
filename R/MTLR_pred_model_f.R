@@ -482,8 +482,26 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # develop MTLR model
     # create formula
     formula3 <- survival::Surv(OS_month, OS) ~ .
+    
+    # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula3,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = 5,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = F)
+
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+   # Fit final MTLR model
+    Mod3 <- MTLR::mtlr(formula = formula3, data = sel_clin_tr2, C1 = best_C1)
     #  make our model
-    Mod3 <- mtlr(formula = formula3, data = sel_clin_tr2)
+    #Mod3 <- mtlr(formula = formula3, data = sel_clin_tr2)
 
     # Model Predictions
     # Predictions on training data
@@ -647,9 +665,25 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # develop model using MTLR
     # craete formula
     formula5 <- survival::Surv(OS_month, OS) ~ .
-    # Next, we just need the data argument which in our case is training.
-    # We can finally make our first model!
-    Mod5 <- mtlr(formula = formula5, data = sel_clin_tr2)
+
+    # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula5,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = 5,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = F)
+
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+   # Fit final MTLR model
+    Mod5 <- MTLR::mtlr(formula = formula5, data = sel_clin_tr2, C1 = best_C1)
+    #Mod5 <- mtlr(formula = formula5, data = sel_clin_tr2)
 
     # Model Predictions
     # Predictions on training data
