@@ -146,12 +146,12 @@ For this function, you need to provide the training and test datasets obtained f
 data(train_FPKM, package = "CPSM")
 
 # View top rows and first 50 columns of data
-print(head(train_FPKM[1:50]),5)
+print(head(train_FPKM[1:30]),5)
 
 data(test_FPKM, package = "CPSM")
 
 # View top rows and first 50 columns of data
-print(head(test_FPKM[1:50]),5)
+print(head(test_FPKM[1:30]),5)
 
 # Call function to Normalize the training and test data sets
 Result_N_data <- train_test_normalization_f(
