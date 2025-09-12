@@ -127,11 +127,9 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Best C1
     best_C1 <- cv_result$best_C1
     
-    # Fit final MTLR model using selected C1
-    Mod2 <- MTLR::mtlr(formula = formula2, data = sel_clin_tr2, C1 = best_C1) 
    # Fit final MTLR model
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
-     #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
+    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
     
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
