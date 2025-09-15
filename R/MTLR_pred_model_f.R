@@ -24,6 +24,8 @@
 #' model.
 #' @param surv_time A string specifying the name of the survival time column.
 #' @param surv_event A string specifying the name of the survival event column.
+#' @param nfolds An integer specifying the number of folds for cross-validation.
+#' Default is \code{5}.
 #'
 #' @return A list containing the following components:
 #' \item{Model}{The fitted MTLR model.}
@@ -53,7 +55,8 @@
 #'    test_features_data = Test_Clin,
 #'    Clin_Feature_List = Key_Clin_feature_list,
 #'    surv_time = "OS_month",
-#'    surv_event = "OS"
+#'    surv_event = "OS",
+#'    nfolds = 5
 #'   )
 #'
 #'
@@ -62,7 +65,7 @@
 
 MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
                               train_features_data, test_features_data,
-                              Clin_Feature_List, surv_time, surv_event) {
+                              Clin_Feature_List, surv_time, surv_event, nfolds = 5) {
   # Check if any input variable is empty
   if (length(train_clin_data) == 0 || length(test_clin_data) == 0 ||
     length(Model_type) == 0 || length(train_features_data) == 0 ||
@@ -119,7 +122,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
     previous_weights = FALSE,   # avoids seed_weights mismatch
-    nfolds = 5,                  # number of CV folds
+    nfolds = nfolds,                  # number of CV folds by default nfolds =5
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
     verbose = F)
@@ -306,7 +309,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
     previous_weights = FALSE,   # avoids seed_weights mismatch
-    nfolds = 5,                  # number of CV folds
+    nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
     verbose = F)
@@ -490,7 +493,7 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
     previous_weights = FALSE,   # avoids seed_weights mismatch
-    nfolds = 5,                  # number of CV folds
+    nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
     verbose = F)
@@ -673,7 +676,7 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
     previous_weights = FALSE,   # avoids seed_weights mismatch
-    nfolds = 5,                  # number of CV folds
+    nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
     verbose = F)
