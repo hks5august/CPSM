@@ -27,8 +27,8 @@
 #' )
 #'
 #' @export
-utils::globalVariables(c("OS_month"))
 
+utils::globalVariables(c("OS_month"))
 
 data_process_f <- function(data, col_num, surv_time) {
   # Check if any input variable is empty or missing

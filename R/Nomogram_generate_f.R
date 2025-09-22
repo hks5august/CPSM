@@ -22,12 +22,11 @@
 #' @param tcl_len Numeric. Tick length on axes (tcl). Default is 0.5
 #' @param label_margin Numeric. Margin for variable labels (lmgp). Default is 0.5
 #' @param col_grid Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95))
-
-#' \itemize{
-#'   \item \code{C_index_mat}: A matrix containing the bias-corrected and
-#'   original C-index values.
-#' }
 #'
+#' @return A list containing:
+#' \itemize{
+#'   \item \code{C_index_mat}: A matrix containing the bias-corrected and original C-index values.
+#' }
 #'
 #' The following steps are performed:
 #' \itemize{
