@@ -38,10 +38,12 @@ event status in the input data (1 for event, 0 for censored).}
 
 \item{label_margin}{Numeric. Margin for variable labels (lmgp). Default is 0.5}
 
-\item{col_grid}{Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95))
+\item{col_grid}{Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95))}
+}
+\value{
+A list containing:
 \itemize{
-\item \code{C_index_mat}: A matrix containing the bias-corrected and
-original C-index values.
+\item \code{C_index_mat}: A matrix containing the bias-corrected and original C-index values.
 }
 
 The following steps are performed:
@@ -53,7 +55,7 @@ The following steps are performed:
 \item Generates the nomogram with survival probabilities at specified
 time points.
 \item Validates the model and computes C-index values.
-}}
+}
 }
 \description{
 Nomogram Generation Function
