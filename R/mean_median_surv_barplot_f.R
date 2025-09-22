@@ -98,7 +98,7 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample,
         ""
       )),
       vjust = -0.2, hjust = -0.2, angle = 90, 
-      position = position_dodge(width = 0.75), 
+      position = position_dodge(width = 0.65), 
       color = font_color, size = font_size / 2.5
       ) +
 
