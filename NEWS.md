@@ -86,3 +86,12 @@
 - Updated `DESCRIPTION` file:
   - Added contributors (`ctb`) to `Authors@R`.
   - Bumped version from 1.1.2 to 1.1.3.
+
+# CPSM 1.1.4
+## Updates
+- Updated Lasso_PI_scores_f.R, MTLR_pred_model_f.R, Univariate_sig_features_f.R, km_overlay_plot_f.R, mean_median_surv_barplot_f.R, surv_curve_plots_f.R, predict_survival_risk_group_f.R  to provide customization for user  in cross-validation , Font-size and figure styling etc.
+- Updated MTLR_pred_model_f.R to compute IBS (integrated brier score)
+- Updated vignettes/CPSM.Rmd to provide improve description and workflow
+- Updated tests/testthat files to incoprate updated changes
+- Updated `DESCRIPTION` file:
+  - Bumped version from 1.1.3 to 1.1.4.

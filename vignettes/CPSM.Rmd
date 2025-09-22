@@ -1,7 +1,7 @@
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-date: 'September 4, 2025'
+date: 'September 23, 2025'
 output: 
   BiocStyle::html_document: default
 vignette: >
@@ -719,11 +719,22 @@ data(mean_median_survival_time_data, package = "CPSM")
 # View top rows of data 
 print(head(mean_median_survival_time_data),3)
 
+custom_colors <- c(
+  "TRUE.Mean"   = "darkgreen",
+  "TRUE.Median" = "purple",
+  "FALSE.Mean"  = "skyblue",
+  "FALSE.Median"= "gray70"
+)
+
 # Call/Run functions to plot barplot 
 plots_2 <- mean_median_surv_barplot_f(
   surv_mean_med_data =
     mean_median_survival_time_data,
-  selected_sample = "TCGA-TQ-A7RQ-01"
+  selected_sample = "TCGA-TQ-A7RQ-01",
+  font_size = 10,
+  font_color = "darkred",
+  bar_colors = custom_colors
+
 )
 
 #------------------------  OUTPUTS ---------------------#
