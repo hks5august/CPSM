@@ -125,14 +125,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     nfolds = nfolds,                  # number of CV folds by default nfolds =5
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    verbose = FALSE)
 
     # Best C1
     best_C1 <- cv_result$best_C1
     
-   # Fit final MTLR model
+    # Fit final MTLR model
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
-    #Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)  
     
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
@@ -299,8 +298,6 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # create MTLR  model
     formula2 <- survival::Surv(OS_month, OS) ~ .
-
-    #Mod2 <- mtlr(formula = formula2, data = sel_clin_tr2)
     
     # Cross-validation to select best C1
     cv_result <- MTLR::mtlr_cv(
@@ -312,7 +309,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    verbose = FALSE)
 
     # Best C1
     best_C1 <- cv_result$best_C1
@@ -496,16 +493,13 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    verbose = FALSE)
 
     # Best C1
     best_C1 <- cv_result$best_C1
     
-   # Fit final MTLR model
+    # Fit final MTLR model
     Mod3 <- MTLR::mtlr(formula = formula3, data = sel_clin_tr2, C1 = best_C1)
-    #  make our model
-    #Mod3 <- mtlr(formula = formula3, data = sel_clin_tr2)
-
     # Model Predictions
     # Predictions on training data
     survival_curves_tr3 <- predict(Mod3, sel_clin_tr2, type = "survivalcurve")
@@ -679,14 +673,13 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     nfolds = nfolds,                  # number of CV folds
     foldtype = "fullstrat",      # can also use "censorstrat" or "random"
     loss = "ll",                 # can also use "concordance"
-    verbose = F)
+    verbose = FALSE)
 
     # Best C1
     best_C1 <- cv_result$best_C1
     
-   # Fit final MTLR model
+    # Fit final MTLR model
     Mod5 <- MTLR::mtlr(formula = formula5, data = sel_clin_tr2, C1 = best_C1)
-    #Mod5 <- mtlr(formula = formula5, data = sel_clin_tr2)
 
     # Model Predictions
     # Predictions on training data
