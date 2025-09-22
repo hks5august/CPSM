@@ -97,8 +97,8 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample,
       aes(label = ifelse(IDs == Selected_patient, round(value, 2),
         ""
       )),
-      vjust = -0.1, hjust = -0.1, angle = 90,  
-      color = font_color, size = font_size / 2.5
+      vjust = -0.2, hjust = -0.2, angle = 45,  
+      color = font_color, size = font_size / 3.5
       ) +
 
     # Customize the fill colors with a legend
