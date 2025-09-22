@@ -128,7 +128,7 @@ mean_median_surv_barplot_f <- function(surv_mean_med_data, selected_sample,
       axis.text.y = element_text(size = font_size, color = font_color),
       axis.title = element_text(size = font_size + 2, color = font_color),
       plot.title = element_text(size = font_size + 4, color = font_color)
-    ))
+    )
 
   # Display the plot
   # Return the plots as a list
