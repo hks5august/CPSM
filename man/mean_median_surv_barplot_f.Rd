@@ -9,6 +9,15 @@ for patients}
 
 \item{selected_sample}{:args2 - ID of the sample for which user want to
 highlight in the plot.}
+
+\item{font_size}{Numeric: Font size for axis text and labels (default = 8)}
+
+\item{font_color}{Character: Font color for text/labels (default = "black")}
+
+\item{bar_colors}{Named vector: Custom bar colors for highlighted and other patients.
+Defaults to:
+\code{c("TRUE.Mean" = "red", "TRUE.Median" = "blue",
+           "FALSE.Mean" = "lightgray", "FALSE.Median" = "darkgray")}}
 }
 \value{
 A list containing two \code{ggplot} objects:
@@ -31,7 +40,11 @@ data(mean_median_survival_time_data, package = "CPSM")
 mean_median_surv_barplot_f(
   surv_mean_med_data =
     mean_median_survival_time_data,
-  selected_sample = "TCGA-TQ-A8XE-01"
+  selected_sample = "TCGA-TQ-A8XE-01",
+  font_size = 10,
+  font_color = "darkblue",
+  bar_colors = c("TRUE.Mean" = "green", "TRUE.Median" = "purple",
+                 "FALSE.Mean" = "lightblue", "FALSE.Median" = "gray70")
 )
 
 }
