@@ -722,7 +722,7 @@ print(head(mean_median_survival_time_data),3)
 custom_colors <- c(
   "TRUE.Mean"   = "cyan",
   "TRUE.Median" = "pink",
-  "FALSE.Mean"  = "darkgary",
+  "FALSE.Mean"  = "gray90",
   "FALSE.Median"= "gray70"
 )
 
@@ -732,7 +732,7 @@ plots_2 <- mean_median_surv_barplot_f(
     mean_median_survival_time_data,
   selected_sample = "TCGA-TQ-A7RQ-01",
   font_size = 8,
-  font_color = "red",
+  font_color = "black",
   bar_colors = custom_colors
 
 )
