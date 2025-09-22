@@ -39,6 +39,17 @@
 #'
 #' @param selected_sample The `Sample_ID` of the selected test sample for which the user wants to plot the overlayed Kaplan-Meier plot.
 #'   The `Sample_ID` should be present in the `Test_results` data frame.
+#' @param font_size Numeric. Base font size for the plot text (axis labels, legend, and title).
+#'   Default is 12.
+#'
+#' @param train_palette Character vector of colors for training group curves (e.g., c("red", "blue")).
+#'   Default is c("red", "blue").
+#'
+#' @param test_line_col Character. Color of the overlaid test sample curve.
+#'   Default is "darkgreen".
+#'
+#' @param test_line_type Character. Line type of the overlaid test sample curve (e.g., "dashed", "solid").
+#'   Default is "dashed".
 #'
 #' @return A `ggplot` object (from `ggsurvplot`) showing:
 #'   - Kaplan-Meier survival curves for the training dataset, stratified by predicted risk group.
@@ -54,51 +65,37 @@
 #' # Example usage of the km_overlay_plot_f function
 #'
 #' # Example Train_results data frame
-#' Train_results <- data.frame(
-#'   Sample_ID = c("TCGA-TQ-A7RQ-01", "TCGA-TQ-A7RQ-02", "TCGA-TQ-A7RQ-03"),
-#'   Actual = c("TCGA-TQ-A7RQ-01", "TCGA-TQ-A7RQ-02", "TCGA-TQ-A7RQ-03"),
-#'   Predicted_Risk_Group = c("High_Risk", "Low_Risk", "High_Risk"),
-#'   High_Risk_Prob = c(0.8, 0.3, 0.85),
-#'   Low_Risk_Prob = c(0.2, 0.7, 0.15),
-#'   Prediction_Prob = c(0.8, 0.7, 0.85),
-#'   OS_month = c(12, 24, 6),
-#'   OS_event = c(1, 0, 1)
-#' )
-#'
-#' # Example Test_results data frame
-#' Test_results <- data.frame(
-#'   Sample_ID = c("TCGA-TQ-A7RQ-04", "TCGA-TQ-A7RQ-05"),
-#'   Actual = c("TCGA-TQ-A7RQ-04", "TCGA-TQ-A7RQ-05"),
-#'   Predicted_Risk_Group = c("Low_Risk", "High_Risk"),
-#'   High_Risk_Prob = c(0.25, 0.9),
-#'   Low_Risk_Prob = c(0.75, 0.1),
-#'   Prediction_Prob = c(0.75, 0.9),
-#'   OS_month = c(18, 30),
-#'   OS_event = c(0, 1)
-#' )
-#'
-#' # Example survival probability data frame for test samples
-#' survCurves_data <- data.frame(
-#'   time_point = c(0, 6, 12, 18, 24, 30),
-#'   TCGA_TQ_A7RQ_04 = c(1, 0.85, 0.7, 0.5, 0.3, 0.1),
-#'   TCGA_TQ_A7RQ_05 = c(1, 0.95, 0.85, 0.65, 0.45, 0.25)
-#' )
+#' # Load example data included in the package
+#' data(Train_results, package = "CPSM")
+#' data(Test_results, package = "CPSM")
+#' data(survCurves_data, package = "CPSM")
 #'
 #' # Generate Kaplan-Meier plot with overlay
 #' KM_plot_results <- km_overlay_plot_f(
 #'   Train_results = Train_results,
 #'   Test_results = Test_results,
 #'   survcurve_te_data = survCurves_data,
-#'   selected_sample = "TCGA-TQ-A7RQ-04"
+#'   selected_sample = "TCGA-TQ-A7RQ-04",
+#'   font_size = 14,
+#'   train_palette = c("purple", "orange"),
+#'   test_curve_col = "black",
+#'   test_curve_lty = "solid"
 #' )
-#'
 #'
 #' @export
 
 
 utils::globalVariables(c("time", "surv"))
 
-km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, selected_sample) {
+km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, selected_sample,
+				font_size = 12,                    # dynamic font size
+  				train_palette = c("red", "blue"),  # colors for risk groups
+  				test_curve_col = "darkgreen",      # color of test sample curve
+  				test_curve_size = 0.8,             # line size of test sample curve
+  				test_curve_lty = "dashed",         # line type of test sample curve
+  				annotation_col = "darkgreen"       # annotation text color
+			) {
+
 
   # Check Train_results
   if (missing(Train_results) || is.null(Train_results) || !is.data.frame(Train_results)) {
@@ -145,8 +142,8 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
     break.time.by = 6,
     pval = FALSE,
     censor = TRUE,
-    palette = c("red", "blue"),
-    ggtheme = theme_minimal(),
+    palette = train_palette,              #  dynamic color
+    ggtheme = theme_minimal(base_size = font_size),  # dynamic font size
     surv.median.line = "hv",
     title = "Kaplan-Meier Plot: Prediction of Test Sample in Comparison to Risk Groups of Training Data"
   )
@@ -178,9 +175,9 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
     geom_step(
       data = test_curve,
       aes(x = time, y = surv),
-      color = "darkgreen",
-      size = 0.6,
-      linetype = "dashed"
+       color = test_curve_col,          #  dynamic
+       size = test_curve_size,            # dynamic
+       linetype = test_curve_lty          # dynamic
     ) +
 
     annotate(
@@ -190,7 +187,8 @@ km_overlay_plot_f <- function(Train_results, Test_results, survcurve_te_data, se
       label = paste("Sample:", selected_sample,
                     "\nPredicted Risk:", selected_test_pred_risk,
                     "\nPrediction Probability:", round(selected_test_pred_Prob, 3)),
-      color = "darkgreen",
+      #color = "darkgreen",
+      color = annotation_col,
       fontface = "bold",
       hjust = 0
     )

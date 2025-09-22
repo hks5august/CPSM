@@ -12,7 +12,8 @@ MTLR_pred_model_f(
   test_features_data,
   Clin_Feature_List,
   surv_time,
-  surv_event
+  surv_event,
+  nfolds = 5
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ model.}
 \item{surv_time}{A string specifying the name of the survival time column.}
 
 \item{surv_event}{A string specifying the name of the survival event column.}
+
+\item{nfolds}{An integer specifying the number of folds for cross-validation.
+Default is \code{5}.}
 }
 \value{
 A list containing the following components:
@@ -71,7 +75,8 @@ result <- MTLR_pred_model_f(
    test_features_data = Test_Clin,
    Clin_Feature_List = Key_Clin_feature_list,
    surv_time = "OS_month",
-   surv_event = "OS"
+   surv_event = "OS",
+   nfolds = 5
   )
 
 

@@ -4,7 +4,17 @@
 \alias{Nomogram_generate_f}
 \title{Nomogram Generation Function}
 \usage{
-Nomogram_generate_f(data, Feature_List, surv_time, surv_event)
+Nomogram_generate_f(
+  data,
+  Feature_List,
+  surv_time,
+  surv_event,
+  font_size = 0.8,
+  axis_cex = 0.5,
+  tcl_len = 0.5,
+  label_margin = 0.5,
+  col_grid = gray(c(0.85, 0.95))
+)
 }
 \arguments{
 \item{data}{A data frame containing survival information and predictor
@@ -19,12 +29,21 @@ time in the input data.}
 
 \item{surv_event}{A character string specifying the column name for survival
 event status in the input data (1 for event, 0 for censored).}
+
+\item{font_size}{Numeric. Base font size for the nomogram plot. Default is 0.8}
+
+\item{axis_cex}{Numeric. Scaling factor for axis text size (cex.axis). Default is 0.5}
+
+\item{tcl_len}{Numeric. Tick length on axes (tcl). Default is 0.5}
+
+\item{label_margin}{Numeric. Margin for variable labels (lmgp). Default is 0.5}
+
+\item{col_grid}{Color vector. Grid line colors for the nomogram plot. Default is gray(c(0.85, 0.95))}
 }
 \value{
-A list with the following components:
+A list containing:
 \itemize{
-\item \code{C_index_mat}: A matrix containing the bias-corrected and
-original C-index values.
+\item \code{C_index_mat}: A matrix containing the bias-corrected and original C-index values.
 }
 
 The following steps are performed:
@@ -52,8 +71,15 @@ nomogram. The function uses internal validation with bootstrapping
 data(Train_Data_Nomogram_input, package = "CPSM")
 data(feature_list_for_Nomogram, package = "CPSM")
 Nomogram_generate_f(
-  data = Train_Data_Nomogram_input, Feature_List =
-    feature_list_for_Nomogram, surv_time = "OS_month", surv_event = "OS"
+  data = Train_Data_Nomogram_input,
+  Feature_List = feature_list_for_Nomogram,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  font_size = 0.8,
+  axis_cex = 0.5,
+  tcl_len = 0.5,
+  label_margin = 0.5,
+  col_grid = gray(c(0.85, 0.95))
 )
 
 }

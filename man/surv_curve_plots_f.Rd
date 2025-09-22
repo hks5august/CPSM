@@ -10,6 +10,18 @@ other columns corresponding to patient survival probabilities.}
 
 \item{selected_sample}{A character string specifying the patient ID to be
 highlighted in the plot.}
+
+\item{font_size}{Numeric. Font size for axis labels, titles, and legends.
+Must be supplied by the user.}
+
+\item{line_size}{Numeric. Line thickness for plotted curves. Must be supplied
+by the user.}
+
+\item{all_line_col}{Character. Color used for all non-highlighted patients
+(e.g., \code{"black"}). Must be supplied by the user.}
+
+\item{highlight_col}{Character. Color used to highlight the selected patient
+(e.g., \code{"red"}). Must be supplied by the user.}
 }
 \value{
 A list containing two ggplot2 objects:
@@ -42,7 +54,14 @@ Surv_curve_data <- data.frame(
 )
 
 # Generate plots with Patient1 highlighted
-plots <- surv_curve_plots_f(Surv_curve_data, selected_sample = "Patient1")
+plots <- surv_curve_plots_f(
+  Surv_curve_data,
+  selected_sample = "Patient1",
+  font_size = 12,
+  line_size = 0.5,
+  all_line_col = "black",
+  highlight_col = "red"
+)
 
 # View the plots
 print(plots$all_patients_plot)

@@ -24,6 +24,8 @@
 #' model.
 #' @param surv_time A string specifying the name of the survival time column.
 #' @param surv_event A string specifying the name of the survival event column.
+#' @param nfolds An integer specifying the number of folds for cross-validation.
+#' Default is \code{5}.
 #'
 #' @return A list containing the following components:
 #' \item{Model}{The fitted MTLR model.}
@@ -37,7 +39,8 @@
 #' @import survival
 #' @import survminer
 #' @import MTLR
-#' @importFrom stats median complete.cases
+#' @importFrom SurvMetrics IBS
+#' @importFrom stats median complete.cases model.matrix
 #'
 #' @examples
 #' # Example usage of the MTLR_pred_model_f function
@@ -52,7 +55,8 @@
 #'    test_features_data = Test_Clin,
 #'    Clin_Feature_List = Key_Clin_feature_list,
 #'    surv_time = "OS_month",
-#'    surv_event = "OS"
+#'    surv_event = "OS",
+#'    nfolds = 5
 #'   )
 #'
 #'
@@ -61,7 +65,7 @@
 
 MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
                               train_features_data, test_features_data,
-                              Clin_Feature_List, surv_time, surv_event) {
+                              Clin_Feature_List, surv_time, surv_event, nfolds = 5) {
   # Check if any input variable is empty
   if (length(train_clin_data) == 0 || length(test_clin_data) == 0 ||
     length(Model_type) == 0 || length(train_features_data) == 0 ||
@@ -99,16 +103,35 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     sel_clin_te <- as.data.frame(te_clin1[, colnames(te_clin1) %in%
         c(ftr_list$ID), ])
-    # add survival information
+   
+     # add survival information
     sel_clin_tr1 <- cbind(tr_clin1["OS"], tr_clin1["OS_month"], sel_clin_tr)
     sel_clin_te1 <- cbind(te_clin1["OS"], te_clin1["OS_month"], sel_clin_te)
     # create training and test data after removing NA values
     sel_clin_te2 <- na.omit(sel_clin_te1)
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
+
     # create MTLR  model
-    formula1 <- survival::Surv(OS_month, OS) ~ .
-    # make  model!
-    Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2)
+    formula1 <- survival::Surv(OS_month, OS) ~ . 
+   
+      
+   # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula1,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = nfolds,                  # number of CV folds by default nfolds =5
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = FALSE)
+
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+    # Fit final MTLR model
+    Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
     
     # Predictions on training data
     survival_curves_tr <- predict(Mod1, sel_clin_tr2, type = "survivalcurve")
@@ -203,13 +226,58 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te <- round(mean(abs(survival_summary_te$OS_month - survival_summary_te$Mean), na.rm = TRUE), 2)
     median_mae_te <- round(median(abs(survival_summary_te$OS_month - survival_summary_te$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
-    Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
+    #Error_mat_tr <- cbind(c_index1_tr,  mean_mae_tr,  median_mae_tr)
+    #Error_mat_te <- cbind(c_index1_te,  mean_mae_te,  median_mae_te)
     
-    Error_mat <- rbind(Error_mat_tr , Error_mat_te)
-    colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #Error_mat <- rbind(Error_mat_tr , Error_mat_te)
+    #colnames(Error_mat) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat) <- c("Training_set", "Test_set")
+   
+    # IBS calculation
+    # Training data
+    # Survival probabilities at event times
+    survivalProbs_p1_tr <- predict(Mod1, sel_clin_tr2, type = "prob_times")
+    #Prepare matrix
+    survivalProbs_t_mat_tr <-as.matrix(survivalProbs_p1_tr )
+    survivalProbs_t_mat1_tr <- survivalProbs_t_mat_tr[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_tr <- t(survivalProbs_t_mat1_tr )
+    survivalProbs_t_mat1_t2_tr <- survivalProbs_t_mat1_t_tr[,-1]    
+
+    ibs_tr <- SurvMetrics::IBS(surv_obj1_tr, sp_matrix = survivalProbs_t_mat1_t2_tr,
+                       survivalProbs_p1_tr$time[-1])
+    #Round up value
+    ibs_tr <- round(ibs_tr, 3)
+
+    #IBS calculation for Test data
+    # Predicted survival probabilities at event times
+    survivalProbs_p1_te <- predict(Mod1, sel_clin_te2, type = "prob_times")
+    
+    #Prepare matrix
+    survivalProbs_t_mat_te <-as.matrix(survivalProbs_p1_te )
+    survivalProbs_t_mat1_te <- survivalProbs_t_mat_te[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_te <- t(survivalProbs_t_mat1_te )
+    survivalProbs_t_mat1_t2_te <- survivalProbs_t_mat1_t_te[,-1]
+
+    ibs_te <- SurvMetrics::IBS(surv_obj1_te, sp_matrix = survivalProbs_t_mat1_t2_te,
+                       survivalProbs_p1_te$time[-1])
+    # Round up value
+    ibs_te <- round(ibs_te, 3) 
+    
+    #Prepare matrix combining all performance parameters
+    Error_mat_tr <- cbind(c_index1_tr, mean_mae_tr, median_mae_tr, round(ibs_tr, 3))
+    Error_mat_te <- cbind(c_index1_te, mean_mae_te, median_mae_te, round(ibs_te, 3))
+
+    #add column names
+    colnames(Error_mat_tr) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_te) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")    
+    
+    Error_mat <- rbind(Error_mat_tr , Error_mat_te) 
     rownames(Error_mat) <- c("Training_set", "Test_set")
-    
+
+
+
  }
 
 # Model2 -  Model with only PI score
@@ -230,10 +298,26 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # create MTLR  model
     formula2 <- survival::Surv(OS_month, OS) ~ .
+    
+    # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula2,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = nfolds,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = FALSE)
 
-    Mod2 <- mtlr(formula = formula2, data = sel_clin_tr2)
-
-    # Model Predictions
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+    # Fit final MTLR model using selected C1
+    Mod2 <- MTLR::mtlr(formula = formula2, data = sel_clin_tr2, C1 = best_C1)
+   
+     # Model Predictions
     # Predictions on training data
     survival_curves_tr2 <- predict(Mod2, sel_clin_tr2, type = "survivalcurve")
     mean_survival_tr2 <- predict(Mod2, sel_clin_tr2, type = "mean_time")
@@ -267,7 +351,7 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     survival_results_te2 <- cbind(
       Mean_Survival = mean_survival_te2,
       Median_Survival = median_survival_te2,
-      Event_Probability = event_probabilities_te,
+      Event_Probability = event_probabilities_te2,
       Actual_OS_Time = sel_clin_te2$OS_month,
       OS_Event = sel_clin_te2$OS
     )
@@ -327,16 +411,59 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te2 <- round(mean(abs(survival_summary_te2$OS_month - survival_summary_te2$Mean), na.rm = TRUE), 2)
     median_mae_te2 <- round(median(abs(survival_summary_te2$OS_month - survival_summary_te2$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr2 <- cbind(c_index1_tr2,  mean_mae_tr2,  median_mae_tr2)
-    Error_mat_te2 <- cbind(c_index1_te2,  mean_mae_te2,  median_mae_te2)
+    #Error_mat_tr2 <- cbind(c_index1_tr2,  mean_mae_tr2,  median_mae_tr2)
+    #Error_mat_te2 <- cbind(c_index1_te2,  mean_mae_te2,  median_mae_te2)
     
+    #Error_mat2 <- rbind(Error_mat_tr2 , Error_mat_te2)
+    #colnames(Error_mat2) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat2) <- c("Training_set", "Test_set")
+    
+    #IBS calculation for Training data
+    # Survival probabilities at event times
+    survivalProbs_p1_tr2 <- predict(Mod2, sel_clin_tr2, type = "prob_times")
+    #Prepare matrix
+    survivalProbs_t_mat_tr2 <-as.matrix(survivalProbs_p1_tr2 )
+    survivalProbs_t_mat1_tr2 <- survivalProbs_t_mat_tr2[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_tr2 <- t(survivalProbs_t_mat1_tr2 )
+    survivalProbs_t_mat1_t2_tr2 <- survivalProbs_t_mat1_t_tr2[,-1]
+
+    ibs_tr2 <- SurvMetrics::IBS(surv_obj1_tr2, sp_matrix = survivalProbs_t_mat1_t2_tr2,
+                       survivalProbs_p1_tr2$time[-1])
+    #Round up value
+    ibs_tr2 <- round(ibs_tr2, 3)
+
+    #IBS calculation for Test data
+    # Predicted survival probabilities at event times
+    survivalProbs_p1_te2 <- predict(Mod2, sel_clin_te2, type = "prob_times")
+    
+    #Prepare matrix
+    survivalProbs_t_mat_te2 <-as.matrix(survivalProbs_p1_te2 )
+    survivalProbs_t_mat1_te2 <- survivalProbs_t_mat_te2[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_te2 <- t(survivalProbs_t_mat1_te2 )
+    survivalProbs_t_mat1_t2_te2 <- survivalProbs_t_mat1_t_te2[,-1]
+
+    ibs_te2 <- SurvMetrics::IBS(surv_obj1_te2, sp_matrix = survivalProbs_t_mat1_t2_te2,
+                       survivalProbs_p1_te2$time[-1])
+    # Round up value
+    ibs_te2 <- round(ibs_te2, 3)
+
+    #Prepare matrix combining all performance parameters
+    Error_mat_tr2 <- cbind(c_index1_tr2, mean_mae_tr2, median_mae_tr2, round(ibs_tr2, 3))
+    Error_mat_te2 <- cbind(c_index1_te2, mean_mae_te2, median_mae_te2, round(ibs_te2, 3))
+
+    #add column names
+    colnames(Error_mat_tr2) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_te2) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+
     Error_mat2 <- rbind(Error_mat_tr2 , Error_mat_te2)
-    colnames(Error_mat2) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat2) <- c("Training_set", "Test_set")
+
     
-    
-#model3  
-} else if (Model_type == 3) { # Model3- Model with PI & Clin features
+} 
+#model3
+else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
         c(ftr_list$ID), ])
@@ -355,9 +482,24 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # develop MTLR model
     # create formula
     formula3 <- survival::Surv(OS_month, OS) ~ .
-    #  make our model
-    Mod3 <- mtlr(formula = formula3, data = sel_clin_tr2)
+    
+    # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula3,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = nfolds,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = FALSE)
 
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+    # Fit final MTLR model
+    Mod3 <- MTLR::mtlr(formula = formula3, data = sel_clin_tr2, C1 = best_C1)
     # Model Predictions
     # Predictions on training data
     survival_curves_tr3 <- predict(Mod3, sel_clin_tr2, type = "survivalcurve")
@@ -452,14 +594,55 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te3 <- round(mean(abs(survival_summary_te3$OS_month - survival_summary_te3$Mean), na.rm = TRUE), 2)
     median_mae_te3 <- round(median(abs(survival_summary_te3$OS_month - survival_summary_te3$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr3 <- cbind(c_index1_tr3,  mean_mae_tr3,  median_mae_tr3)
-    Error_mat_te3 <- cbind(c_index1_te3,  mean_mae_te3,  median_mae_te3)
+    #Error_mat_tr3 <- cbind(c_index1_tr3,  mean_mae_tr3,  median_mae_tr3)
+    #Error_mat_te3 <- cbind(c_index1_te3,  mean_mae_te3,  median_mae_te3)
     
+    #Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
+    #colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat3) <- c("Training_set", "Test_set")
+    
+    # IBS calculation for Training data
+    # Survival probabilities at event times
+    survivalProbs_p1_tr3 <- predict(Mod3, sel_clin_tr2, type = "prob_times")
+    #Prepare matrix
+    survivalProbs_t_mat_tr3 <-as.matrix(survivalProbs_p1_tr3 )
+    survivalProbs_t_mat1_tr3 <- survivalProbs_t_mat_tr3[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_tr3 <- t(survivalProbs_t_mat1_tr3 )
+    survivalProbs_t_mat1_t2_tr3 <- survivalProbs_t_mat1_t_tr3[,-1]
+
+    ibs_tr3 <- SurvMetrics::IBS(surv_obj1_tr3, sp_matrix = survivalProbs_t_mat1_t2_tr3,
+                       survivalProbs_p1_tr3$time[-1])
+    #Round up value
+    ibs_tr3 <- round(ibs_tr3, 3)
+
+    #IBS calculation for Test data
+    # Predicted survival probabilities at event times
+    survivalProbs_p1_te3 <- predict(Mod3, sel_clin_te2, type = "prob_times")
+    
+    #Prepare matrix
+    survivalProbs_t_mat_te3 <-as.matrix(survivalProbs_p1_te3 )
+    survivalProbs_t_mat1_te3 <- survivalProbs_t_mat_te3[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_te3 <- t(survivalProbs_t_mat1_te3 )
+    survivalProbs_t_mat1_t2_te3 <- survivalProbs_t_mat1_t_te3[,-1]
+
+    ibs_te3 <- SurvMetrics::IBS(surv_obj1_te3, sp_matrix = survivalProbs_t_mat1_t2_te3,
+                       survivalProbs_p1_te3$time[-1])
+    # Round up value
+    ibs_te3 <- round(ibs_te3, 3)
+
+    #Prepare matrix combining all performance parameters
+    Error_mat_tr3 <- cbind(c_index1_tr3, mean_mae_tr3, median_mae_tr3, round(ibs_tr3, 3))
+    Error_mat_te3 <- cbind(c_index1_te3, mean_mae_te3, median_mae_te3, round(ibs_te3, 3))
+
+    #add column names
+    colnames(Error_mat_tr3) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_te3) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+
     Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
-    colnames(Error_mat3) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat3) <- c("Training_set", "Test_set")
-    
-    
+
     
   } else if (Model_type == 4) {
     ## Univariate with Clin features ##
@@ -479,9 +662,24 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # develop model using MTLR
     # craete formula
     formula5 <- survival::Surv(OS_month, OS) ~ .
-    # Next, we just need the data argument which in our case is training.
-    # We can finally make our first model!
-    Mod5 <- mtlr(formula = formula5, data = sel_clin_tr2)
+
+    # Cross-validation to select best C1
+    cv_result <- MTLR::mtlr_cv(
+    formula = formula5,          # survival formula
+    data = sel_clin_tr2,         # training data 
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,   # avoids seed_weights mismatch
+    nfolds = nfolds,                  # number of CV folds
+    foldtype = "fullstrat",      # can also use "censorstrat" or "random"
+    loss = "ll",                 # can also use "concordance"
+    verbose = FALSE)
+
+    # Best C1
+    best_C1 <- cv_result$best_C1
+    
+    # Fit final MTLR model
+    Mod5 <- MTLR::mtlr(formula = formula5, data = sel_clin_tr2, C1 = best_C1)
 
     # Model Predictions
     # Predictions on training data
@@ -577,14 +775,55 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     mean_mae_te5 <- round(mean(abs(survival_summary_te5$OS_month - survival_summary_te5$Mean), na.rm = TRUE), 2)
     median_mae_te5 <- round(median(abs(survival_summary_te5$OS_month - survival_summary_te5$Median), na.rm = TRUE), 2)
     
-    Error_mat_tr5 <- cbind(c_index1_tr5,  mean_mae_tr5,  median_mae_tr5)
-    Error_mat_te5 <- cbind(c_index1_te5,  mean_mae_te5,  median_mae_te5)
+    #Error_mat_tr5 <- cbind(c_index1_tr5,  mean_mae_tr5,  median_mae_tr5)
+    #Error_mat_te5 <- cbind(c_index1_te5,  mean_mae_te5,  median_mae_te5)
     
+    #Error_mat5 <- rbind(Error_mat_tr5 , Error_mat_te5)
+    #colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
+    #rownames(Error_mat5) <- c("Training_set", "Test_set")
+   
+    #IBS calculation for Training data
+    # Survival probabilities at event times
+    survivalProbs_p1_tr5 <- predict(Mod5, sel_clin_tr2, type = "prob_times")
+    #Prepare matrix
+    survivalProbs_t_mat_tr5 <-as.matrix(survivalProbs_p1_tr5 )
+    survivalProbs_t_mat1_tr5 <- survivalProbs_t_mat_tr5[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_tr5 <- t(survivalProbs_t_mat1_tr5 )
+    survivalProbs_t_mat1_t2_tr5 <- survivalProbs_t_mat1_t_tr5[,-1]
+
+    ibs_tr5 <- SurvMetrics::IBS(surv_obj1_tr5, sp_matrix = survivalProbs_t_mat1_t2_tr5,
+                       survivalProbs_p1_tr5$time[-1])
+    #Round up value
+    ibs_tr5 <- round(ibs_tr5 , 3)
+
+    #IBS calculation for Test data
+    # Predicted survival probabilities at event times
+    survivalProbs_p1_te5 <- predict(Mod5, sel_clin_te2, type = "prob_times")
+    
+    #Prepare matrix
+    survivalProbs_t_mat_te5 <-as.matrix(survivalProbs_p1_te5 )
+    survivalProbs_t_mat1_te5 <- survivalProbs_t_mat_te5[,-1]
+    #Transpose
+    survivalProbs_t_mat1_t_te5 <- t(survivalProbs_t_mat1_te5 )
+    survivalProbs_t_mat1_t2_te5 <- survivalProbs_t_mat1_t_te5[,-1]
+
+    ibs_te5 <- SurvMetrics::IBS(surv_obj1_te5, sp_matrix = survivalProbs_t_mat1_t2_te5,
+                       survivalProbs_p1_te5$time[-1])
+    # Round up value
+    ibs_te5 <- round(ibs_te5, 3)
+
+    #Prepare matrix combining all performance parameters
+    Error_mat_tr5 <- cbind(c_index1_tr5, mean_mae_tr5, median_mae_tr5, round(ibs_tr5, 3))
+    Error_mat_te5 <- cbind(c_index1_te5, mean_mae_te5, median_mae_te5, round(ibs_te5, 3))
+
+    #add column names
+    colnames(Error_mat_tr5) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+    colnames(Error_mat_te5) <- c("C_index", "Mean_MAE", "Median_MAE", "IBS")
+
     Error_mat5 <- rbind(Error_mat_tr5 , Error_mat_te5)
-    colnames(Error_mat5) <- c("C_index", "Mean_MAE", "Median_MAE")
     rownames(Error_mat5) <- c("Training_set", "Test_set")
-    
-    
+ 
     
   }
   if (Model_type == 1) {
