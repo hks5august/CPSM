@@ -7,7 +7,8 @@
 predict_survival_risk_group_f(
   selected_train_data,
   selected_test_data,
-  Feature_List
+  Feature_List,
+  K = 5
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ test set.}
 
 \item{Feature_List}{A list of  features to be used for predicting the risk class in the
 model.}
+
+\item{K}{Numeric value specifying the number of folds for K-fold cross-validation (default = 5).}
 }
 \value{
 A list containing the following components:
@@ -38,6 +41,6 @@ data(Train_PI_data, package = "CPSM")
 data(Test_PI_data, package = "CPSM")
 data(Key_PI_list , package = "CPSM")
 Results_Risk_group_Prediction<-  predict_survival_risk_group_f(selected_train_data = Train_PI_data,
-selected_test_data = Test_PI_data, Feature_List = Key_PI_list )
+selected_test_data = Test_PI_data, Feature_List = Key_PI_list, K = 5 )
 
 }

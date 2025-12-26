@@ -20,6 +20,11 @@
 #' survival time in the data.
 #' @param surv_event A character string specifying the column name for
 #' survival event status in the data.
+#' @param n_repeats An integer specifying how many times repeated CV should be run to assess feature selection stability.
+#' @param alpha A numeric value (0–1) specifying the mixing parameter for Elastic Net (1 = LASSO, 0 < alpha < 1 = Elastic Net).
+#' @param freq_threshold Numeric value between 0 and 1. 
+#'   Minimum selection frequency required to retain a feature across
+#'   repeated LASSO runs (e.g., 0.6 keeps features selected in ≥60% of repeats).
 #' @return A list with the following components:
 #' \itemize{
 #'   \item \code{Train_Lasso_key_variables}: A data frame of selected key
@@ -30,6 +35,8 @@
 #'   survival time, event status, and PI.
 #'   \item \code{cvfit}: A `cv.glmnet` object representing the fitted LASSO
 #'   Cox model.
+#'   \item \code{Stability_table}: A data frame showing each feature and the
+#'   proportion of repeated CV runs in which it was selected (selection frequency).
 #' }
 #'
 #' @import survival
@@ -47,6 +54,9 @@
 #' test_data = Test_Norm_data,
 #' nfolds = 5,
 #' col_num = 21,
+#' n_repeats = 10,       
+#' alpha = 1, 
+#' freq_threshold = 0.6,      
 #' surv_time = "OS_month",
 #' surv_event = "OS")
 #'
@@ -57,7 +67,7 @@
 
 
 Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
-                              surv_time, surv_event) {
+                              surv_time, surv_event, n_repeats,  alpha, freq_threshold = 0.6) {
   # Check if any input variable is empty
   if (length(train_data) == 0 || length(test_data) == 0 ||
     length(nfolds) == 0 || length(col_num) == 0 ||
@@ -97,15 +107,63 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
   # create survival object
   surv_object <- survival::Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
+
+# Repeated CV for feature stability
+# -------------------------
+	feature_names <- colnames(tr_data1)[col_num:ncol(tr_data1)]
+	selection_matrix <- matrix(
+  	0,
+  	nrow = length(feature_names),
+  	ncol = n_repeats,
+  	dimnames = list(feature_names, paste0("Rep_", 1:n_repeats))
+	)
+
+	for (r in 1:n_repeats) {
+
+  	cvfit_tmp <- glmnet::cv.glmnet(
+    	as.matrix(tr_data1[col_num:ncol(tr_data1)]),
+   	 surv_object,
+    	family = "cox",
+    	type.measure = "C",
+    	nfolds = min(nfolds, floor(nrow(tr_data1)/2)), # safer for small n
+    	alpha = alpha,
+   	 maxit = 1000
+  	)
+
+  	coef_tmp <- coef(cvfit_tmp, s = cvfit_tmp$lambda.min)
+  	coef_vec <- as.numeric(coef_tmp)
+
+  	selection_matrix[, r] <- as.integer(coef_vec != 0)
+	}
+
+	# Compute selection frequency
+	selection_frequency <- rowMeans(selection_matrix)
+	Stability_table <- data.frame(
+  	Feature = names(selection_frequency),
+  	Selection_Frequency = round(selection_frequency, 3)
+	)
+
+	# Keep only features selected in >=60% of repeats
+	stable_features <- Stability_table$Feature[
+  	Stability_table$Selection_Frequency >= freq_threshold
+	]
+
+	if (length(stable_features) == 0) {
+    	warning("No stable features selected; using all features instead.")
+    	stable_features <- colnames(tr_data1)[col_num:ncol(tr_data1)]
+	}
+#-----------------------------------------------#
+
   # develop model to select key features using LASSO method and user defined
   # cross-folds
   cvfit1 <- glmnet::cv.glmnet(
-    as.matrix(tr_data1[col_num:ncol(tr_data1)]),
+    #as.matrix(tr_data1[col_num:ncol(tr_data1)]),
+    as.matrix(tr_data1[, stable_features, drop = FALSE]),
     surv_object, # create survival object from the data
     family = "cox", # specify Cox PH model
     type.measure = "C",
     nfolds = nfolds,
-    alpha = 1,
+    alpha = alpha,
     maxit = 1000
   )
 
@@ -185,6 +243,7 @@ Lasso_PI_scores_f <- function(train_data, test_data, nfolds, col_num,
     Train_Lasso_key_variables = Train_Lasso_key_variables,
     Train_PI_data = Train_PI_data,
     Test_PI_data = Test_PI_data,
+    Stability_table = Stability_table, 
     cvfit = cvfit1 # Return the cvfit object to plot externally
   ))
 }

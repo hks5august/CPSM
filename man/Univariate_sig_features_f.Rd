@@ -42,6 +42,11 @@ significant clinical features with associated statistics.}
 clinical features for the training dataset.}
 \item{Test_Uni_sig_clin_data}{A data frame of selected significant
 clinical features for the test dataset.}
+\item{ZPH_Genes}{A list of \code{cox.zph} objects for each gene feature,
+containing Schoenfeld residuals used to assess proportional hazards assumption.}
+\item{PH_Summary_Genes}{A data frame summarizing proportional hazards
+test results for each gene, including p-values and indicators of
+assumption violation.}
 }
 \description{
 This function performs univariate survival analysis on the provided

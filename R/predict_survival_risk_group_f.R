@@ -12,6 +12,7 @@
 
 #' @param Feature_List A list of  features to be used for predicting the risk class in the
 #' model.
+#' @param K Numeric value specifying the number of folds for K-fold cross-validation (default = 5).
 #'
 #' @return A list containing the following components:
 #' \item{best_model}{The Best RF model.}
@@ -31,14 +32,14 @@
 #' data(Test_PI_data, package = "CPSM")
 #' data(Key_PI_list , package = "CPSM")
 #' Results_Risk_group_Prediction<-  predict_survival_risk_group_f(selected_train_data = Train_PI_data,
-#' selected_test_data = Test_PI_data, Feature_List = Key_PI_list )
+#' selected_test_data = Test_PI_data, Feature_List = Key_PI_list, K = 5 )
 #'
 #' @export
 
 
 
 predict_survival_risk_group_f <-  function(selected_train_data, selected_test_data,
-                                         Feature_List) {
+                                         Feature_List, K = 5) {
 
 
   # Check if any input variable is empty
@@ -194,6 +195,67 @@ predict_survival_risk_group_f <-  function(selected_train_data, selected_test_da
   # Save predictions for the best model
   if (!is.null(best_model)) {
 
+    #------------  K-fold results at best_ntree ------------#
+
+    folds <- sample(rep(1:K, length.out = nrow(Train)))
+    CV_results_list <- list()
+    for (k in 1:K) {
+      cat("Running CV Fold:", k, "\n")
+      Train_fold <- Train[folds != k, ]
+      Valid_fold <- Train[folds == k, ]
+      # Fit RF using the best ntree
+      formula <- as.formula(paste("Actual_Risk_Group ~", paste(clinical_features, collapse = " + ")))
+      fold_model <- rfsrc(formula, data = Train_fold, ntree = best_ntree, importance = FALSE)
+      # Predictions for fold
+      fold_pred <- predict(fold_model, newdata = Valid_fold)$class
+      # Confusion matrix
+      cm_fold <- confusionMatrix(as.factor(fold_pred),
+                                 as.factor(Valid_fold$Actual_Risk_Group))
+      # Store fold metrics
+      CV_results_list[[paste0("Fold_", k)]] <- list(
+        Fold = k,
+        Samples = rownames(Valid_fold),
+        Actual = Valid_fold$Actual_Risk_Group,
+        Predicted = fold_pred,
+        Accuracy = cm_fold$overall["Accuracy"],
+        Sensitivity = cm_fold$byClass["Sensitivity"],
+        Specificity = cm_fold$byClass["Specificity"],
+        Precision = cm_fold$byClass["Precision"],  
+        Recall = cm_fold$byClass["Recall"],
+        F1 = 2 * (cm_fold$byClass["Sensitivity"] * cm_fold$byClass["Precision"]) /
+             (cm_fold$byClass["Sensitivity"] + cm_fold$byClass["Precision"])
+      )
+    }
+
+	#------------ Compute Average -----------------#
+	Fold_metrics_df <- do.call(
+  	rbind,
+  	lapply(CV_results_list, function(f) {
+    	data.frame(
+      	Accuracy    = as.numeric(f$Accuracy),
+      	Sensitivity = as.numeric(f$Sensitivity),
+      	Specificity = as.numeric(f$Specificity),
+      	Precision   = as.numeric(f$Precision),
+      	Recall      = as.numeric(f$Recall),
+      	F1          = as.numeric(f$F1)
+    	)
+ 	})
+	)
+
+    CV_average_metrics <- colMeans(Fold_metrics_df, na.rm = TRUE)
+
+    CV_results_list[["CV_Average"]] <- list(
+	Fold        = "Average",
+  	Accuracy    = CV_average_metrics["Accuracy"],
+  	Sensitivity = CV_average_metrics["Sensitivity"],
+  	Specificity = CV_average_metrics["Specificity"],
+  	Precision   = CV_average_metrics["Precision"],
+  	Recall      = CV_average_metrics["Recall"],
+  	F1          = CV_average_metrics["F1"]
+	)
+
+ #-----------------------------------------------------------------------#
+
     # Create the file path
     #best_model_file <- file.path(Temp_path, paste0("Best_RF_Model_", feature_type, "_", best_ntree, ".rds"))
 
@@ -288,6 +350,7 @@ predict_survival_risk_group_f <-  function(selected_train_data, selected_test_da
     cm_best_train = cm_best_train,
     cm_best_test = cm_best_test,
     #best_test_pred = best_test_pred,
+    CV_Fold_Results = CV_results_list,
     misclassification_results = misclassification_results
   ))
 

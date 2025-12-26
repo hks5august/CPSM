@@ -1,7 +1,7 @@
 ---
 title: "CPSM: Cancer patient survival model"
 author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
-date: 'September 23, 2025'
+date: 'December 26, 2025'
 output: 
   BiocStyle::html_document: default
 vignette: >
@@ -219,12 +219,20 @@ Result_PI <- Lasso_PI_scores_f(
   train_data = Train_Norm_data,
   test_data = Test_Norm_data,
   nfolds = 5,
+  n_repeats = 50,      # number of repeated CV runs for stability
+  alpha = 1,           # 1 = LASSO, 0 < alpha < 1 = Elastic Net
   col_num = 21,
+  freq_threshold = 0.6,
   surv_time = "OS_month",
   surv_event = "OS"
 )
 
 #------------------------  OUTPUTS ---------------------#
+# Access output - Feature stability across repeated CV runs
+Stability_table <- Result_PI$Stability_table
+
+# view top features with highest selection frequency
+head(Stability_table[order(-Stability_table$Selection_Frequency), ])
 
 # Access output - selected features (with beta coefficient value)) by LASSO
 Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
@@ -237,13 +245,13 @@ print(head(Train_Lasso_key_variables))
 Train_PI_data <- Result_PI$Train_PI_data
 
 # view Train set with PI values
-str(Train_PI_data[1:10])
+str(Train_PI_data)
 
 # Access output - Test set with PI values
 Test_PI_data <- Result_PI$Test_PI_data
 
 # view Test set with PI values
-str(Test_PI_data[1:10])
+str(Test_PI_data)
 
 # view plot from LASSO-Lasso regression lambda plot
 plot(Result_PI$cvfit)
@@ -255,7 +263,7 @@ The **`Lasso_PI_scores_f`** function generates the following outputs objects:
 2. **`Train_Cox_Lasso_Regression_lambda_plot`**: The Lasso regression lambda plot.
 3. **`Train_PI_data`**: This dataset contains the expression values of genes selected by LASSO along with the PI score in the last column for the training samples.
 4. **`Test_PI_data`**: This dataset contains the expression values of genes selected by LASSO along with the PI score in the last column for the test samples.
-
+5. **`Stability_table`**: Each feature and the proportion of repeated CV runs in which it was selected (selection frequency).
 
 # Step 4b - Univariate  Survival Significant Feature Selection
 ## Description 
@@ -295,32 +303,49 @@ Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
 
 # view top features (from selected set) using Univariate Cox regression
 print(head(Univariate_Suv_Sig_G_L))
+dim(Univariate_Suv_Sig_G_L)
 
 # Access output - Train data with only sig features
 Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
 
 # view Train data with only sig features
-str(Train_Uni_sig_data[1:10])
-
+if (ncol(Train_Uni_sig_data) > 10) {
+  message("Displaying first 10 columns only")
+  str(Train_Uni_sig_data[, 1:10])
+} else {
+  str(Train_Uni_sig_data)
+}
 # Access output - Test data with only sig features
 Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
 
 # view Test data with only sig features
-str(Test_Uni_sig_data[1:10])
-
+if (ncol(Test_Uni_sig_data) > 10) {
+  message("Displaying first 10 columns only")
+  str(Test_Uni_sig_data[, 1:10])
+} else {
+  str(Test_Uni_sig_data)
+}
 # Access output - 
 Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
 
 # view A table of univariate significant clinical feature
 print(head(Uni_Sur_Sig_clin_List))
 
-
-# Access output - ZPH test results
+# Access output - ZPH test results (Proportional Hazards assumption diagnostics)
 ZPH_test <- Result_Uni$ZPH_Genes
 
-# View ZPH (diagnostics test) results - 
-#str(ZPH_test[1:10])
-head(ZPH_test[1:10])
+# View ZPH (diagnostics test) results for first 10 genes
+print(head(ZPH_test))
+
+#  access a summarized table of PH test results if implemented
+ PH_Summary <- Result_Uni$PH_Summary_Genes
+ print(head(PH_Summary))
+
+# Filter features that do NOT violate the PH assumption
+valid_genes <- PH_Summary$Feature[PH_Summary$PH_Violation == FALSE]
+
+# View the list of genes satisfying the PH assumption
+print(head(valid_genes))
 
 ```
 ## Outputs
@@ -405,16 +430,23 @@ mean_median_survival_tim_d <- Result_Model_Type1$mean_median_survival_time_data
 # View Predicted mean and median survival time
 str(mean_median_survival_tim_d)
 
-# Access output -
+# Access output -  all results for test data
 survival_result_based_on_MTLR <- Result_Model_Type1$survival_result_based_on_MTLR
+
+# View results on diff folds of Training dataset
+CV_Fold_Metrics <- Result_Model_Type1$Fold_Metrics
+str(CV_Fold_Metrics)
+
+# View Summary
+fold_summary_df <- Result_Model_Type1$fold_summary_df
+str(fold_summary_df)
 
 # Access output - Final Evaluation parameters of results
 Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
-str(Error_mat_for_Model)
 
-# view Evaluation parameters of the model
-head(Error_mat_for_Model)
-
+# View Final Evaluation parameters of results on Test dataset
+test_results <- Error_mat_for_Model["Test_set", ]
+head(test_results)
 ```
 
 
@@ -482,14 +514,19 @@ str(mean_median_surviv_tim_da)
 # Access output - all results for test data
 survival_result_b_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
 
-# Access output - Final Evaluation parameters of results
-Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
+# View results on diff folds of training data
+CV_Fold_Metrics <- Result_Model_Type2$Fold_Metrics
+str(CV_Fold_Metrics)
 
-# view Evaluation parameters of the model
-str(Error_mat_for_Model)
+# Access and View summary
+fold_summary_df <- Result_Model_Type2$fold_summary_df
+str(fold_summary_df)
 
-# view Evaluation parameters of the model
-head(Error_mat_for_Model)
+# Access output - Final Evaluation results on Test data
+Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
+test_results <- Error_mat_for_Model["Test_set", ]
+head(test_results)
+
 ```
 
 
@@ -557,14 +594,18 @@ str(mean_median_surv_tim_da)
 # Access output - all results for test data
 survival_result_b_on_MTLR <- Result_Model_Type3$survival_result_based_on_MTLR
 
+# View results on diff folds of Training data
+CV_Fold_Metrics <- Result_Model_Type3$Fold_Metrics
+str(CV_Fold_Metrics)
+  
+
+fold_summary_df <- Result_Model_Type3$fold_summary_df
+str(fold_summary_df)
+
 # Access output - Final Evaluation parameters of results
-Error_mat_for_Model <- Result_Model_Type3$Error_mat_for_Model
-
-# view Evaluation parameters of the model
-str(Error_mat_for_Model)
-
-# view Evaluation parameters of the model
-head(Error_mat_for_Model)
+Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
+test_results <- Error_mat_for_Model["Test_set", ]
+head(test_results)
 
 ```
 
@@ -588,14 +629,24 @@ print(head(Test_Clin,3))
 data(Train_Uni_sig_data, package = "CPSM")
 
 # View top rows of data with first 10 columns
-print(head(Train_Uni_sig_data[1:10],3))
+# view Train data with only sig features
+if (ncol(Train_Uni_sig_data) > 10) {
+  message("Displaying first 10 columns only")
+  str(Train_Uni_sig_data[, 1:10])
+} else {
+  str(Train_Uni_sig_data)
+}
 
 # Load normalized test data
 data(Test_Uni_sig_data, package = "CPSM")
 
-# View top rows of data (first 10 columns)
-print(head(Test_Uni_sig_data[1:10],3))
-
+# view Test data with only sig features
+if (ncol(Test_Uni_sig_data) > 10) {
+  message("Displaying first 10 columns only")
+  str(Test_Uni_sig_data[, 1:10])
+} else {
+  str(Test_Uni_sig_data)
+}
 # Load a list of clinical feature along with top feature from univariate survival analysis
 data(Key_univariate_features_with_Clin_list, package = "CPSM")
 
@@ -632,15 +683,19 @@ str(mean_median_surv_tim_da)
 # Access output - all results for test data
 survival_result_b_on_MTLR <- Result_Model_Type5$survival_result_based_on_MTLR
 
-# Access output - Final Evaluation parameters of results
-Error_mat_for_Model <- Result_Model_Type5$Error_mat_for_Model
 
-# view Evaluation parameters of the model
-str(Error_mat_for_Model)
+# View results on diff folds of Training dataset
+CV_Fold_Metrics <- Result_Model_Type5$Fold_Metrics
+str(CV_Fold_Metrics)
 
-# view Evaluation parameters of the model
-head(Error_mat_for_Model)
 
+fold_summary_df <- Result_Model_Type5$fold_summary_df
+str(fold_summary_df)
+
+# Access output - Final Evaluation parameters on test dataset
+Error_mat_for_Model <- Result_Model_Type1$Error_mat_for_Model
+test_results <- Error_mat_for_Model["Test_set", ]
+head(test_results)
 ```
 
 ## Outputs
@@ -807,13 +862,31 @@ Results_Risk_group_Prediction <- predict_survival_risk_group_f(
 # Access output - Performance of the best model on Training and Test data
 Best_model_Prediction_results<- Results_Risk_group_Prediction$misclassification_results 
 
-# View Performance of the best model on Training and Test data
-print(head(Best_model_Prediction_results))
+# Results on test data - Evaluation performance parameters
+test_results1 <- Best_model_Prediction_results[, grep("^Test_", colnames(Best_model_Prediction_results))]
+
+# View results on Test dataset - Evaluation performance parameters
+head(test_results1)
 
 # View Prediction results of the best model on Test set
 Test_results <-  Results_Risk_group_Prediction$Test_results #Prediction resulst on Test data
 print(head(Test_results))
 
+#Prediction resulst on each fold of training data
+Fold_results <- Results_Risk_group_Prediction$CV_Fold_Results 
+
+
+#Prediction resulst on each fold of training data 
+Fold_metrics <- do.call(rbind, lapply(Fold_results, function(f) { 
+data.frame( Fold = f$Fold, 
+Sensitivity = as.numeric(f$Sensitivity), 
+Specificity = as.numeric(f$Specificity), 
+Accuracy = as.numeric(f$Accuracy), 
+Precision = as.numeric(f$Precision),
+Recall = as.numeric(f$Recall),
+F1 = as.numeric(f$F1) ) })) 
+
+print(Fold_metrics)
 
 ```
 

@@ -10,7 +10,10 @@ Lasso_PI_scores_f(
   nfolds,
   col_num,
   surv_time,
-  surv_event
+  surv_event,
+  n_repeats,
+  alpha,
+  freq_threshold = 0.6
 )
 }
 \arguments{
@@ -31,6 +34,14 @@ survival time in the data.}
 
 \item{surv_event}{A character string specifying the column name for
 survival event status in the data.}
+
+\item{n_repeats}{An integer specifying how many times repeated CV should be run to assess feature selection stability.}
+
+\item{alpha}{A numeric value (0–1) specifying the mixing parameter for Elastic Net (1 = LASSO, 0 < alpha < 1 = Elastic Net).}
+
+\item{freq_threshold}{Numeric value between 0 and 1.
+Minimum selection frequency required to retain a feature across
+repeated LASSO runs (e.g., 0.6 keeps features selected in ≥60\% of repeats).}
 }
 \value{
 A list with the following components:
@@ -43,6 +54,8 @@ survival time, event status, and PI.
 survival time, event status, and PI.
 \item \code{cvfit}: A \code{cv.glmnet} object representing the fitted LASSO
 Cox model.
+\item \code{Stability_table}: A data frame showing each feature and the
+proportion of repeated CV runs in which it was selected (selection frequency).
 }
 }
 \description{
@@ -64,6 +77,9 @@ train_data = Train_Norm_data,
 test_data = Test_Norm_data,
 nfolds = 5,
 col_num = 21,
+n_repeats = 10,       
+alpha = 1, 
+freq_threshold = 0.6,      
 surv_time = "OS_month",
 surv_event = "OS")
 

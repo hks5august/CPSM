@@ -81,7 +81,22 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
 
   te_exp1 <- (te_exp + 1)
   te_log_mat <- round(log2(te_exp1), 3)
+  
+  ## -------------------------------------------------
+  ## Remove genes with zero variance in ≥80% Samples
+  ## (based on training data only)
 
+  # proportion of most frequent value per gene
+  prop_const <- apply(tr_log_mat, 2, function(x) {
+    max(table(x)) / length(x)
+  })
+
+  # keep genes where <80% samples are constant
+  keep_genes <- prop_const < 0.80
+
+  # subset both train and test using same genes
+  tr_log_mat <- tr_log_mat[, keep_genes, drop = FALSE]
+  te_log_mat <- te_log_mat[, keep_genes, drop = FALSE]
   # quantile normalization
   # samples in columns and genes in the rows
 
@@ -106,13 +121,13 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
 
   # transpose quantile train data
   norm_ref_t <- as.data.frame(t(norm_ref))
-  colnames(norm_ref_t) <- colnames(tr_exp)
-  rownames(norm_ref_t) <- rownames(tr_exp)
+  colnames(norm_ref_t) <- colnames(tr_log_mat)
+  rownames(norm_ref_t) <- rownames(tr_log_mat)
 
   # transpose quantile test data
   test_t <- as.data.frame(t(tt))
-  colnames(test_t) <- colnames(te_exp)
-  rownames(test_t) <- rownames(te_exp)
+  colnames(test_t) <- colnames(te_log_mat)
+  rownames(test_t) <- rownames(te_log_mat)
 
   # combine clin and normalzed data
   Train_norm_data <- cbind(tr_clin, norm_ref_t)

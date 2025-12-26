@@ -40,8 +40,8 @@
 #' @import survminer
 #' @import MTLR
 #' @importFrom SurvMetrics IBS
-#' @importFrom stats median complete.cases model.matrix
-#'
+#' @importFrom stats median complete.cases model.matrix sd
+#' @importFrom caret createFolds
 #' @examples
 #' # Example usage of the MTLR_pred_model_f function
 #' data(Train_Clin, package = "CPSM")
@@ -111,14 +111,34 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     sel_clin_te2 <- na.omit(sel_clin_te1)
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
 
-    # create MTLR  model
-    formula1 <- survival::Surv(OS_month, OS) ~ . 
-   
-      
+
+    # Separate outcome
+y_train <- sel_clin_tr2[, c("OS", "OS_month")]
+y_test  <- sel_clin_te2[, c("OS", "OS_month")]
+
+# Predictors
+x_train <- sel_clin_tr2[, setdiff(colnames(sel_clin_tr2), c("OS", "OS_month"))]
+x_test  <- sel_clin_te2[, setdiff(colnames(sel_clin_te2), c("OS", "OS_month"))]
+
+# One-hot encode training data
+x_train_mm <- model.matrix(~ . - 1, data = x_train)
+sel_clin_tr2 <- data.frame(y_train, x_train_mm)
+
+# One-hot encode test data using **training columns** to align levels
+x_test_mm <- model.matrix(~ . - 1, data = x_test)
+# Align columns with training
+x_test_mm <- x_test_mm[, colnames(x_train_mm), drop = FALSE]
+sel_clin_te2 <- data.frame(y_test, x_test_mm)
+
+    
+    # create MTLR  model to get best parameters for MTLR
+    formula1 <- survival::Surv(OS_month, OS) ~ .
+
+
    # Cross-validation to select best C1
     cv_result <- MTLR::mtlr_cv(
     formula = formula1,          # survival formula
-    data = sel_clin_tr2,         # training data 
+    data = sel_clin_tr2,         # training data
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
     previous_weights = FALSE,   # avoids seed_weights mismatch
@@ -129,8 +149,70 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
 
     # Best C1
     best_C1 <- cv_result$best_C1
+     
+   #compute results fold-wise 
+    folds <- caret::createFolds(sel_clin_tr2$OS, k = nfolds, list = FALSE)
+    fold_metrics <- vector("list", nfolds)
+
+    for (fold in seq_len(nfolds)) {
+
+    tr_fold <- sel_clin_tr2[folds != fold, ]
+    val_fold <- sel_clin_tr2[folds == fold, ]
     
-    # Fit final MTLR model
+    #tr_fold  <- droplevels(sel_clin_tr2[folds != fold, ])
+    #val_fold <- droplevels(sel_clin_tr2[folds == fold, ])  
+
+   cv_fold <- MTLR::mtlr_cv(
+    formula = formula1,
+    data = tr_fold,
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,
+    nfolds = max(2, floor(nrow(tr_fold)/5)),
+    foldtype = "fullstrat",
+    loss = "ll", 
+    verbose = FALSE)
+   
+   Mod_fold <- MTLR::mtlr(
+    formula1,
+    data = tr_fold,
+    C1 = cv_fold$best_C1
+   )
+   
+   median_surv_val <- predict(Mod_fold, val_fold, type = "median_time")
+   surv_obj_val <- Surv(val_fold$OS_month, val_fold$OS)
+  
+   c_index_val <- if (length(unique(val_fold$OS)) > 1) {
+    concordance(surv_obj_val ~ median_surv_val)$concordance
+   } else NA 
+  
+   mae_val <- mean(abs(val_fold$OS_month - median_surv_val), na.rm = TRUE)
+  
+   fold_metrics[[fold]] <- data.frame(
+    Fold = fold,
+    C_index = round(c_index_val, 3), 
+    MAE = round(mae_val, 3)
+  )     
+}       
+        
+ # -------- Combine fold-wise results ----------#
+fold_metrics_df <- do.call(rbind, fold_metrics)
+    
+# Compute mean ± SD across folds
+fold_summary_df1 <- data.frame(
+  Metric = c("C_index", "MAE"),
+  Mean = c(
+    mean(fold_metrics_df$C_index, na.rm = TRUE),
+    mean(fold_metrics_df$MAE, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(fold_metrics_df$C_index, na.rm = TRUE),
+    sd(fold_metrics_df$MAE, na.rm = TRUE)
+  ) 
+)
+
+    
+    # Fit final MTLR model on full training data
     Mod1 <- MTLR::mtlr(formula = formula1, data = sel_clin_tr2, C1 = best_C1)
     
     # Predictions on training data
@@ -276,11 +358,10 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat <- rbind(Error_mat_tr , Error_mat_te) 
     rownames(Error_mat) <- c("Training_set", "Test_set")
 
-
-
  }
 
-# Model2 -  Model with only PI score
+
+#--------------------------- Model2 - Model with only PI score ----------------------#
 
   else if (Model_type == 2) {
     # combine clinical and feature data
@@ -295,13 +376,13 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # create training and test data after removing NA values
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
     sel_clin_te2 <- na.omit(sel_clin_te1)
-
+    
     # create MTLR  model
-    formula2 <- survival::Surv(OS_month, OS) ~ .
+    formula2 <- survival::Surv(OS_month, OS) ~ PI
     
     # Cross-validation to select best C1
     cv_result <- MTLR::mtlr_cv(
-    formula = formula2,          # survival formula
+    formula = formula2 ,          # survival formula
     data = sel_clin_tr2,         # training data 
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
@@ -314,6 +395,68 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     # Best C1
     best_C1 <- cv_result$best_C1
     
+     #compute results fold-wise
+    folds <- caret::createFolds(sel_clin_tr2$OS, k = nfolds, list = FALSE)
+    fold_metrics <- vector("list", nfolds)
+
+    for (fold in seq_len(nfolds)) {
+
+    tr_fold <- sel_clin_tr2[folds != fold, ]
+    val_fold <- sel_clin_tr2[folds == fold, ]
+    
+    #tr_fold  <- droplevels(sel_clin_tr2[folds != fold, ])
+    #val_fold <- droplevels(sel_clin_tr2[folds == fold, ])
+    
+   cv_fold <- MTLR::mtlr_cv(
+    formula = formula2 ,
+    data = tr_fold,
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,
+    nfolds = max(2, floor(nrow(tr_fold)/5)),
+    foldtype = "fullstrat",
+    loss = "ll",
+    verbose = FALSE)
+
+   Mod_fold <- MTLR::mtlr(
+    formula2 ,
+    data = tr_fold,
+    C1 = cv_fold$best_C1
+   )
+
+   median_surv_val <- predict(Mod_fold, val_fold, type = "median_time")
+   surv_obj_val <- Surv(val_fold$OS_month, val_fold$OS)
+
+   c_index_val <- if (length(unique(val_fold$OS)) > 1) {
+    concordance(surv_obj_val ~ median_surv_val)$concordance
+   } else NA
+
+   mae_val <- mean(abs(val_fold$OS_month - median_surv_val), na.rm = TRUE)
+
+   fold_metrics[[fold]] <- data.frame(
+    Fold = fold,
+    C_index = round(c_index_val, 3),
+    MAE = round(mae_val, 3)
+  )
+}
+
+ # -------- Combine fold-wise results ----------# 
+fold_metrics_df <- do.call(rbind, fold_metrics)
+
+# Compute mean ± SD across folds
+fold_summary_df2 <- data.frame(
+  Metric = c("C_index", "MAE"),
+  Mean = c(
+    mean(fold_metrics_df$C_index, na.rm = TRUE),
+    mean(fold_metrics_df$MAE, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(fold_metrics_df$C_index, na.rm = TRUE),
+    sd(fold_metrics_df$MAE, na.rm = TRUE)
+  )
+)
+
+
     # Fit final MTLR model using selected C1
     Mod2 <- MTLR::mtlr(formula = formula2, data = sel_clin_tr2, C1 = best_C1)
    
@@ -460,9 +603,11 @@ MTLR_pred_model_f <- function(train_clin_data, test_clin_data, Model_type,
     Error_mat2 <- rbind(Error_mat_tr2 , Error_mat_te2)
     rownames(Error_mat2) <- c("Training_set", "Test_set")
 
-    
-} 
-#model3
+}
+
+
+ 
+#--------------------------- model3 ----------------------#
 else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
@@ -479,13 +624,32 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
     # test data
     sel_clin_te2 <- na.omit(sel_clin_te1)
+    
+     # Separate outcome
+y_train <- sel_clin_tr2[, c("OS", "OS_month")]
+y_test  <- sel_clin_te2[, c("OS", "OS_month")]
+
+# Predictors
+x_train <- sel_clin_tr2[, setdiff(colnames(sel_clin_tr2), c("OS", "OS_month"))]
+x_test  <- sel_clin_te2[, setdiff(colnames(sel_clin_te2), c("OS", "OS_month"))]
+
+# One-hot encode training data
+x_train_mm <- model.matrix(~ . - 1, data = x_train)
+sel_clin_tr2 <- data.frame(y_train, x_train_mm)
+
+# One-hot encode test data using **training columns** to align levels
+x_test_mm <- model.matrix(~ . - 1, data = x_test)
+# Align columns with training
+x_test_mm <- x_test_mm[, colnames(x_train_mm), drop = FALSE]
+sel_clin_te2 <- data.frame(y_test, x_test_mm)
+
     # develop MTLR model
     # create formula
     formula3 <- survival::Surv(OS_month, OS) ~ .
     
     # Cross-validation to select best C1
     cv_result <- MTLR::mtlr_cv(
-    formula = formula3,          # survival formula
+    formula = survival::Surv(OS_month, OS) ~ . ,          # survival formula
     data = sel_clin_tr2,         # training data 
     C1_vec = c(0.01, 0.1, 1),
     nintervals = 15,
@@ -498,7 +662,69 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # Best C1
     best_C1 <- cv_result$best_C1
     
-    # Fit final MTLR model
+     #compute results fold-wise
+    folds <- caret::createFolds(sel_clin_tr2$OS, k = nfolds, list = FALSE)
+    fold_metrics <- vector("list", nfolds)
+
+    for (fold in seq_len(nfolds)) {
+
+    tr_fold <- sel_clin_tr2[folds != fold, ]
+    val_fold <- sel_clin_tr2[folds == fold, ]
+
+    #tr_fold  <- droplevels(sel_clin_tr2[folds != fold, ])
+    #val_fold <- droplevels(sel_clin_tr2[folds == fold, ])
+
+   cv_fold <- MTLR::mtlr_cv(
+    formula = survival::Surv(OS_month, OS) ~ . ,
+    data = tr_fold,
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,
+    nfolds = max(2, floor(nrow(tr_fold)/5)),
+    foldtype = "fullstrat",
+    loss = "ll",
+    verbose = FALSE)
+
+   Mod_fold <- MTLR::mtlr(
+    formula = survival::Surv(OS_month, OS) ~ . ,
+    data = tr_fold,
+    C1 = cv_fold$best_C1
+   )
+
+   median_surv_val <- predict(Mod_fold, val_fold, type = "median_time")
+   surv_obj_val <- Surv(val_fold$OS_month, val_fold$OS)
+
+   c_index_val <- if (length(unique(val_fold$OS)) > 1) {
+    concordance(surv_obj_val ~ median_surv_val)$concordance
+   } else NA
+
+   mae_val <- mean(abs(val_fold$OS_month - median_surv_val), na.rm = TRUE)
+
+   fold_metrics[[fold]] <- data.frame(
+    Fold = fold,
+    C_index = round(c_index_val, 3),
+    MAE = round(mae_val, 3)
+  )
+}
+
+ # -------- Combine fold-wise results ----------#
+fold_metrics_df <- do.call(rbind, fold_metrics)
+
+# Compute mean ± SD across folds
+fold_summary_df3 <- data.frame(
+  Metric = c("C_index", "MAE"),
+  Mean = c(
+    mean(fold_metrics_df$C_index, na.rm = TRUE),
+    mean(fold_metrics_df$MAE, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(fold_metrics_df$C_index, na.rm = TRUE),
+    sd(fold_metrics_df$MAE, na.rm = TRUE)
+  )
+)
+ 
+ 
+    # Fit final MTLR model on full training data
     Mod3 <- MTLR::mtlr(formula = formula3, data = sel_clin_tr2, C1 = best_C1)
     # Model Predictions
     # Predictions on training data
@@ -558,7 +784,6 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
       OS_month = sel_clin_tr2$OS_month
     )
     
-    
     # C-Index calculation
     
     # Create survival object for training data
@@ -578,7 +803,7 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     survival_summary_tr3 <- as.data.frame(survival_summary_tr3)
     survival_summary_tr3$OS_month <- as.numeric(survival_summary_tr3$OS_month)
     survival_summary_tr3$Mean <- as.numeric(survival_summary_tr3$Mean)
-    survival_summary_tr3Median <- as.numeric(survival_summary_tr3$Median)
+    survival_summary_tr3$Median <- as.numeric(survival_summary_tr3$Median)
     
     # Compute MAE for training data
     mean_mae_tr3 <- round(mean(abs(survival_summary_tr3$OS_month - survival_summary_tr3$Mean), na.rm = TRUE), 2)
@@ -642,9 +867,14 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
 
     Error_mat3 <- rbind(Error_mat_tr3 , Error_mat_te3)
     rownames(Error_mat3) <- c("Training_set", "Test_set")
-
     
-  } else if (Model_type == 4) {
+  }
+
+
+
+#-------------------------------- Model3 -----------------------------------#
+
+ else if (Model_type == 4) {
     ## Univariate with Clin features ##
     # create data frame with selected features (user provided list)
     sel_clin_tr <- as.data.frame(tr_data2[, colnames(tr_data2) %in%
@@ -659,7 +889,27 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     # remove samples where features used in the models are missing
     sel_clin_tr2 <- na.omit(sel_clin_tr1)
     sel_clin_te2 <- na.omit(sel_clin_te1)
-    # develop model using MTLR
+   
+     # Separate outcome
+y_train <- sel_clin_tr2[, c("OS", "OS_month")]
+y_test  <- sel_clin_te2[, c("OS", "OS_month")]
+
+# Predictors
+x_train <- sel_clin_tr2[, setdiff(colnames(sel_clin_tr2), c("OS", "OS_month"))]
+x_test  <- sel_clin_te2[, setdiff(colnames(sel_clin_te2), c("OS", "OS_month"))]
+
+# One-hot encode training data
+x_train_mm <- model.matrix(~ . - 1, data = x_train)
+sel_clin_tr2 <- data.frame(y_train, x_train_mm)
+
+# One-hot encode test data using **training columns** to align levels
+x_test_mm <- model.matrix(~ . - 1, data = x_test)
+# Align columns with training
+x_test_mm <- x_test_mm[, colnames(x_train_mm), drop = FALSE]
+sel_clin_te2 <- data.frame(y_test, x_test_mm)
+
+
+     # develop model using MTLR
     # craete formula
     formula5 <- survival::Surv(OS_month, OS) ~ .
 
@@ -677,8 +927,73 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
 
     # Best C1
     best_C1 <- cv_result$best_C1
-    
-    # Fit final MTLR model
+  
+
+   #compute results fold-wise
+    folds <- caret::createFolds(sel_clin_tr2$OS, k = nfolds, list = FALSE)
+    fold_metrics <- vector("list", nfolds)
+
+    for (fold in seq_len(nfolds)) {
+
+    tr_fold <- sel_clin_tr2[folds != fold, ]
+    val_fold <- sel_clin_tr2[folds == fold, ]
+
+    #tr_fold  <- droplevels(sel_clin_tr2[folds != fold, ])
+    #val_fold <- droplevels(sel_clin_tr2[folds == fold, ])
+
+   cv_fold <- MTLR::mtlr_cv(
+    formula = formula5,
+    data = tr_fold,
+    C1_vec = c(0.01, 0.1, 1),
+    nintervals = 15,
+    previous_weights = FALSE,
+    nfolds = max(2, floor(nrow(tr_fold)/5)),
+    foldtype = "fullstrat",
+    loss = "ll",
+    verbose = FALSE)
+
+   Mod_fold <- MTLR::mtlr(
+    formula5,
+    data = tr_fold,
+    C1 = cv_fold$best_C1
+   )
+  
+   median_surv_val <- predict(Mod_fold, val_fold, type = "median_time")
+   surv_obj_val <- Surv(val_fold$OS_month, val_fold$OS)
+
+   c_index_val <- if (length(unique(val_fold$OS)) > 1) {
+    concordance(surv_obj_val ~ median_surv_val)$concordance
+   } else NA
+
+   mae_val <- mean(abs(val_fold$OS_month - median_surv_val), na.rm = TRUE)
+
+   fold_metrics[[fold]] <- data.frame(
+    Fold = fold,
+    C_index = round(c_index_val, 3),
+    MAE = round(mae_val, 3)
+  ) 
+}   
+
+ # -------- Combine fold-wise results ----------#
+fold_metrics_df <- do.call(rbind, fold_metrics)
+
+# Compute mean ± SD across folds
+fold_summary_df5 <- data.frame(
+  Metric = c("C_index", "MAE"),
+  Mean = c(
+    mean(fold_metrics_df$C_index, na.rm = TRUE),
+    mean(fold_metrics_df$MAE, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(fold_metrics_df$C_index, na.rm = TRUE),
+    sd(fold_metrics_df$MAE, na.rm = TRUE)
+  )
+)
+
+
+      
+
+    # Fit final MTLR model on full training data
     Mod5 <- MTLR::mtlr(formula = formula5, data = sel_clin_tr2, C1 = best_C1)
 
     # Model Predictions
@@ -833,6 +1148,8 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     mean_median_surv_d <- survival_summary_te
     Error_mat <- Error_mat
     surv_res <- survival_results_te
+    Fold_Metrics <- fold_metrics_df
+    fold_summary_df <- fold_summary_df1
   }
   if (Model_type == 2) {
     survCurves_df <- survCurves_te_df2
@@ -841,6 +1158,8 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     mean_median_surv_d <- survival_summary_te2
     Error_mat <- Error_mat2
     surv_res <- survival_results_te2
+    Fold_Metrics <- fold_metrics_df
+    fold_summary_df <- fold_summary_df2
   }
   if (Model_type == 3) {
     survCurves_df <- survCurves_te_df3
@@ -849,6 +1168,8 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     mean_median_surv_d <- survival_summary_te3
     Error_mat <- Error_mat3
     surv_res <- survival_results_te3
+    Fold_Metrics <- fold_metrics_df
+    fold_summary_df <- fold_summary_df3
   }
   if (Model_type == 4) {
     survCurves_df <- survCurves_te_df5
@@ -857,6 +1178,8 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     mean_median_surv_d <- survival_summary_te5
     Error_mat <- Error_mat5
     surv_res <- survival_results_te5
+    Fold_Metrics <- fold_metrics_df
+    fold_summary_df <- fold_summary_df5
   }
   
   # Return a list containing data.
@@ -866,7 +1189,9 @@ else if (Model_type == 3) { # Model3- Model with PI & Clin features
     survival_result_based_on_MTLR = surv_res,
     Error_mat_for_Model = Error_mat,
     selected_train_data = selected_train_data, 
-    selected_test_data = selected_test_data
+    selected_test_data = selected_test_data,
+    Fold_Metrics  = Fold_Metrics,
+    fold_summary_df = fold_summary_df 
     
   ))
 }

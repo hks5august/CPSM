@@ -32,6 +32,11 @@
 #' clinical features for the training dataset.}
 #' \item{Test_Uni_sig_clin_data}{A data frame of selected significant
 #'  clinical features for the test dataset.}
+#' \item{ZPH_Genes}{A list of `cox.zph` objects for each gene feature,
+#' containing Schoenfeld residuals used to assess proportional hazards assumption.}
+#' \item{PH_Summary_Genes}{A data frame summarizing proportional hazards
+#' test results for each gene, including p-values and indicators of
+#' assumption violation.}
 #'
 #' @details
 #' The function first checks the validity of the input variables, such as
@@ -126,12 +131,11 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
     # Survival analysis: fits cox ph model to find HR for median cut
-    fit1 <- survfit(surv_object ~ (tr_data1[, i]) > (median(tr_data1[1, i])),
+    fit1 <- survfit(surv_object ~ (tr_data1[, i] > median(tr_data1[, i], na.rm = TRUE)),
       data = tr_data1
     )
     # fitcoxph model
-    fit1.coxph <- coxph(surv_object ~ (tr_data1[, i]) >
-        (median(tr_data1[1, i])), data = tr_data1)
+    fit1.coxph <- coxph(surv_object ~ (tr_data1[, i] > median(tr_data1[, i], na.rm = TRUE)), data = tr_data1)
     
      # Perform zph test and store results
    zph_results_genes[[colnames(tr_data1[i])]] <- tryCatch(
@@ -160,6 +164,33 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
       )
     }
   }
+  
+
+# zph_results_genes has been filled with cox.zph objects
+
+# Extract PH test p-values safely
+if(length(zph_results_genes) == 0) {
+  zph_pvals_genes <- numeric(0)
+} else {
+  zph_pvals_genes <- sapply(zph_results_genes, function(x) {
+    if (inherits(x, "cox.zph")) x$table["GLOBAL", "p"] else NA
+  })
+}
+
+# Create PH summary data frame safely
+if(length(zph_pvals_genes) > 0) {
+  PH_Summary_Genes <- data.frame(
+    Feature = names(zph_pvals_genes),
+    PH_pvalue = zph_pvals_genes,
+    PH_Violation = zph_pvals_genes < 0.05
+  )
+} else {
+  PH_Summary_Genes <- data.frame(
+    Feature = character(0),
+    PH_pvalue = numeric(0),
+    PH_Violation = logical(0)
+  )
+}
 
   # Convert the list to a data frame for easier handling
   results_df <- do.call(rbind, results_list)
@@ -169,8 +200,19 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     "ID", "Beta", "HR", "P-value", "GP1", "GP2",
     "Hr-Inv-lst", "Concordance", "Std_Error"
   )
-  selected_feature_names <- results_df[, 1]
 
+# Get feature names
+selected_feature_names <- results_df[, 1]
+
+# Exclude features violating PH assumption
+if(nrow(PH_Summary_Genes) > 0) {
+  selected_feature_names <- selected_feature_names[
+    !PH_Summary_Genes$PH_Violation[
+      match(selected_feature_names, PH_Summary_Genes$Feature)
+    ]
+  ]
+}  
+ 
   # Prepare training data with selected features
   sel_univ_train <- tr_data1[, colnames(tr_data1) %in% selected_feature_names,
     drop = FALSE
@@ -193,7 +235,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
 
   # Extract data for clinical features only
   tr_data_clin <- tr_data1[seq_len(n)]
-  te_data_clin <- tr_data1[seq_len(n)]
+  te_data_clin <- te_data1[seq_len(n)]
 
 
   # Exclude OS and OS month columns by name
@@ -236,6 +278,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     )
   }
 
+
   # Convert the list to a data frame for easier handling
   results_df2 <- do.call(rbind, results_list2)
 
@@ -255,9 +298,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
   sel_univ_train_2 <- as.data.frame(sel_univ_train2)
 
   # Prepare test data with selected features
-  sel_univ_test2 <- te_data2[, colnames(te_data2) %in% selected_feature_names2,
-    drop = FALSE
-  ]
+  sel_univ_test2 <- te_data2[, colnames(te_data2) %in% selected_feature_names2, drop = FALSE]
   # Convert to data frame if necessary
   sel_univ_test_2 <- as.data.frame(sel_univ_test2)
 
@@ -269,6 +310,7 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     Univariate_Survival_Significant_clin_List = results_df2,
     Train_Uni_sig_clin_data = sel_univ_train_2,
     Test_Uni_sig_clin_data = sel_univ_test_2 ,
-    ZPH_Genes = zph_results_genes
+    ZPH_Genes = zph_results_genes,
+    PH_Summary_Genes = PH_Summary_Genes
   ))
 }
