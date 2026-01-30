@@ -717,7 +717,7 @@ To visualize the survival of patients, we use the **`surv_curve_plots_f`** funct
 ## Required Inputs
 The function requires two inputs:
 1. **Surv_curve_data**: The data object containing predicted survival probabilities for all patients.
-2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A8XE-01`) whose survival curve you want to highlight.
+2. **Sample ID**: The ID of the specific patient (e.g., `TCGA-TQ-A7RQ-01`) whose survival curve you want to highlight.
 
 ## Example Code
 ```{r, warning=FALSE, message=FALSE, error = TRUE , fig.width=7, fig.height=4}
