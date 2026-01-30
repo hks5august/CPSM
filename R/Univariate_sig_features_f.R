@@ -259,72 +259,72 @@ if(nrow(PH_Summary_Genes) > 0) {
   }
 
     # Create survival object
-    surv_object2 <- Surv(time = tr_data2$OS_month, event = tr_data2$OS)
+  surv_object2 <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
-    tryCatch(
-      {
-        # Survival analysis: fits cox ph model to find HR for median cut
-        fit2 <- survfit(surv_object2 ~ tr_data2[, i], data = tr_data2)
-        # COXPH model
-        fit2.coxph <- coxph(surv_object2 ~ tr_data2[, i], data = tr_data2)
-        # Coeff
-        first2 <- coef(summary(fit2.coxph))
+	  tryCatch(
+			  {
+# Survival analysis: fits cox ph model to find HR for median cut
+			  fit2 <- survfit(surv_object2 ~ tr_data2[, i], data = tr_data2)
+# COXPH model
+			  fit2.coxph <- coxph(surv_object2 ~ tr_data2[, i], data = tr_data2)
+# Coeff
+			  first2 <- coef(summary(fit2.coxph))
 
-        # Check whether the p-value is significant (< 0.05) or not
-        if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))) {
-          # Store results in the list
-          results_list2[[length(results_list2) + 1]] <- c(
-            ID = colnames(tr_data2[i]),
-            Beta = first2[1],
-            HR = first2[2],
-            `P-value` = first2[5],
-            GP1 = fit2$n[1],
-            GP2 = fit2$n[2],
-            `Hr-Inv-lst` = 1 / first2[2],
-            Concordance = fit2.coxph$concordance[6],
-            Std_Error = fit2.coxph$concordance[7]
-          )
-        }
-      },
-      error = function(e) {
-        message("Massage :", conditionMessage(e), "\n")
-      }
-    )
+# Check whether the p-value is significant (< 0.05) or not
+			  if ((first2[5] <= 0.05) && (!is.na(first2[5])) && (!is.na(first2[2]))) {
+# Store results in the list
+			  results_list2[[length(results_list2) + 1]] <- c(
+					  ID = colnames(tr_data2[i]),
+					  Beta = first2[1],
+					  HR = first2[2],
+					  `P-value` = first2[5],
+					  GP1 = fit2$n[1],
+					  GP2 = fit2$n[2],
+					  `Hr-Inv-lst` = 1 / first2[2],
+					  Concordance = fit2.coxph$concordance[6],
+					  Std_Error = fit2.coxph$concordance[7]
+					  )
+			  }
+			  },
+	  error = function(e) {
+		  message("Massage :", conditionMessage(e), "\n")
+	  }
+  )
   }
 
 
-  # Convert the list to a data frame for easier handling
-  results_df2 <- do.call(rbind, results_list2)
+# Convert the list to a data frame for easier handling
+results_df2 <- do.call(rbind, results_list2)
 
-  # Set correct column names
-  colnames(results_df2) <- c(
-    "ID", "Beta", "HR", "P-value", "GP1", "GP2",
-    "Hr-Inv-lst", "Concordance", "Std_Error"
-  )
-  selected_feature_names2 <- results_df2[, 1]
+# Set correct column names
+	colnames(results_df2) <- c(
+			"ID", "Beta", "HR", "P-value", "GP1", "GP2",
+			"Hr-Inv-lst", "Concordance", "Std_Error"
+			)
+	selected_feature_names2 <- results_df2[, 1]
 
-  # Prepare training data with selected features
-  sel_univ_train2 <- tr_data1[, colnames(tr_data1) %in%
-    selected_feature_names2,
-  drop = FALSE
-  ]
-  # Convert to data frame if necessary
-  sel_univ_train_2 <- as.data.frame(sel_univ_train2)
+# Prepare training data with selected features
+	sel_univ_train2 <- tr_data1[, colnames(tr_data1) %in%
+	selected_feature_names2,
+	drop = FALSE
+	]
+# Convert to data frame if necessary
+sel_univ_train_2 <- as.data.frame(sel_univ_train2)
 
-  # Prepare test data with selected features
-  sel_univ_test2 <- te_data2[, colnames(te_data2) %in% selected_feature_names2, drop = FALSE]
-  # Convert to data frame if necessary
-  sel_univ_test_2 <- as.data.frame(sel_univ_test2)
+# Prepare test data with selected features
+	sel_univ_test2 <- te_data2[, colnames(te_data2) %in% selected_feature_names2, drop = FALSE]
+# Convert to data frame if necessary
+sel_univ_test_2 <- as.data.frame(sel_univ_test2)
 
-  # Return a list containing data.
-  return(list(
-    Univariate_Survival_Significant_genes_List = results_df,
-    Train_Uni_sig_data = sel_univ_train_1,
-    Test_Uni_sig_data = sel_univ_test_1,
-    Univariate_Survival_Significant_clin_List = results_df2,
-    Train_Uni_sig_clin_data = sel_univ_train_2,
-    Test_Uni_sig_clin_data = sel_univ_test_2 ,
-    ZPH_Genes = zph_results_genes,
-    PH_Summary_Genes = PH_Summary_Genes
-  ))
+# Return a list containing data.
+	return(list(
+				Univariate_Survival_Significant_genes_List = results_df,
+				Train_Uni_sig_data = sel_univ_train_1,
+				Test_Uni_sig_data = sel_univ_test_1,
+				Univariate_Survival_Significant_clin_List = results_df2,
+				Train_Uni_sig_clin_data = sel_univ_train_2,
+				Test_Uni_sig_clin_data = sel_univ_test_2 ,
+				ZPH_Genes = zph_results_genes,
+				PH_Summary_Genes = PH_Summary_Genes
+		   ))
 }
