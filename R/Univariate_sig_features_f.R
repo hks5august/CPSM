@@ -143,7 +143,9 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     )
     # fitcoxph model
     fit1.coxph <- coxph(surv_object ~ (tr_data1[, i] > median(tr_data1[, i], na.rm = TRUE)), data = tr_data1)
-    
+      
+    first <- coef(summary(fit1.coxph))
+      
      # Perform zph test and store results
    zph_results_genes[[colnames(tr_data1[i])]] <- tryCatch(
    suppressMessages(cox.zph(fit1.coxph)),
