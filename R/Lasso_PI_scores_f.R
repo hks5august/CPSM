@@ -24,7 +24,7 @@
 #' @param alpha A numeric value (0–1) specifying the mixing parameter for Elastic Net (1 = LASSO, 0 < alpha < 1 = Elastic Net).
 #' @param freq_threshold Numeric value between 0 and 1. 
 #'   Minimum selection frequency required to retain a feature across
-#'   repeated LASSO runs (e.g., 0.6 keeps features selected in ≥60% of repeats).
+#'   repeated LASSO runs (e.g., 0.6 keeps features selected in  > 60% of repeats).
 #' @return A list with the following components:
 #' \itemize{
 #'   \item \code{Train_Lasso_key_variables}: A data frame of selected key

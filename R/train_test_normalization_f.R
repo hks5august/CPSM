@@ -83,7 +83,7 @@ train_test_normalization_f <- function(train_data, test_data, col_num) {
   te_log_mat <- round(log2(te_exp1), 3)
   
   ## -------------------------------------------------
-  ## Remove genes with zero variance in ≥80% Samples
+  ## Remove genes with zero variance in > 80% Samples
   ## (based on training data only)
 
   # proportion of most frequent value per gene
