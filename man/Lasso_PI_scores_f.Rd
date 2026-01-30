@@ -41,7 +41,7 @@ survival event status in the data.}
 
 \item{freq_threshold}{Numeric value between 0 and 1.
 Minimum selection frequency required to retain a feature across
-repeated LASSO runs (e.g., 0.6 keeps features selected in ≥60\% of repeats).}
+repeated LASSO runs (e.g., 0.6 keeps features selected in  > 60\% of repeats).}
 }
 \value{
 A list with the following components:

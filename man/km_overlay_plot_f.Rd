@@ -82,7 +82,7 @@ KM_plot_results <- km_overlay_plot_f(
   Train_results = Train_results,
   Test_results = Test_results,
   survcurve_te_data = survCurves_data,
-  selected_sample = "TCGA-TQ-A7RQ-04",
+  selected_sample = "TCGA-TQ-A7RQ-01",
   font_size = 14,
   train_palette = c("purple", "orange"),
   test_curve_col = "black",

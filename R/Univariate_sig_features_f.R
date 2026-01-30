@@ -126,8 +126,15 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
   # Initialize lists to store zph test results
   zph_results_genes <- list()
   # Perform uni variate survival analysis for each feature based on median
-  for (i in seq(from = col_num, to = length(tr_data1), by = 1)) {
-    # Create survival object
+  for (i in seq(from = col_num, to = ncol(tr_data1), by = 1)) {
+    
+  # Skip features with no variation
+  if (length(unique(tr_data1[, i][!is.na(tr_data1[, i])])) < 2) {
+    zph_results_genes[[colnames(tr_data1)[i]]] <- NA
+    next
+  }
+
+  # Create survival object
     surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
 
     # Survival analysis: fits cox ph model to find HR for median cut
@@ -139,14 +146,10 @@ Univariate_sig_features_f <- function(train_data, test_data, col_num,
     
      # Perform zph test and store results
    zph_results_genes[[colnames(tr_data1[i])]] <- tryCatch(
-   cox.zph(fit1.coxph),
-   error = function(e) {
-    message("ZPH test failed for ", colnames(tr_data1[i]), ": ", e$message)
-    return(NA)
-  }
+   suppressMessages(cox.zph(fit1.coxph)),
+  error = function(e) NA
 )
     # coeff
-    first <- coef(summary(fit1.coxph))
 
     # Check whether the p-value is significant (< 0.05) or not
     if ((first[5] <= 0.05) && (!is.na(first[5])) && (!is.na(first[2]))) {
@@ -173,8 +176,10 @@ if(length(zph_results_genes) == 0) {
   zph_pvals_genes <- numeric(0)
 } else {
   zph_pvals_genes <- sapply(zph_results_genes, function(x) {
-    if (inherits(x, "cox.zph")) x$table["GLOBAL", "p"] else NA
-  })
+if (inherits(x, "cox.zph") && "GLOBAL" %in% rownames(x$table))
+  as.numeric(x$table["GLOBAL", "p"])
+else NA_real_  
+})
 }
 
 # Create PH summary data frame safely
@@ -243,16 +248,23 @@ if(nrow(PH_Summary_Genes) > 0) {
   te_data2 <- te_data_clin[, !colnames(te_data_clin) %in% c("OS", "OS_month")]
 
   # Perform uni variate survival analysis for each clinical feature
-  for (i in seq(from = 1, to = length(tr_data2), by = 1)) {
+  for (i in seq(from = 1, to = ncol(tr_data2), by = 1)) {
+    
+   # Skip features with no variation
+  if (length(unique(tr_data2[, i][!is.na(tr_data2[, i])])) < 2) {
+    zph_results_genes[[colnames(tr_data2)[i]]] <- NA
+    next
+  }
+
     # Create survival object
-    surv_object <- Surv(time = tr_data1$OS_month, event = tr_data1$OS)
+    surv_object2 <- Surv(time = tr_data2$OS_month, event = tr_data2$OS)
 
     tryCatch(
       {
         # Survival analysis: fits cox ph model to find HR for median cut
-        fit2 <- survfit(surv_object ~ tr_data2[, i], data = tr_data2)
+        fit2 <- survfit(surv_object2 ~ tr_data2[, i], data = tr_data2)
         # COXPH model
-        fit2.coxph <- coxph(surv_object ~ tr_data2[, i], data = tr_data2)
+        fit2.coxph <- coxph(surv_object2 ~ tr_data2[, i], data = tr_data2)
         # Coeff
         first2 <- coef(summary(fit2.coxph))
 
