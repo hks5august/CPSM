@@ -23,6 +23,7 @@ Description: CPSM provides a comprehensive computational pipeline for predicting
     This makes CPSM a versatile tool for survival analysis in cancer research.
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
+Depends: R (>= 4.5)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
