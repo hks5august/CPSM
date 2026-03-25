@@ -1,0 +1,330 @@
+---
+title: "CPSM Workflow: Cancer Patient Survival Modeling"
+author: "Harpreet Kaur, Pijush Das, Kevin Camphausen, Uma Shankavaram"
+date: "2025-12-26"
+output:
+  BiocStyle::html_document: default
+vignette: >
+  %\VignetteIndexEntry{CPSM Workflow: Cancer Patient Survival Modeling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Overview
+
+This workflow demonstrates the main CPSM analysis pipeline for cancer patient survival modeling:
+
+1. load example TCGA data distributed with the package,
+2. preprocess and split the cohort,
+3. normalize gene-expression values,
+4. compute LASSO-based prognostic index (PI) scores,
+5. run univariate survival feature selection,
+6. train MTLR-based survival prediction models,
+7. generate patient-level survival plots and risk-group predictions,
+8. create a nomogram from selected clinical variables.
+
+# Installation
+
+```{r install, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install("CPSM")
+```
+
+# Load packages and example data
+
+```{r load-data}
+library(CPSM)
+library(SummarizedExperiment)
+library(dplyr)
+
+set.seed(7)
+
+data(Example_TCGA_LGG_FPKM_data, package = "CPSM")
+
+# samples in rows; clinical columns first, followed by expression columns
+combined_df <- cbind(
+  as.data.frame(colData(Example_TCGA_LGG_FPKM_data))[ , -ncol(colData(Example_TCGA_LGG_FPKM_data)), drop = FALSE],
+  t(as.data.frame(assay(Example_TCGA_LGG_FPKM_data, "expression")))
+)
+
+str(combined_df[1:3, 1:10])
+```
+
+# Step 1: Data processing
+
+```{r data-processing}
+New_data <- data_process_f(combined_df, col_num = 20, surv_time = "OS.time")
+str(New_data[1:3, 1:10])
+```
+
+# Step 2: Train/test split
+
+```{r train-test-split}
+result_split <- tr_test_f(data = New_data, fraction = 0.9)
+train_FPKM <- result_split$train_data
+test_FPKM  <- result_split$test_data
+
+str(train_FPKM[1:3, 1:10])
+str(test_FPKM[1:3, 1:10])
+```
+
+# Step 3: Normalization
+
+```{r normalization}
+Result_N_data <- train_test_normalization_f(
+  train_data = train_FPKM,
+  test_data = test_FPKM,
+  col_num = 21
+)
+
+Train_Clin <- Result_N_data$Train_Clin
+Test_Clin <- Result_N_data$Test_Clin
+Train_Norm_data <- Result_N_data$Train_Norm_data
+Test_Norm_data <- Result_N_data$Test_Norm_data
+
+str(Train_Clin[1:3, 1:10])
+str(Test_Clin[1:3, 1:10])
+```
+
+# Step 4a: LASSO PI score calculation
+
+```{r lasso-pi}
+Result_PI <- Lasso_PI_scores_f(
+  train_data = Train_Norm_data,
+  test_data = Test_Norm_data,
+  nfolds = 5,
+  n_repeats = 50,
+  alpha = 1,
+  col_num = 21,
+  freq_threshold = 0.6,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
+
+Stability_table <- Result_PI$Stability_table
+Train_Lasso_key_variables <- Result_PI$Train_Lasso_key_variables
+Train_PI_data <- Result_PI$Train_PI_data
+Test_PI_data <- Result_PI$Test_PI_data
+
+head(Stability_table[order(-Stability_table$Selection_Frequency), ])
+head(Train_Lasso_key_variables)
+str(Train_PI_data)
+str(Test_PI_data)
+```
+
+# Step 4b: Univariate survival feature selection
+
+```{r univariate-selection}
+Result_Uni <- Univariate_sig_features_f(
+  train_data = Train_Norm_data,
+  test_data = Test_Norm_data,
+  col_num = 21,
+  surv_time = "OS_month",
+  surv_event = "OS"
+)
+
+Univariate_Suv_Sig_G_L <- Result_Uni$Univariate_Survival_Significant_genes_List
+Train_Uni_sig_data <- Result_Uni$Train_Uni_sig_data
+Test_Uni_sig_data <- Result_Uni$Test_Uni_sig_data
+Uni_Sur_Sig_clin_List <- Result_Uni$Univariate_Survival_Significant_clin_List
+ZPH_test <- Result_Uni$ZPH_Genes
+PH_Summary <- Result_Uni$PH_Summary_Genes
+
+head(Univariate_Suv_Sig_G_L)
+head(Uni_Sur_Sig_clin_List)
+head(ZPH_test)
+head(PH_Summary)
+```
+
+# Step 5: Survival prediction models
+
+## Model 1: Clinical features only
+
+```{r model-clinical}
+Result_Model_Type1 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 1,
+  train_features_data = Train_Clin,
+  test_features_data = Test_Clin,
+  Clin_Feature_List = Key_Clin_feature_list,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  nfolds = 5
+)
+
+survCurves_data_clin <- Result_Model_Type1$survCurves_data
+mean_median_survival_time_clin <- Result_Model_Type1$mean_median_survival_time_data
+Error_mat_for_Model_clin <- Result_Model_Type1$Error_mat_for_Model
+head(Error_mat_for_Model_clin["Test_set", ])
+```
+
+## Model 2: PI score only
+
+```{r model-pi}
+Result_Model_Type2 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 2,
+  train_features_data = Train_PI_data,
+  test_features_data = Test_PI_data,
+  Clin_Feature_List = Key_PI_list,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  nfolds = 5
+)
+
+survCurves_data <- Result_Model_Type2$survCurves_data
+mean_median_survival_time_data <- Result_Model_Type2$mean_median_survival_time_data
+survival_result_based_on_MTLR <- Result_Model_Type2$survival_result_based_on_MTLR
+Fold_Metrics <- Result_Model_Type2$Fold_Metrics
+fold_summary_df <- Result_Model_Type2$fold_summary_df
+Error_mat_for_Model <- Result_Model_Type2$Error_mat_for_Model
+
+str(survCurves_data)
+str(mean_median_survival_time_data)
+head(Error_mat_for_Model["Test_set", ])
+```
+
+## Model 3: Clinical features + PI
+
+```{r model-clinical-plus-pi}
+Result_Model_Type3 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 3,
+  train_features_data = Train_PI_data,
+  test_features_data = Test_PI_data,
+  Clin_Feature_List = Key_Clin_features_with_PI_list,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  nfolds = 5
+)
+
+survCurves_data_3 <- Result_Model_Type3$survCurves_data
+mean_median_surv_tim_da_3 <- Result_Model_Type3$mean_median_survival_time_data
+Error_mat_for_Model_3 <- Result_Model_Type3$Error_mat_for_Model
+head(Error_mat_for_Model_3["Test_set", ])
+```
+
+## Model 4: Univariate features + clinical features
+
+```{r model-univariate-plus-clinical}
+Result_Model_Type4 <- MTLR_pred_model_f(
+  train_clin_data = Train_Clin,
+  test_clin_data = Test_Clin,
+  Model_type = 4,
+  train_features_data = Train_Uni_sig_data,
+  test_features_data = Test_Uni_sig_data,
+  Clin_Feature_List = Key_univariate_features_with_Clin_list,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  nfolds = 5
+)
+
+survCurves_data_4 <- Result_Model_Type4$survCurves_data
+Error_mat_for_Model_4 <- Result_Model_Type4$Error_mat_for_Model
+head(Error_mat_for_Model_4["Test_set", ])
+```
+
+# Step 6: Survival curves for individual patients
+
+```{r survival-curves, fig.width = 7, fig.height = 4}
+plots <- surv_curve_plots_f(
+  Surv_curve_data = survCurves_data,
+  selected_sample = rownames(survCurves_data)[1],
+  font_size = 12,
+  line_size = 0.5,
+  all_line_col = "grey70",
+  highlight_col = "red"
+)
+
+plots$all_patients_plot
+plots$highlighted_patient_plot
+```
+
+# Step 7: Predicted mean and median survival time
+
+```{r survival-barplot, fig.width = 7, fig.height = 4}
+plots_2 <- mean_median_surv_barplot_f(
+  surv_mean_med_data = mean_median_survival_time_data,
+  selected_sample = rownames(mean_median_survival_time_data)[1],
+  font_size = 8,
+  font_color = "black"
+)
+
+plots_2$mean_med_all_pat
+plots_2$highlighted_selected_pat
+```
+
+# Step 8: Risk-group prediction
+
+```{r risk-group}
+Results_Risk_group_Prediction <- predict_survival_risk_group_f(
+  selected_train_data = Train_PI_data,
+  selected_test_data = Test_PI_data,
+  Feature_List = Key_PI_list
+)
+
+Best_model_Prediction_results <- Results_Risk_group_Prediction$misclassification_results
+Test_results <- Results_Risk_group_Prediction$Test_results
+Fold_results <- Results_Risk_group_Prediction$CV_Fold_Results
+
+head(Best_model_Prediction_results)
+head(Test_results)
+```
+
+# Step 9: Kaplan-Meier overlay plot
+
+```{r km-overlay, fig.width = 8, fig.height = 6}
+KM_plot <- km_overlay_plot_f(
+  Train_results = Train_results,
+  Test_results = Test_results,
+  survcurve_te_data = survCurves_data,
+  selected_sample = rownames(Test_results)[1],
+  font_size = 12,
+  train_palette = c("firebrick", "blue"),
+  test_curve_col = "darkgreen",
+  test_curve_size = 1.2,
+  test_curve_lty = "dotdash",
+  annotation_col = "black"
+)
+
+KM_plot
+```
+
+# Step 10: Nomogram
+
+```{r nomogram, fig.width = 7, fig.height = 6}
+Result_Nomogram <- Nomogram_generate_f(
+  data = Train_Data_Nomogram_input,
+  Feature_List = feature_list_for_Nomogram,
+  surv_time = "OS_month",
+  surv_event = "OS",
+  font_size = 0.8,
+  axis_cex = 0.5,
+  tcl_len = 0.5,
+  label_margin = 0.5,
+  col_grid = gray(c(0.85, 0.95))
+)
+
+C_index_mat <- Result_Nomogram$C_index_mat
+C_index_mat
+```
+
+# Session info
+
+```{r session-info}
+sessionInfo()
+```
